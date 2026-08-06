@@ -1,0 +1,243 @@
+.site-footer {
+  background-color: var(--primary-color);
+  color: #d1d5db;
+  font-family: var(--font-sans);
+}
+
+/* Newsletter Banner */
+.newsletter-banner {
+  background-color: var(--near-green);
+  color: white;
+  padding: 2.5rem 0;
+}
+
+.newsletter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.newsletter-text h3 {
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.newsletter-text p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.newsletter-form {
+  flex-grow: 1;
+  max-width: 500px;
+}
+
+.newsletter-form .input-group {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.newsletter-form input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-form .subscribe-btn {
+  border-radius: 50px;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* Widgets Grid */
+.footer-widgets {
+  padding: 5rem 0 3rem 0;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1.25fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+}
+
+.footer-widget h4 {
+  font-size: 1.15rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  position: relative;
+}
+
+.widget-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.footer-logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.footer-logo span {
+  color: var(--primary-color);
+}
+
+.consulting-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.consulting-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  background-image: linear-gradient(135deg, var(--primary-color), var(--secondary-slate));
+}
+
+.consulting-text h6 {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: #a3a8b3;
+  margin-bottom: 0.15rem;
+}
+
+.consulting-link {
+  font-weight: 700;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.consulting-link:hover {
+  color: var(--primary-color);
+}
+
+/* Touch Widget */
+.touch-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.touch-item {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.touch-icon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.touch-item a:hover {
+  color: white;
+}
+
+/* Menu Widgets */
+.widget-links li {
+  margin-bottom: 0.75rem;
+}
+
+.widget-links li a {
+  font-size: 0.9rem;
+  color: #a3a8b3;
+}
+
+.widget-links li a:hover {
+  color: white;
+  padding-left: 0.25rem;
+}
+
+/* Copyright Bar */
+.footer-copyright {
+  background-color: var(--near-green);
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.85rem;
+}
+
+.copyright-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.footer-socials a {
+  color: #a3a8b3;
+  transition: var(--transition);
+}
+
+.footer-socials a:hover {
+  color: white;
+}
+
+/* Responsiveness */
+@media (max-width: 1199px) {
+  .widgets-grid {
+    grid-template-columns: 1.5fr 1.25fr 1fr 1fr;
+  }
+  .widgets-grid > :nth-child(5) {
+    grid-column: span 4;
+  }
+}
+
+@media (max-width: 991px) {
+  .newsletter-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .widgets-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .widgets-grid > :nth-child(1),
+  .widgets-grid > :nth-child(2) {
+    grid-column: span 1;
+  }
+  .widgets-grid > :nth-child(5) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .widgets-grid {
+    grid-template-columns: 1fr;
+  }
+  .widgets-grid > :nth-child(n) {
+    grid-column: span 1;
+  }
+  .copyright-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}

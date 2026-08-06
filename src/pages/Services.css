@@ -1,0 +1,33 @@
+.service-detail-card {
+  background-color: white;
+  padding: 3rem 2rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+
+.service-detail-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.service-detail-card h3 {
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  color: var(--secondary-slate);
+  margin-bottom: 1rem;
+}
+
+.svc-desc {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.svc-details {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}

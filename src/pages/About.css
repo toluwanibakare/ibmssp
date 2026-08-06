@@ -1,0 +1,94 @@
+.page-hero {
+  background-image: linear-gradient(rgba(31, 37, 48, 0.8), rgba(31, 37, 48, 0.8)), linear-gradient(135deg, #078586, #0c3d54);
+  padding: 8rem 0 5rem 0;
+  text-align: center;
+  color: white;
+}
+
+.page-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-hero p {
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+.lead-text {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.about-content p {
+  margin-bottom: 1.25rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.about-image-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.styled-border-box {
+  border: 4px solid var(--primary-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 450px;
+}
+
+.inner-visual-box {
+  background-color: var(--secondary-slate);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.inner-visual-box h4 {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.inner-visual-box p {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Mandates */
+.mandates-section {
+  background-color: var(--bg-offset);
+}
+
+.mandate-card {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.mandate-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow);
+}
+
+.mandate-card h3 {
+  font-family: var(--font-sans);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--secondary-slate);
+}
+
+.mandate-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}

@@ -1,0 +1,51 @@
+.post-card {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+}
+
+.post-date {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.post-card h3 {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  color: var(--secondary-slate);
+  margin-bottom: 1rem;
+}
+
+.post-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  flex-grow: 1;
+}
+
+.post-link {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.post-link:hover {
+  color: var(--secondary-slate);
+}
