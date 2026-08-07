@@ -13,6 +13,7 @@ import Facilitator from './pages/Facilitator';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Account from './pages/Account';
+import FloatingWidgets from './components/FloatingWidgets';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -85,6 +86,7 @@ export default function App() {
         </main>
 
         <Footer />
+        <FloatingWidgets />
       </div>
     </Router>
   );

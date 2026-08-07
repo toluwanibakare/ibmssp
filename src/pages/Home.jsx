@@ -61,6 +61,14 @@ export default function Home() {
     return () => clearInterval(slideInterval);
   }, []);
 
+  // Auto-play Testimonial slider
+  useEffect(() => {
+    const testimonialInterval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(testimonialInterval);
+  }, []);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
   };
@@ -391,7 +399,7 @@ export default function Home() {
       <section className="testimonials-section section-padding">
         <div className="container testimonials-grid reveal">
           <div className="testimonials-left">
-            <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1557200134-90327ee9fafa?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             </div>
           </div>
           <div className="testimonials-right">
@@ -405,8 +413,8 @@ export default function Home() {
                     <Star 
                       key={i} 
                       size={18} 
-                      fill={i < testimonials[currentTestimonial].rating ? 'var(--primary-color)' : 'none'} 
-                      color={i < testimonials[currentTestimonial].rating ? 'var(--primary-color)' : 'rgba(255,255,255,0.2)'}
+                      fill={i < testimonials[currentTestimonial].rating ? '#ffc107' : 'none'} 
+                      color={i < testimonials[currentTestimonial].rating ? '#ffc107' : 'rgba(255,255,255,0.2)'}
                     />
                   ))}
                 </div>
