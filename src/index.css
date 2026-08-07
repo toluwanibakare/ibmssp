@@ -224,3 +224,59 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 1;
   transform: scale(1) translateY(0);
 }
+
+/* Global Subpage Hero Styling */
+.page-hero {
+  background-image: linear-gradient(rgba(48, 88, 88, 0.88), rgba(4, 4, 4, 0.9)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  padding: 8rem 0 5rem 0;
+  text-align: center;
+  color: white;
+}
+
+.page-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  font-family: var(--font-sans);
+}
+
+.page-hero p {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  font-family: var(--font-sans);
+}
+
+/* Breadcrumbs Styling */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.breadcrumb a {
+  color: #ffffff;
+  opacity: 0.7;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  opacity: 1;
+}
+
+.breadcrumb-separator {
+  opacity: 0.5;
+}
+
+.breadcrumb span {
+  opacity: 0.9;
+  font-weight: 600;
+  color: #39838A; /* highlight green */
+}

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import './Team.css';
 
 // Import board member images
@@ -55,6 +57,9 @@ export default function Team() {
         <div className="container">
           <h1>Our Board of Directors</h1>
           <p>The strategic leadership driving standardizations and compliance</p>
+          <div className="breadcrumb" style={{ marginTop: '1.25rem', marginBottom: 0 }}>
+            <Link to="/">Home</Link> <ChevronRight size={14} className="breadcrumb-separator" /> <span>Board of Directors</span>
+          </div>
         </div>
       </section>
 

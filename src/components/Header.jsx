@@ -64,7 +64,7 @@ export default function Header() {
         <div className="container nav-container">
           <Link to="/" className="header-logo">
             <img 
-              src={(location.pathname === '/' && !scrolled) ? "/ibmssp-logo-white.png" : "/ibmssp-logo.png"} 
+              src={!scrolled ? "/ibmssp-logo-white.png" : "/ibmssp-logo.png"} 
               alt="IBMSSP Logo" 
               className="logo-image" 
               style={{ height: '40px', objectFit: 'contain' }} 
