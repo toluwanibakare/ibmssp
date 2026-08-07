@@ -71,12 +71,12 @@ export default function About() {
             <div className="about-collage-container">
               {/* Left Portrait */}
               <div className="collage-item portrait-item">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80" alt="Black Executive Woman" />
+                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500&q=80" alt="Black Executive Woman" />
               </div>
 
               {/* Right Landscape with Play Button */}
               <div className="collage-item landscape-item" onClick={() => setIsVideoOpen(true)}>
-                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=500&q=80" alt="Workspace Graph Charts" />
+                <img src="https://img.youtube.com/vi/2xBNlUspP1Q/hqdefault.jpg" alt="YouTube Video Preview" />
                 <button className="collage-play-btn" aria-label="Play video">
                   <Play size={20} fill="currentColor" />
                 </button>
@@ -159,9 +159,7 @@ export default function About() {
             <div className="so-col col-3">
               <div className="so-text-card">
                 <div className="so-icon-box">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '36px', height: '36px' }}>
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
+                  <Target size={36} color="var(--primary-color)" />
                 </div>
                 <h3>Our Mission</h3>
                 <p style={{ fontSize: '0.85rem' }}>
