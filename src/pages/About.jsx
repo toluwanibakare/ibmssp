@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Play, CheckSquare, Award, Eye, Target } from 'lucide-react';
+import { ChevronRight, Play, CheckSquare, Award, Eye, Target, GraduationCap, Lightbulb, Mic } from 'lucide-react';
 import './About.css';
 
 export default function About() {
@@ -169,6 +169,71 @@ export default function About() {
               <div className="so-img-card landscape-card">
                 <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=500&q=80" alt="Stacked Hands" />
               </div>
+            </div>
+        </div>
+      </section>
+
+      {/* Goals of The Institute Section */}
+      <section className="goals-section section-padding">
+        <div className="container">
+          <div className="section-header text-center" style={{ marginBottom: '4rem' }}>
+            <span className="section-tag-underlined">Goals of</span>
+            <h2 className="section-title-large" style={{ color: 'var(--text-color)', marginTop: '0.75rem' }}>The Institute</h2>
+          </div>
+
+          <div className="goals-grid">
+            {/* Card 01 */}
+            <div className="goal-card">
+              <div className="goal-number">01</div>
+              <div className="goal-icon">
+                <GraduationCap size={38} color="var(--primary-color)" />
+              </div>
+              <h3>Professionalism</h3>
+              <p>Promote the study and practice of management systems implementation and certification in Nigeria</p>
+            </div>
+
+            {/* Card 02 */}
+            <div className="goal-card no-icon-card">
+              <div className="goal-number">02</div>
+              <h3>Synergy</h3>
+              <p>Provide continuous professional development for management systems stakeholders</p>
+            </div>
+
+            {/* Card 03 */}
+            <div className="goal-card">
+              <div className="goal-number">03</div>
+              <div className="goal-icon">
+                <Lightbulb size={38} color="var(--primary-color)" />
+              </div>
+              <h3>Research</h3>
+              <p>Encourage research and dissemination of knowledge in management systems implementation</p>
+            </div>
+
+            {/* Card 04 */}
+            <div className="goal-card no-icon-card">
+              <div className="goal-number">04</div>
+              <h3>Collaboration</h3>
+              <p>Collaborate with local and international bodies on matters related to management systems.</p>
+            </div>
+
+            {/* Card 05 */}
+            <div className="goal-card">
+              <div className="goal-number">05</div>
+              <div className="goal-icon">
+                <Award size={38} color="var(--primary-color)" />
+              </div>
+              <h3>Standardization</h3>
+              <p>Establish and maintain standards of professional conduct for members</p>
+            </div>
+
+            {/* Card 06 */}
+            <div className="goal-card">
+              <div className="goal-number">06</div>
+              <div className="goal-icon">
+                <Mic size={38} color="var(--primary-color)" />
+              </div>
+              <h3>Representatives</h3>
+              <p>Serve as the voice of management systems professionals in Nigeria.</p>
             </div>
           </div>
         </div>
