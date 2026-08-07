@@ -608,3 +608,171 @@
     justify-content: center;
   }
 }
+
+/* Globally Recognized Section Styling */
+.globally-recognized-section {
+  background-color: #ffffff;
+}
+
+.globally-recognized-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.section-header-left {
+  margin-bottom: 2.5rem;
+}
+
+.section-tag-underlined {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 4px;
+  display: inline-block;
+}
+
+.section-title-large {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-top: 0.75rem;
+  line-height: 1.15;
+}
+
+.gr-vision-mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.gr-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.gr-icon-container {
+  background-color: var(--primary-color);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(48, 88, 88, 0.25);
+}
+
+.gr-text h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.gr-short-line {
+  width: 35px;
+  height: 2px;
+  background-color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.gr-text p {
+  color: var(--secondary-slate);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Staggered cards styling */
+.gr-right-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.gr-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2.5rem 1.75rem;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.gr-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+}
+
+.gr-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.gr-card p {
+  font-size: 0.88rem;
+  color: var(--secondary-slate);
+  line-height: 1.6;
+}
+
+.card-networking h3 {
+  color: var(--primary-color);
+}
+
+.card-knowledge h3 {
+  color: var(--text-color);
+}
+
+.gr-illustration {
+  width: 100%;
+  height: 110px;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+/* Hero Section Secondary Button Fix */
+.hero-buttons .btn-secondary {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1.5px solid #ffffff !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+.hero-buttons .btn-secondary:hover {
+  background-color: #ffffff !important;
+  color: var(--primary-color) !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+@media (min-width: 992px) {
+  .card-networking {
+    transform: translateY(-20px);
+  }
+  .card-networking:hover {
+    transform: translateY(-25px);
+  }
+}
+
+@media (max-width: 991px) {
+  .globally-recognized-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .gr-right-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .gr-right-col {
+    grid-template-columns: 1fr;
+  }
+}

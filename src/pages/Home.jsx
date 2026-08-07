@@ -111,58 +111,94 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Mission & Vision Section */}
-      <section className="section-padding vision-mission-section">
-        <div className="container">
-          <div className="section-header text-center">
-            <span className="section-tag">Professionals</span>
-            <h2 className="section-title">Globally Recognized</h2>
-          </div>
-
-          <div className="grid-2 vision-mission-grid reveal">
-            <div className="vm-card">
-              <div className="vm-header">
-                <div className="vm-icon-box">
-                  <Target size={28} className="vm-icon" />
-                  <span className="vm-number">01</span>
-                </div>
-                <h3>Mission</h3>
-              </div>
-              <p>Advocating strategic partnerships with qualified practitioners and forward-thinking organizations, committed to implementing globally recognized management system standards.</p>
+      {/* 2. Globally Recognized Section */}
+      <section className="globally-recognized-section section-padding">
+        <div className="container globally-recognized-grid">
+          {/* Left Column: Vision & Mission */}
+          <div className="gr-left-col reveal">
+            <div className="section-header-left">
+              <span className="section-tag-underlined">Professionals</span>
+              <h2 className="section-title-large">Globally Recognized</h2>
             </div>
 
-            <div className="vm-card">
-              <div className="vm-header">
-                <div className="vm-icon-box">
-                  <Eye size={28} className="vm-icon" />
-                  <span className="vm-number">02</span>
+            <div className="gr-vision-mission-list">
+              {/* Vision Item */}
+              <div className="gr-item">
+                <div className="gr-icon-container">
+                  <Eye size={24} color="#ffffff" />
                 </div>
-                <h3>Vision</h3>
+                <div className="gr-text">
+                  <h3>Vision</h3>
+                  <div className="gr-short-line"></div>
+                  <p>To enable sustainable Business Success through the adoption of globally recognized Standards.</p>
+                </div>
               </div>
-              <p>To enable sustainable Business Success through the adoption of globally recognized Standards.</p>
+
+              {/* Mission Item */}
+              <div className="gr-item">
+                <div className="gr-icon-container">
+                  <Target size={24} color="#ffffff" />
+                </div>
+                <div className="gr-text">
+                  <h3>Mission</h3>
+                  <div className="gr-short-line"></div>
+                  <p>Advocating strategic partnerships with qualified practitioners and forward-thinking organizations, committed to implementing globally recognized management system standards.</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 3. Core Values Section */}
-      <section className="values-section section-padding">
-        <div className="container">
-          <div className="grid-2 values-grid reveal">
-            <div className="value-card">
-              <div className="value-icon-circle">
-                <span>01</span>
-              </div>
+          {/* Right Column: Staggered Cards */}
+          <div className="gr-right-col reveal">
+            {/* Networking & Collaboration Card */}
+            <div className="gr-card card-networking">
+              {/* Illustration */}
+              <svg viewBox="0 0 200 120" className="gr-illustration illustration-networking">
+                {/* Floor line */}
+                <path d="M20 95 h160" stroke="#798382" strokeWidth="1.5" strokeDasharray="3 3" />
+                {/* Desk */}
+                <path d="M50 85 h100 M65 85 v20 M135 85 v20" stroke="#525656" strokeWidth="2.5" />
+                {/* Laptop */}
+                <path d="M92 85 l3-12 h10 l3 12" stroke="#525656" strokeWidth="2" />
+                {/* Person Left */}
+                <circle cx="70" cy="42" r="8" stroke="#305858" strokeWidth="2" />
+                <path d="M70 50 c-4 8-12 12-12 25" stroke="#305858" strokeWidth="2" />
+                <path d="M70 50 c4 4 8 12 8 20" stroke="#305858" strokeWidth="2" />
+                <path d="M52 75 h14" stroke="#525656" strokeWidth="1.5" /> {/* Chair Left */}
+                <path d="M52 75 v15 M64 75 v15" stroke="#525656" strokeWidth="1.5" />
+                {/* Person Right */}
+                <circle cx="130" cy="42" r="8" stroke="#305858" strokeWidth="2" />
+                <path d="M130 50 c4 8 12 12 12 25" stroke="#305858" strokeWidth="2" />
+                <path d="M130 50 c-4 4-8 12-8 20" stroke="#305858" strokeWidth="2" />
+                <path d="M148 75 h-14" stroke="#525656" strokeWidth="1.5" /> {/* Chair Right */}
+                <path d="M136 75 v15 M148 75 v15" stroke="#525656" strokeWidth="1.5" />
+              </svg>
               <h3>Networking & Collaboration</h3>
               <p>
                 The institution connects members with industry peers, experts, and potential partners. This will enable knowledge sharing and expanding professional circles and provide a peer support network where members can exchange experiences and advice, helping tackle challenges collectively.
               </p>
             </div>
 
-            <div className="value-card">
-              <div className="value-icon-circle">
-                <span>02</span>
-              </div>
+            {/* Industry Knowledge Card */}
+            <div className="gr-card card-knowledge">
+              {/* Illustration */}
+              <svg viewBox="0 0 200 120" className="gr-illustration illustration-knowledge">
+                {/* Floor line */}
+                <path d="M20 95 h160" stroke="#798382" strokeWidth="1.5" strokeDasharray="3 3" />
+                {/* Three people holding hands */}
+                {/* Person 1 Left */}
+                <circle cx="65" cy="40" r="8" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M65 48 v22 M65 56 l-12 12 M65 56 l12-6" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M65 70 l-8 20 M65 70 l8 20" stroke="#1E1F1E" strokeWidth="2" />
+                {/* Person 2 Center */}
+                <circle cx="100" cy="40" r="8" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M100 48 v22 M100 56 l-23-6 M100 56 l23-6" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M100 70 l-8 20 M100 70 l8 20" stroke="#1E1F1E" strokeWidth="2" />
+                {/* Person 3 Right */}
+                <circle cx="135" cy="40" r="8" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M135 48 v22 M135 56 l-12-6 M135 56 l12 12" stroke="#1E1F1E" strokeWidth="2" />
+                <path d="M135 70 l-8 20 M135 70 l8 20" stroke="#1E1F1E" strokeWidth="2" />
+              </svg>
               <h3>Industry Knowledge & Resources</h3>
               <p>
                 Members will receive access to the latest best practices, research findings, market insights, and standards updates. Keep up to date with industrial standards changes and certifications seamlessly.
