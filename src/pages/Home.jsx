@@ -315,38 +315,73 @@ export default function Home() {
       {/* 6. Steps of Membership */}
       <section className="steps-section section-padding">
         <div className="container">
-          <div className="section-header text-center">
-            <span className="section-tag">The Steps of</span>
-            <h2 className="section-title">Membership</h2>
+          <div className="section-header-left reveal" style={{ marginBottom: '3rem' }}>
+            <span className="section-tag-underlined">The Steps of</span>
+            <h2 className="section-title-large">Membership</h2>
           </div>
 
           <div className="grid-4 steps-grid reveal">
-            <div className="step-card">
-              <span className="step-num">Step 01</span>
-              <h3>Identify the Membership Type</h3>
+            {/* Step 1 */}
+            <div className="step-card-new">
+              <span className="step-badge">STEP 01</span>
+              <div className="step-header-row">
+                <svg viewBox="0 0 48 48" className="step-icon-svg" fill="none" stroke="#305858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="6" y="14" width="36" height="26" rx="4" />
+                  <path d="M16 14V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4" />
+                  <circle cx="24" cy="27" r="5" />
+                  <path d="M28 31l5 5" />
+                </svg>
+                <h3>Identify the Membership Type</h3>
+              </div>
               <p>Choose the type of membership from our listed structure.</p>
-              <Link to="/membership/business" className="step-link">Read more</Link>
+              <Link to="/membership/business" className="btn-step-readmore">READ MORE</Link>
             </div>
 
-            <div className="step-card">
-              <span className="step-num">Step 02</span>
-              <h3>Choose a Sub-Category</h3>
+            {/* Step 2 */}
+            <div className="step-card-new">
+              <span className="step-badge">STEP 02</span>
+              <div className="step-header-row">
+                <svg viewBox="0 0 48 48" className="step-icon-svg" fill="none" stroke="#305858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="8" y="8" width="32" height="32" rx="4" />
+                  <path d="M14 16h12M14 24h10 M14 32h6" />
+                  <path d="M30 20l6 6-10 10-6-6z" />
+                </svg>
+                <h3>Choose a Sub-Category</h3>
+              </div>
               <p>Choose a sub-category from the selected membership type.</p>
-              <Link to="/membership/business" className="step-link">Read more</Link>
+              <Link to="/membership/business" className="btn-step-readmore">READ MORE</Link>
             </div>
 
-            <div className="step-card">
-              <span className="step-num">Step 03</span>
-              <h3>Pay your Registration Fee</h3>
+            {/* Step 3 */}
+            <div className="step-card-new">
+              <span className="step-badge">STEP 03</span>
+              <div className="step-header-row">
+                <svg viewBox="0 0 48 48" className="step-icon-svg" fill="none" stroke="#305858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="6" y="10" width="36" height="26" rx="4" />
+                  <path d="M14 40h20M24 36v4" />
+                  <circle cx="28" cy="18" r="4" />
+                  <path d="M22 26a6 6 0 0 1 12 0" />
+                </svg>
+                <h3>Pay your Registration Fee</h3>
+              </div>
               <p>Make registration payment using your preferred payment option.</p>
-              <Link to="/membership/business" className="step-link">Read more</Link>
+              <Link to="/membership/business" className="btn-step-readmore">READ MORE</Link>
             </div>
 
-            <div className="step-card">
-              <span className="step-num">Step 04</span>
-              <h3>Screening and Shortlisting</h3>
+            {/* Step 4 */}
+            <div className="step-card-new">
+              <span className="step-badge">STEP 04</span>
+              <div className="step-header-row">
+                <svg viewBox="0 0 48 48" className="step-icon-svg" fill="none" stroke="#305858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 20V8a4 4 0 0 1 8 0v12" />
+                  <path d="M22 14h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H22" />
+                  <path d="M10 20h4v16h-4z" />
+                  <path d="M14 36h14a6 6 0 0 0 6-6V24" />
+                </svg>
+                <h3>Screening and Shortlisting</h3>
+              </div>
               <p>Get your login details sent directly to your email inbox.</p>
-              <Link to="/membership/business" className="step-link">Read more</Link>
+              <Link to="/membership/business" className="btn-step-readmore">READ MORE</Link>
             </div>
           </div>
         </div>
