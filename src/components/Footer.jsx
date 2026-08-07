@@ -123,7 +123,7 @@ export default function Footer() {
       </div>
 
       {/* Copyright Bar */}
-      <div className="footer-copyright" style={{ padding: '1.25rem 0' }}>
+      <div className="footer-copyright" style={{ padding: '0.8rem 0' }}>
         <div className="copyright-container-wide" style={{ width: '94%', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <p style={{ margin: 0, fontSize: '0.82rem' }}>© 2024 IBMSSP. All Rights Reserved.</p>
           <div className="copyright-right-group" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
