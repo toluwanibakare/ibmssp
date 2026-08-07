@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Send, Phone, MapPin } from 'lucide-react';
+import { Mail, Send, Phone, MapPin, HelpCircle } from 'lucide-react';
 import './Footer.css';
 
 export default function Footer() {
@@ -54,7 +54,9 @@ export default function Footer() {
               A body of professionals in the business sustainability environment, registered by the Corporate Affairs Commission in June 12th, 2025.
             </p>
             <div className="consulting-box">
-              <div className="consulting-avatar"></div>
+              <div className="consulting-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <HelpCircle size={22} color="#ffffff" />
+              </div>
               <div className="consulting-text">
                 <h6>Need Help?</h6>
                 <Link to="/contact" className="consulting-link">Free Consultation</Link>
@@ -123,14 +125,17 @@ export default function Footer() {
       {/* Copyright Bar */}
       <div className="footer-copyright">
         <div className="container copyright-container">
-          <p>© 2024 IBMSSP. All Rights Reserved. | <a href="https://www.tmb.it.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Built by TMB</a></p>
-          <div className="footer-socials">
-            <a href="https://linkedin.com/company/ibmssp" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-            </a>
-            <a href="https://x.com/ibmssp" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
+          <p>© 2024 IBMSSP. All Rights Reserved.</p>
+          <div className="copyright-right" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <a href="https://www.tmb.it.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>Built by TMB</a>
+            <div className="footer-socials">
+              <a href="https://linkedin.com/company/ibmssp" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              </a>
+              <a href="https://x.com/ibmssp" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>

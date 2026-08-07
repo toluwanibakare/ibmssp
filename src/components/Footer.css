@@ -131,7 +131,8 @@
 }
 
 .consulting-link:hover {
-  color: var(--primary-color);
+  color: #39838a;
+  text-decoration: underline;
 }
 
 /* Touch Widget */
