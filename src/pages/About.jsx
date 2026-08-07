@@ -167,10 +167,10 @@ export default function About() {
                 <h3>Our Special Traits</h3>
                 <p>Outlined below are distinctive characteristics that define our organization - unveiling the essence of our values and commitment.</p>
                 <ul className="so-traits-list">
-                  <li>Inclusiveness</li>
-                  <li>Independence</li>
-                  <li>Strength</li>
-                  <li>Partnership</li>
+                  <li><CheckSquare size={16} color="var(--primary-color)" /> Inclusiveness</li>
+                  <li><CheckSquare size={16} color="var(--primary-color)" /> Independence</li>
+                  <li><CheckSquare size={16} color="var(--primary-color)" /> Strength</li>
+                  <li><CheckSquare size={16} color="var(--primary-color)" /> Partnership</li>
                 </ul>
                 <Link to="/membership" className="btn btn-primary" style={{ width: '100%', textAlign: 'center', marginTop: '1.5rem' }}>READ MORE</Link>
               </div>
