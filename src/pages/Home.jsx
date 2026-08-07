@@ -11,19 +11,19 @@ const heroSlides = [
     tag: 'Advocacy',
     title: 'Multi-Stakeholder Engagement',
     desc: 'We promote broad and balanced engagement, ensuring diverse voices are heard through networking and collaboration.',
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1600&q=80'
+    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1600&q=80'
   },
   {
     tag: 'Credibility',
     title: 'Ethical Practices',
     desc: 'We prioritize accountability and commitment to high standards and professional credibility within the industry.',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80'
+    image: 'https://images.unsplash.com/photo-1573166364524-d9dbfd8bbf83?auto=format&fit=crop&w=1600&q=80'
   },
   {
     tag: 'Business Stability',
     title: 'Empowering Organizations for Growth & Sustained Success',
     desc: 'We assist in monitoring the implementation of standards and hold organizations accountable for compliance.',
-    image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1600&q=80'
+    image: 'https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=1600&q=80'
   }
 ];
 
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="grid-3 solutions-grid reveal">
             {/* Empowerment Hub */}
             <div className="solution-card">
-              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
+              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
               <div className="solution-header">
                 <h4>Empowerment Hub</h4>
                 <p>Fostering growth through capacity building, knowledge sharing, business support, and specialized ISO workshops.</p>
@@ -204,7 +204,7 @@ export default function Home() {
 
             {/* Advisory Services */}
             <div className="solution-card active-card">
-              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
+              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
               <div className="solution-header">
                 <h4>Advisory Services</h4>
                 <p>Unlock business excellence, ensuring growth, resilience, and global best practices.</p>
@@ -221,7 +221,7 @@ export default function Home() {
 
             {/* Professionalism */}
             <div className="solution-card">
-              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
+              <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
               <div className="solution-header">
                 <h4>Professionalism</h4>
                 <p>Championing continuous excellence in global business standards.</p>
@@ -320,7 +320,7 @@ export default function Home() {
       <section className="testimonials-section section-padding">
         <div className="container testimonials-grid reveal">
           <div className="testimonials-left">
-            <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             </div>
           </div>
           <div className="testimonials-right">

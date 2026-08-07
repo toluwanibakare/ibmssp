@@ -114,7 +114,7 @@
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: 0px;
   left: 0;
   width: 0;
   height: 2px;
@@ -156,9 +156,9 @@
   top: 100%;
   left: 0;
   background-color: white;
-  min-width: 250px;
+  min-width: max-content;
   border-radius: 8px;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   box-shadow: 0 10px 30px rgba(0,0,0,0.08);
   opacity: 0;
   visibility: hidden;
@@ -176,16 +176,17 @@
 
 .dropdown-menu li a {
   display: block;
-  padding: 0.6rem 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-color);
+  white-space: nowrap;
 }
 
 .dropdown-menu li a:hover {
   background-color: var(--bg-offset);
   color: var(--primary-color);
-  padding-left: 1.75rem;
+  padding-left: 1.5rem;
 }
 
 .nav-cta {
