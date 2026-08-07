@@ -1,10 +1,34 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Play, CheckSquare, Award, Eye, Target, GraduationCap, Lightbulb, Mic } from 'lucide-react';
+import { ChevronRight, Play, CheckSquare, Award, Eye, Target, GraduationCap, Lightbulb, Mic, Sparkles } from 'lucide-react';
 import './About.css';
+
+const tabData = [
+  {
+    num: '01',
+    title: 'Inclusiveness',
+    desc: 'Through a unique mix of service, technology, people, and networks, we are committed to creating and promoting a diverse and inclusive environment where businesses can thrive.'
+  },
+  {
+    num: '02',
+    title: 'Independence',
+    desc: 'We maintain strict objectivity, freedom from bias, and professional distance, ensuring that our standards practitioners remain completely reliable and independent.'
+  },
+  {
+    num: '03',
+    title: 'Strength',
+    desc: 'Leveraging deep strategic frameworks and robust standard protocols, we empower organisations to build structural integrity and sustainable operational capability.'
+  },
+  {
+    num: '04',
+    title: 'Partnership',
+    desc: 'We foster strategic collaborations and mutual alliances with global bodies, local agencies, and corporate practitioners to drive national development and joint success.'
+  }
+];
 
 export default function About() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <div className="about-page">
@@ -71,7 +95,7 @@ export default function About() {
             <div className="about-collage-container">
               {/* Left Portrait */}
               <div className="collage-item portrait-item">
-                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500&q=80" alt="Black Executive Woman" />
+                <img src="https://images.unsplash.com/photo-1580894732444-8fecef2271ff?auto=format&fit=crop&w=500&q=80" alt="Black Woman Working on Laptop" />
               </div>
 
               {/* Right Landscape with Play Button */}
@@ -138,10 +162,7 @@ export default function About() {
             <div className="so-col col-2">
               <div className="so-text-card tall-card">
                 <div className="so-icon-box">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '36px', height: '36px' }}>
-                    <circle cx="12" cy="12" r="3" />
-                    <circle cx="12" cy="12" r="8" />
-                  </svg>
+                  <Sparkles size={36} color="var(--primary-color)" />
                 </div>
                 <h3>Our Special Traits</h3>
                 <p>Outlined below are distinctive characteristics that define our organization - unveiling the essence of our values and commitment.</p>
@@ -170,6 +191,53 @@ export default function About() {
                 <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=500&q=80" alt="Stacked Hands" />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why IBMSSP Tabbed Section */}
+      <section className="why-ibmssp-section">
+        <div className="why-ibmssp-bg-overlay">
+          <div className="bg-left-laptop" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80')` }}></div>
+          <div className="bg-right-blank"></div>
+        </div>
+
+        <div className="container why-ibmssp-container">
+          <div className="why-ibmssp-card-wrapper">
+            {/* Left Tabs Card */}
+            <div className="why-tabs-card">
+              <div className="tabs-list">
+                {tabData.map((tab, idx) => (
+                  <button 
+                    key={idx}
+                    className={`tab-item-btn ${activeTab === idx ? 'active' : ''}`}
+                    onClick={() => setActiveTab(idx)}
+                  >
+                    <span className="tab-num">{tab.num}.</span>
+                    <span className="tab-name">{tab.title}</span>
+                  </button>
+                ))}
+              </div>
+              <Link to="/contact" className="tab-cta-btn">
+                <div className="cta-phone-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '16px', height: '16px', display: 'block' }}>
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </div>
+                <span>Call For Free Consultation</span>
+              </Link>
+            </div>
+
+            {/* Right Display Card */}
+            <div className="why-display-card" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=800&q=80')` }}>
+              <div className="why-display-overlay"></div>
+              <div className="why-display-content">
+                <span className="why-tag">Why IBMSSP</span>
+                <h2>{tabData[activeTab].title}</h2>
+                <p>{tabData[activeTab].desc}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
