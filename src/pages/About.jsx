@@ -147,7 +147,7 @@ export default function About() {
             {/* Column 1 */}
             <div className="so-col col-1">
               <div className="so-img-card portrait-card">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80" alt="Businessman" />
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE9Dk4UVzD81-8TiPd7il_Ij6bJ2ziumrCN5bkj6fR-ct9wmlXdakYgXcF&s=10" alt="Businessman" />
               </div>
               <div className="so-text-card">
                 <div className="so-icon-box">
