@@ -95,7 +95,7 @@ export default function About() {
             <div className="about-collage-container">
               {/* Left Portrait */}
               <div className="collage-item portrait-item">
-                <img src="https://images.unsplash.com/photo-1590650154859-132d77b58d7f?auto=format&fit=crop&w=500&q=80" alt="Black Woman Working on Laptop" />
+                <img src="https://media.istockphoto.com/id/2192261127/photo/business-woman-using-laptop.jpg?s=612x612&w=0&k=20&c=Tij5ytA95-Osms2hHiNmmMWQ9sorPFDLYNogBnpPxyY=" alt="Black Woman Working on Laptop" />
               </div>
 
               {/* Right Landscape with Play Button */}
