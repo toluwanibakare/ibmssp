@@ -108,6 +108,23 @@
   border: none;
   background: none;
   cursor: pointer;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+  transition: var(--transition);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
 }
 
 /* Set link colors for transparent background before scroll */
@@ -119,7 +136,13 @@
   color: #ffffff;
 }
 
-.nav-link:hover, .nav-link.active {
+.site-header:not(.scrolled) .nav-link:hover,
+.site-header:not(.scrolled) .nav-link.active {
+  color: #ffffff !important;
+}
+
+.site-header.scrolled .nav-link:hover,
+.site-header.scrolled .nav-link.active {
   color: var(--primary-color) !important;
 }
 

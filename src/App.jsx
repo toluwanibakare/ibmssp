@@ -28,9 +28,28 @@ export default function App() {
       setShowSplash(false);
     }, 2300);
 
+    // Scroll reveal logic
+    const handleScrollReveal = () => {
+      const reveals = document.querySelectorAll('.reveal');
+      reveals.forEach((el) => {
+        const windowHeight = window.innerHeight;
+        const elementTop = el.getBoundingClientRect().top;
+        const elementVisible = 100;
+        if (elementTop < windowHeight - elementVisible) {
+          el.classList.add('active');
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScrollReveal);
+    // Initial check
+    const initialTimer = setTimeout(handleScrollReveal, 2500);
+
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
+      clearTimeout(initialTimer);
+      window.removeEventListener('scroll', handleScrollReveal);
     };
   }, []);
 

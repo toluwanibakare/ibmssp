@@ -119,18 +119,7 @@ export default function Home() {
             <h2 className="section-title">Globally Recognized</h2>
           </div>
 
-          <div className="grid-2 vision-mission-grid">
-            <div className="vm-card">
-              <div className="vm-header">
-                <div className="vm-icon-box">
-                  <Eye size={28} className="vm-icon" />
-                  <span className="vm-number">02</span>
-                </div>
-                <h3>Vision</h3>
-              </div>
-              <p>To enable sustainable Business Success through the adoption of globally recognized Standards.</p>
-            </div>
-
+          <div className="grid-2 vision-mission-grid reveal">
             <div className="vm-card">
               <div className="vm-header">
                 <div className="vm-icon-box">
@@ -141,6 +130,17 @@ export default function Home() {
               </div>
               <p>Advocating strategic partnerships with qualified practitioners and forward-thinking organizations, committed to implementing globally recognized management system standards.</p>
             </div>
+
+            <div className="vm-card">
+              <div className="vm-header">
+                <div className="vm-icon-box">
+                  <Eye size={28} className="vm-icon" />
+                  <span className="vm-number">02</span>
+                </div>
+                <h3>Vision</h3>
+              </div>
+              <p>To enable sustainable Business Success through the adoption of globally recognized Standards.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -148,7 +148,7 @@ export default function Home() {
       {/* 3. Core Values Section */}
       <section className="values-section section-padding">
         <div className="container">
-          <div className="grid-2 values-grid">
+          <div className="grid-2 values-grid reveal">
             <div className="value-card">
               <div className="value-icon-circle">
                 <span>01</span>
@@ -183,7 +183,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid-3 solutions-grid">
+          <div className="grid-3 solutions-grid reveal">
             {/* Empowerment Hub */}
             <div className="solution-card">
               <div className="solution-card-image" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80')`, height: '180px', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', marginBottom: '1.5rem' }}></div>
@@ -284,7 +284,7 @@ export default function Home() {
             <h2 className="section-title">Membership</h2>
           </div>
 
-          <div className="grid-4 steps-grid">
+          <div className="grid-4 steps-grid reveal">
             <div className="step-card">
               <span className="step-num">Step 01</span>
               <h3>Identify the Membership Type</h3>
@@ -318,7 +318,7 @@ export default function Home() {
 
       {/* 7. Testimonials / Quote Section */}
       <section className="testimonials-section section-padding">
-        <div className="container testimonials-grid">
+        <div className="container testimonials-grid reveal">
           <div className="testimonials-left">
             <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             </div>
