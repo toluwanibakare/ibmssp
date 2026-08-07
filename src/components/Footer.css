@@ -148,7 +148,7 @@
 }
 
 .touch-icon {
-  color: var(--primary-color);
+  color: #ffffff;
   flex-shrink: 0;
   margin-top: 0.2rem;
 }
