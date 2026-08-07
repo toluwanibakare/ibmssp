@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Play, CheckSquare, Award, Eye, Target, GraduationCap, Lightbulb, Mic, Sparkles } from 'lucide-react';
+import { ChevronRight, Play, CheckSquare, Award, Eye, Target, GraduationCap, Lightbulb, Mic, Binoculars, Users, Handshake } from 'lucide-react';
 import './About.css';
 
 const tabData = [
@@ -95,7 +95,7 @@ export default function About() {
             <div className="about-collage-container">
               {/* Left Portrait */}
               <div className="collage-item portrait-item">
-                <img src="https://images.unsplash.com/photo-1580894732444-8fecef2271ff?auto=format&fit=crop&w=500&q=80" alt="Black Woman Working on Laptop" />
+                <img src="https://images.unsplash.com/photo-1590650154859-132d77b58d7f?auto=format&fit=crop&w=500&q=80" alt="Black Woman Working on Laptop" />
               </div>
 
               {/* Right Landscape with Play Button */}
@@ -147,7 +147,7 @@ export default function About() {
             {/* Column 1 */}
             <div className="so-col col-1">
               <div className="so-img-card portrait-card">
-                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=500&q=80" alt="Businessman" />
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80" alt="Businessman" />
               </div>
               <div className="so-text-card">
                 <div className="so-icon-box">
@@ -162,7 +162,7 @@ export default function About() {
             <div className="so-col col-2">
               <div className="so-text-card tall-card">
                 <div className="so-icon-box">
-                  <Sparkles size={36} color="var(--primary-color)" />
+                  <Binoculars size={36} color="var(--primary-color)" />
                 </div>
                 <h3>Our Special Traits</h3>
                 <p>Outlined below are distinctive characteristics that define our organization - unveiling the essence of our values and commitment.</p>
@@ -261,8 +261,11 @@ export default function About() {
             </div>
 
             {/* Card 02 */}
-            <div className="goal-card no-icon-card">
+            <div className="goal-card">
               <div className="goal-number">02</div>
+              <div className="goal-icon">
+                <Users size={38} color="var(--primary-color)" />
+              </div>
               <h3>Synergy</h3>
               <p>Provide continuous professional development for management systems stakeholders</p>
             </div>
@@ -278,8 +281,11 @@ export default function About() {
             </div>
 
             {/* Card 04 */}
-            <div className="goal-card no-icon-card">
+            <div className="goal-card">
               <div className="goal-number">04</div>
+              <div className="goal-icon">
+                <Handshake size={38} color="var(--primary-color)" />
+              </div>
               <h3>Collaboration</h3>
               <p>Collaborate with local and international bodies on matters related to management systems.</p>
             </div>
