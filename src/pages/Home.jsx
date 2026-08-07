@@ -399,7 +399,7 @@ export default function Home() {
       <section className="testimonials-section section-padding">
         <div className="container testimonials-grid reveal">
           <div className="testimonials-left">
-            <div className="collage-placeholder" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1557200134-90327ee9fafa?auto=format&fit=crop&w=800&q=80')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="collage-placeholder" style={{ backgroundImage: `url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVwM_3gPnd0uQhLwOjcQaSTmxPDVbd4aPceCi2_Lm8d4GHRsF8vumwxUjx&s=10')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
             </div>
           </div>
           <div className="testimonials-right">

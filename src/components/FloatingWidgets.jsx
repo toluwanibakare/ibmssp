@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, MessageSquare, X, Send } from 'lucide-react';
+import { ChevronUp, MessageSquare, X, Send } from 'lucide-react';
 import './FloatingWidgets.css';
 
 export default function FloatingWidgets() {
@@ -150,7 +150,7 @@ export default function FloatingWidgets() {
           />
         </svg>
         <div className="scroll-arrow">
-          <ArrowUp size={18} />
+          <ChevronUp size={18} />
         </div>
       </button>
     </>
