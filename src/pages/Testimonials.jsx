@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Star, Quote, Send, User } from 'lucide-react';
+import { ChevronRight, Star, Quote, Send, User, Briefcase } from 'lucide-react';
 import './Testimonials.css';
 
 const initialTestimonials = [
