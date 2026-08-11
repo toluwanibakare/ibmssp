@@ -67,6 +67,7 @@ export default function FloatingWidgets() {
   const [isTyping, setIsTyping] = useState(false);
   const [hasError, setHasError] = useState(false);
   const messagesEndRef = useRef(null);
+  const chatMessagesRef = useRef(null);
   const inputRef = useRef(null);
 
   // Persist messages to localStorage
@@ -74,9 +75,39 @@ export default function FloatingWidgets() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
   }, [messages]);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll logic: users go to bottom, bot responses align at their top
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = chatMessagesRef.current;
+    if (!container || messages.length === 0) return;
+
+    const lastMessage = messages[messages.length - 1];
+
+    if (isTyping) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    if (lastMessage.role === 'user') {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+    } else if (lastMessage.role === 'assistant') {
+      // Give a tiny timeout for DOM to paint updated text
+      setTimeout(() => {
+        const messageElements = container.querySelectorAll('.chat-message');
+        if (messageElements.length > 0) {
+          const lastElement = messageElements[messageElements.length - 1];
+          container.scrollTo({
+            top: lastElement.offsetTop - 10,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
   }, [messages, isTyping]);
 
   // Focus input when chat opens
@@ -206,7 +237,7 @@ export default function FloatingWidgets() {
           </div>
 
           {/* Messages */}
-          <div className="chat-messages">
+          <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, idx) => (
               <div key={idx} className={`chat-message ${msg.role}`}>
                 {msg.role === 'assistant' && (
