@@ -53,6 +53,7 @@ export default function Membership() {
   const [fileName, setFileName] = React.useState('');
   const [individualCategory, setIndividualCategory] = React.useState('auditor');
   const [submitted, setSubmitted] = React.useState(false);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
 
   // If no type is provided, show the landing overview dashboard with all sections
   if (!type) {
@@ -416,7 +417,13 @@ export default function Membership() {
 
                       {/* Acceptance Checkbox */}
                       <div className="form-checkbox-row">
-                        <input type="checkbox" id="terms" required />
+                        <input 
+                          type="checkbox" 
+                          id="terms" 
+                          checked={termsAccepted}
+                          onChange={(e) => setTermsAccepted(e.target.checked)}
+                          required 
+                        />
                         <label htmlFor="terms">
                           I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
                         </label>
@@ -428,7 +435,12 @@ export default function Membership() {
                         <label htmlFor="newsletter">Subscribe to newsletter & updates</label>
                       </div>
 
-                      <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '0.5rem' }}>
+                      <button 
+                        type="submit" 
+                        className="btn btn-primary w-full" 
+                        style={{ marginTop: '0.5rem' }}
+                        disabled={!termsAccepted}
+                      >
                         Upload & Sign Up
                       </button>
                     </form>
