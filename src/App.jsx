@@ -14,6 +14,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Account from './pages/Account';
 import FloatingWidgets from './components/FloatingWidgets';
+import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -56,6 +57,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       {showSplash && (
         <div className={`splash-screen ${fadeSplash ? 'fade-out' : ''}`}>
           <div className="splash-logo" style={{ color: 'white', fontSize: '2.5rem', fontWeight: 800, fontFamily: 'sans-serif' }}>
