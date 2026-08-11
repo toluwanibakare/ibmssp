@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText, Lock, Mail, Loader, Key } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, callEdgeFunction } from '../lib/supabase';
 import html2canvas from 'html2canvas';
 import RegistrationCertificate from '../components/RegistrationCertificate';
 import './Account.css';
@@ -153,12 +153,10 @@ export default function Account() {
       // Generate 6-digit OTP
       const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
-      const { error } = await supabase.functions.invoke('send-email', {
-        body: {
-          type: 'otp',
-          to: email,
-          otp: generatedOtp,
-        },
+      const { error } = await callEdgeFunction('send-email', {
+        type: 'otp',
+        to: email,
+        otp: generatedOtp,
       });
 
       if (error) throw new Error(error.message || 'Failed to send OTP');
@@ -179,11 +177,13 @@ export default function Account() {
 
     try {
       // Verify OTP via our edge function
-      const { data, error: verifyError } = await supabase.functions.invoke('send-email', {
-        body: { type: 'verify_otp', email, otp: otpToken },
+      const data = await callEdgeFunction('send-email', {
+        type: 'verify_otp',
+        to: email,
+        otp: otpToken,
       });
 
-      if (verifyError || data?.error) throw new Error(verifyError?.message || data?.error || 'Invalid OTP');
+      if (data?.error) throw new Error(data.error || 'Invalid OTP');
 
       // OTP valid — now find the user and update their password using admin API
       // Since they aren't logged in, we sign them in via magic link workaround:
@@ -291,25 +291,21 @@ export default function Account() {
           });
 
           // Send payment notification to admin
-          await supabase.functions.invoke('send-email', {
-            body: {
-              type: 'payment_confirmation',
-              to: 'info@ibmssp.org.ng',
-              name: `${memberData.first_name} ${memberData.last_name}`,
-              memberId: memberData.public_id || memberData.member_id,
-              amount: `₦${amount.toLocaleString()}`,
-            },
+          await callEdgeFunction('send-email', {
+            type: 'payment_confirmation',
+            to: 'info@ibmssp.org.ng',
+            name: `${memberData.first_name} ${memberData.last_name}`,
+            memberId: memberData.public_id || memberData.member_id,
+            amount: `₦${amount.toLocaleString()}`,
           });
 
           // Send payment confirmation email to the member
-          await supabase.functions.invoke('send-email', {
-            body: {
-              type: 'payment_confirmation',
-              to: memberData.email,
-              name: memberData.first_name,
-              memberId: memberData.public_id || memberData.member_id,
-              amount: `₦${amount.toLocaleString()}`,
-            },
+          await callEdgeFunction('send-email', {
+            type: 'payment_confirmation',
+            to: memberData.email,
+            name: memberData.first_name,
+            memberId: memberData.public_id || memberData.member_id,
+            amount: `₦${amount.toLocaleString()}`,
           });
 
           alert('Payment Successful! Your membership account is now fully active.');
