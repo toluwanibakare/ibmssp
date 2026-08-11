@@ -64,6 +64,8 @@ export default function Membership() {
   const [phone, setPhone] = React.useState('');
   const [fileName, setFileName] = React.useState('');
   const [fileObj, setFileObj] = React.useState(null);
+  const [cacFileName, setCacFileName] = React.useState('');
+  const [cacFileObj, setCacFileObj] = React.useState(null);
   const [individualCategory, setIndividualCategory] = React.useState('auditor');
   const [termsAccepted, setTermsAccepted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -118,6 +120,22 @@ export default function Membership() {
         }
       }
 
+      // Upload CAC document if provided (for business members)
+      let cacFileUrl = null;
+      if (cacFileObj) {
+        const ext = cacFileObj.name.split('.').pop();
+        const path = `member-docs/${Date.now()}-cac-${email.replace('@','_')}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('member-documents')
+          .upload(path, cacFileObj, { upsert: false });
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('member-documents')
+            .getPublicUrl(path);
+          cacFileUrl = urlData?.publicUrl || null;
+        }
+      }
+
       // 3. Parse first/last name
       const nameParts = fullName.trim().split(' ');
       const firstName = nameParts[0] || '';
@@ -149,6 +167,7 @@ export default function Membership() {
           company_email: orgEmail,
           company_phone: orgPhone,
           company_certificate_file: fileUrl,
+          cac_document_file: cacFileUrl,
         });
       } else if (activeType === 'individuals') {
         await supabase.from('professional_details').insert({
