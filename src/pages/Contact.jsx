@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, User, Mail, Folder, MessageSquare, MapPin, Phone, Clock } from 'lucide-react';
+import { ChevronRight, User, Mail, Folder, MessageSquare, MapPin, Phone, Clock, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import './Contact.css';
 
 export default function Contact() {
+  const [openFaqIdx, setOpenFaqIdx] = useState(null);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     alert('Message sent successfully!');
@@ -120,6 +122,62 @@ export default function Contact() {
                 <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
             </div>
+          </div>
+        </div>
+
+        {/* FAQs Accordion Block */}
+        <div className="contact-faq-section" style={{ marginTop: '5rem', borderTop: '1px solid var(--border-color)', paddingTop: '4rem' }}>
+          <div className="faq-header-block" style={{ marginBottom: '3rem', textAlign: 'center' }}>
+            <span className="faq-subtag" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.5rem', display: 'block' }}>GET ANSWERS</span>
+            <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-color)', margin: 0 }}>Frequently Asked Questions</h2>
+          </div>
+
+          <div className="faq-list-accordion" style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {[
+              {
+                question: "What is IBMSSP?",
+                answer: "IBMSSP is the Institute of Business Management System Sustainability Standardization and Practitioners. We are dedicated to helping organizations adopt international quality standards, assess operational maturities, and build corporate resilience through systems alignment."
+              },
+              {
+                question: "What are the membership categories available?",
+                answer: "We offer membership tiers tailored for different stages: Business (for ISO certified/seeking organizations), Individuals (for Trained Auditors and Registered Consultants), Graduates (for those holding standardisation degrees/diplomas), and Students (for active learners in QMS and standard courses)."
+              },
+              {
+                question: "How do I complete my registration payment?",
+                answer: "Once you submit your application form with your credentials/verifications, you will receive an automated registration details email containing your invoice link. Log in to your My Account dashboard to view your status; you can settle the payment securely directly through the 'Complete Registration Payment' portal link."
+              },
+              {
+                question: "What is the QMS standardisation assessment (BPIA)?",
+                answer: "The Business Performance Improvement Assessment (BPIA) Model is our iconic diagnostic tool built on the requirements of international standard organizations. It helps you analyze operational risk indicators and prepares you for official ISO certification audits."
+              },
+              {
+                question: "How can I become an IBMSSP Educational Facilitator?",
+                answer: "If you have an ISO Lead Auditor certification or equivalent and over 5 years of audit/consultation experience, you can go to our 'Become a Facilitator' page, submit your contact information, upload your CV, and our compliance review board will get in touch with you."
+              }
+            ].map((faq, idx) => {
+              const isOpen = openFaqIdx === idx;
+              return (
+                <div key={idx} className={`faq-item-card ${isOpen ? 'open' : ''}`} style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden', transition: 'all 0.2s ease' }}>
+                  <button 
+                    type="button" 
+                    className="faq-question-btn" 
+                    onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
+                    style={{ width: '100%', padding: '1.5rem', background: 'none', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'var(--text-color)', fontWeight: 700, fontSize: '1rem', textAlign: 'left' }}
+                  >
+                    <div className="faq-question-left" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                      <HelpCircle size={18} style={{ color: 'var(--primary-color)', flexShrink: 0 }} />
+                      <span>{faq.question}</span>
+                    </div>
+                    {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  {isOpen && (
+                    <div className="faq-answer-block" style={{ padding: '0 1.5rem 1.5rem 3.25rem', borderTop: '1px solid #f6f7f7', textAlign: 'left' }}>
+                      <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--secondary-slate)', lineHeight: '1.6' }}>{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
