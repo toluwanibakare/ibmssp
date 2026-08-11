@@ -124,9 +124,27 @@ export default function Contact() {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* FAQs Accordion Block */}
-        <div className="contact-faq-section" style={{ marginTop: '5rem', borderTop: '1px solid var(--border-color)', paddingTop: '4rem' }}>
+      {/* Map Section */}
+      <section className="contact-map-section">
+        <div className="map-iframe-container">
+          <iframe 
+            title="IBMSSP Office Location Map"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.9529122602277!2d3.371829!3d6.551646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8d780ef4fe59%3A0x6334a1795c34adfc!2s334%20Ikorodu%20Rd%2C%20Anthony%20102216%2C%20Lagos!5e0!3m2!1sen!2sng!4v1700000000000!5m2!1sen!2sng"
+            width="100%" 
+            height="450" 
+            style={{ border: 0 }} 
+            allowFullScreen="" 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </section>
+
+      {/* FAQs Accordion Block */}
+      <section className="section-padding container" style={{ paddingTop: '5rem' }}>
+        <div className="contact-faq-section">
           <div className="faq-header-block" style={{ marginBottom: '3rem', textAlign: 'center' }}>
             <span className="faq-subtag" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-color)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.5rem', display: 'block' }}>GET ANSWERS</span>
             <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-color)', margin: 0 }}>Frequently Asked Questions</h2>
@@ -168,7 +186,7 @@ export default function Contact() {
                       <HelpCircle size={18} style={{ color: 'var(--primary-color)', flexShrink: 0 }} />
                       <span>{faq.question}</span>
                     </div>
-                    {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    {isOpen ? <ChevronUp size={18} style={{ marginLeft: 'auto' }} /> : <ChevronDown size={18} style={{ marginLeft: 'auto' }} />}
                   </button>
                   {isOpen && (
                     <div className="faq-answer-block" style={{ padding: '0 1.5rem 1.5rem 3.25rem', borderTop: '1px solid #f6f7f7', textAlign: 'left' }}>
@@ -179,22 +197,6 @@ export default function Contact() {
               );
             })}
           </div>
-        </div>
-      </section>
-
-      {/* Map Section */}
-      <section className="contact-map-section">
-        <div className="map-iframe-container">
-          <iframe 
-            title="IBMSSP Office Location Map"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.9529122602277!2d3.371829!3d6.551646!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8d780ef4fe59%3A0x6334a1795c34adfc!2s334%20Ikorodu%20Rd%2C%20Anthony%20102216%2C%20Lagos!5e0!3m2!1sen!2sng!4v1700000000000!5m2!1sen!2sng"
-            width="100%" 
-            height="450" 
-            style={{ border: 0 }} 
-            allowFullScreen="" 
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
         </div>
       </section>
     </div>
