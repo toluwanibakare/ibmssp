@@ -4,7 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Parse command line arguments or default
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://rihltpxgyocqqjbspmrw.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpaGx0cHhneW9jcXFqYnNwbXJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQzNDg3MywiZXhwIjoyMTAyMDEwODczfQ.6L0K50XvK6BwBv5B3B7Ww0B9JbZ1Z8K2eB3T8yF8k3I'; // Decrypted service role
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpaGx0cHhneW9jcXFqYnNwbXJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MzQ4NzMsImV4cCI6MjEwMjAxMDg3M30.yFulpm8YToLXTnPCZ5XKNCL907nduJvS6n8JeX0Aglg'; 
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -51,7 +51,26 @@ async function importCsv() {
     }
 
     try {
-      // 1. Insert Base Member
+      // 1. Create the user in auth.users (this also logs them in)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: 'IBMSSP_User@2026!',
+        options: {
+          data: { full_name: `${firstName} ${lastName}`.trim() }
+        }
+      });
+
+      if (authError) {
+        if (authError.message.includes('already registered')) {
+          console.log(`User ${email} already in auth.users, trying to insert member anyway...`);
+        } else {
+          console.error(`Error signing up ${email}: ${authError.message}`);
+          continue;
+        }
+      }
+
+      // 2. Insert into members table
+      const dbCategory = category.toLowerCase();
       const { data: member, error: memberError } = await supabase
         .from('members')
         .insert({
@@ -59,9 +78,9 @@ async function importCsv() {
           last_name: lastName,
           email: email,
           phone: phone,
-          category: category,
-          registration_status: regStatus,
-          payment_status: paymentStatus,
+          category: dbCategory,
+          registration_status: regStatus === '1' ? 'approved' : 'pending',
+          payment_status: paymentStatus === '1' ? 'completed' : 'pending',
           gender: gender,
           country: country,
           state: state,

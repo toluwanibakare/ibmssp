@@ -204,6 +204,16 @@ export default function Membership() {
         performed_by: 'self-registration',
       });
 
+      // 7. Send welcome registration email
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'registration',
+          to: email,
+          name: fullName.trim() || 'Member',
+          memberId: memberData.public_id || memberId,
+        },
+      });
+
       setSubmitted(true);
 
     } catch (err) {
