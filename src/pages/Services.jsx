@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, ArrowRight, ThumbsUp, Phone, Mail, CheckSquare } from 'lucide-react';
+import { ChevronRight, ArrowRight, ThumbsUp, Phone, Mail } from 'lucide-react';
 import './Services.css';
 
 const servicesList = [
@@ -10,7 +10,7 @@ const servicesList = [
     desc: 'Professional Guidance on ISO Based Performance Improvements and Sustained Success.',
     image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
     details: [
-      "We provide professional advice and guidance on ISO based business management systems performance evaluation for improvements and sustained success.",
+      "We provide professional advice and guidance on ISO based business management performance evaluation for improvements and sustained success.",
       "Through our evidence-based assessments, technology platform, data, and analytics, we help organizations improve and manage change through measurement, tracking and improving performance in their key business areas and processes.",
       "We help organizations build up internal capability to demonstrate how well the organization is performing towards growth and sustained success using an advanced technology that is based on global practices on management systems performance measures and parameters."
     ],
@@ -31,24 +31,31 @@ const servicesList = [
   {
     id: 'capacity-building',
     title: 'Capacity Building (Learning & Development)',
-    desc: 'Business Performance Improvement Assessment Training.',
+    desc: 'Business Performance Improvement Assessment Training',
     image: 'https://images.unsplash.com/photo-1531535934027-667f6db87590?auto=format&fit=crop&w=600&q=80',
     details: [
-      "We provide specialized systems standards training programs, self-assessment training, and capacity-building models.",
-      "We help organizations develop inside expertise to conduct internal compliance checks and prepare for international certification reviews.",
-      "Through our customized development program, we target specific gaps in operational standards controls to accelerate employee performance and standardisation compliance."
+      "We provide training that helps organizations learn how to use of our iconic ISO Based Business Performance Improvement Assessment (BPIA) Model for managing and improving business performance; a diagnostic tools and unique enterprise performance data, that enables organizations analyze their businesses in order to better prepare for their improvement, change and transformation challenges.",
+      "The technology that is developed based on the requirements of the international standard organization on management systems and evaluation tools for continual improvement, provides unique insights into your organization to help you master changes, improve and manage business growth and success."
     ],
-    keyAreasIntro: "Our training programs target core systems compliance:",
+    keyAreasIntro: "The training courses include:",
+    keyAreasTitle: "Courses",
     keyAreas: [
-      "Structured training modules for managers and team leads.",
-      "Practical interactive case studies and implementation logs.",
-      "Auditor alignment workshops."
+      "Foundation training on ISO Based Business Performance Improvement Assessment (BPIA) Model",
+      "Introduction to Performance Improvement Training",
+      "Transforming Your Organization with Global Standards",
+      "Organizational Change Leadership Training"
     ],
-    benefitsIntro: "Enrolling in our capacity building programs will:",
+    benefitsIntro: "The participants will be able to:",
     benefits: [
-      "Build direct inside auditing capabilities.",
-      "Empower staff to track and measure performance.",
-      "Reduce operational waste and increase compliance."
+      "Analyze the ecosystem of an organization to provide context for an assessment.",
+      "Identify the strategic priorities for an organization.",
+      "Prepare value-adding feedback for an organization.",
+      "Identify relevant good practices.",
+      "Explain how the ISO Based Business Performance Model could benefit their organization and how it could be used to overcome current and future challenges.",
+      "Explain how the ISO Based Business Performance Model is structured and how the different elements apply to their organization.",
+      "Apply the diagnostic and assessment tool, to identify strengths and areas for improvement.",
+      "Conduct a high-level health check of their organization.",
+      "The ISO Based Business Performance Model help improve the organization, to achieve its business goals and purpose."
     ]
   },
   {
@@ -57,19 +64,16 @@ const servicesList = [
     desc: 'Recognition certificate that matches the maturity level achieved.',
     image: 'https://images.unsplash.com/photo-1578269174936-2709b5a5e06e?auto=format&fit=crop&w=600&q=80',
     details: [
-      "Get audited and recognized for your systems compliance maturity levels with official certificates.",
-      "We benchmark and assess standardizations maturity ratings logs to verify business stability status."
+      "The Institute Recognition Scheme is designed for any organization, regardless of size, sector or location. We can even help you to find the most suitable level of recognition.",
+      "It’s an award system to demonstrates stakeholders’ continuous improvement to global standards. The recognition shows how well organization is performing against a globally proven management framework. The process is carried out by independent IBMSSP trained Assessors. They review performance using the ISO Based Business Performance Model and offer tailored feedback throughout the process. Along with their own expertise running organizations all over the world.",
+      "It’s a complete management review of your organization, using the Institute ISO Based Business Performance Improvement Assessment (BPIA) Model. It reviews your overall performance against your objectives and challenges."
     ],
-    keyAreasIntro: "Our evaluation frameworks focus on maturity markers:",
-    keyAreas: [
-      "Maturity rating logs and score sheets.",
-      "Verification of compliance markers."
-    ],
-    benefitsIntro: "Achieving official recognition helps to:",
+    benefitsIntro: "Your organizations can derive significant value by:",
     benefits: [
-      "Demonstrate conformity to global partners.",
-      "Gain corporate trust and buyer preference.",
-      "Motivate inside teams towards continuous improvement."
+      "Gaining international visibility by being recognized against the ISO Based Business Performance Improvement Assessment (BPIA) Model demonstrating outstanding organizational performance.",
+      "Acquiring highly valued feedback that identifies and helps understand the gaps and possible solutions available, empowering progress and significant improvement in an organization’s performance.",
+      "Fully understanding the ISO Based Business Performance Improvement Assessment (BPIA) Model philosophy and the range of intelligence tools we offer, including applying them for effective results.",
+      "Motivating your people. The ambition and thrill to succeed inspires, motivates, and energizes your employees at all levels of the organization in a positive and constructive atmosphere."
     ]
   },
   {
@@ -78,19 +82,20 @@ const servicesList = [
     desc: 'Access to ISO Based Information and Data.',
     image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
     details: [
-      "Our library features rich standards research, case databases, self-assessment guidelines, and audit logs."
+      "We provide access to an extensive repository of ISO-based information, compliance guidelines, templates, and self-assessment benchmarks.",
+      "This system serves as a central registry to standardisation documentation, enabling organizations to research systems standards requirements and study global best practices efficiently."
     ],
-    keyAreasIntro: "The library includes documentation tools:",
+    keyAreasIntro: "Key reference documents and resource files in our database:",
     keyAreas: [
-      "Implementation guide blueprints.",
-      "Self-assessment templates.",
-      "Compliance audit checklist sheets."
+      "ISO standards implementation logs and templates.",
+      "Self-assessment toolkits and metrics guides.",
+      "Archived auditor reports and case studies."
     ],
-    benefitsIntro: "Leveraging our database enables you to:",
+    benefitsIntro: "Accessing the Knowledge Base allows your team to:",
     benefits: [
-      "Reduce documentation design hours.",
-      "Access expert templates instantly.",
-      "Stay updated on changes to systems standards."
+      "Accelerate standards documentation design hours.",
+      "Reference verified tools and templates approved by IBMSSP auditors.",
+      "Remain up to date on global policy revisions."
     ]
   },
   {
@@ -99,19 +104,10 @@ const servicesList = [
     desc: 'Representation on related policies through a collaborative approach.',
     image: 'https://images.unsplash.com/photo-1521791136368-1a851900d141?auto=format&fit=crop&w=600&q=80',
     details: [
-      "We advocate on standardization policies to protect business interests and shape global compliance updates."
-    ],
-    keyAreasIntro: "Our advocacy networks drive policy updates:",
-    keyAreas: [
-      "Representation in standards development panels.",
-      "Joint regulatory policy workshops.",
-      "Enterprise representation logs."
-    ],
-    benefitsIntro: "Participating in our advocacy forums will:",
-    benefits: [
-      "Give your business a voice on standards committees.",
-      "Provide early insights on upcoming policy updates.",
-      "Foster collaborative synergy across sectors."
+      "We adopt a multifaceted approach to inform, leverage, voice, organize, and assess all related issues on business management systems with respects to the international standard requirements. We engage with stakeholders, collaborate with networks and coalitions, raise awareness about crucial issues, and drive meaningful change for business success through standardization.",
+      "We aim to bring change, whether it's through public awareness, offering support, contracting advocacy services, or influencing policies on business sustainability through standardization. This will help stakeholders to express their views, thoughts, and concerns.",
+      "We shall develop and utilize evaluations to inform future activities and measure success.",
+      "This shall be stakeholders needs assessments to understand the most pressing issues and gathering feedback from participants and stakeholders to identify areas for improvement."
     ]
   },
   {
@@ -120,19 +116,17 @@ const servicesList = [
     desc: 'Timely guidance on management systems implementation and certification.',
     image: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=600&q=80',
     details: [
-      "Access real-time, expert help desk support to troubleshoot compliance gaps and manage certificate applications."
+      "We provide on time guidance and support to stakeholders and other end-users on business management systems implementation and certification issues, troubleshooting problems, and answering questions, including:"
     ],
-    keyAreasIntro: "Our support agents troubleshoot critical bottlenecks:",
+    keyAreasIntro: "Our help desk services include:",
+    keyAreasTitle: "Support Details",
     keyAreas: [
-      "Instant messaging and query support channels.",
-      "ISO application submission checkers.",
-      "Audit readiness diagnostic logs."
-    ],
-    benefitsIntro: "Subscribing to our help desk support enables you to:",
-    benefits: [
-      "Get instant answers from certified auditors.",
-      "Speed up your compliance tracking and approvals.",
-      "Maintain audit readiness round-the-clock."
+      "Answering stakeholders’ questions",
+      "Resolving stakeholders’ issues",
+      "Troubleshooting problems",
+      "Providing stakeholders support via telephone, email, or chat",
+      "Generating reports on stakeholders’ service activity",
+      "Managing stakeholders’ databases"
     ]
   }
 ];
@@ -267,7 +261,7 @@ export default function Services() {
             {/* Key Areas Section */}
             {activeSvc.keyAreas && (
               <div className="detail-section">
-                <h3>Key Areas</h3>
+                <h3>{activeSvc.keyAreasTitle || "Key Areas"}</h3>
                 <p>{activeSvc.keyAreasIntro}</p>
                 <ul className="detail-checklist">
                   {activeSvc.keyAreas.map((item, idx) => (
