@@ -393,7 +393,7 @@ export default function Account() {
                       </div>
                     </div>
                     <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                      {otpLoading ? <Loader size={16} className="spin-icon" /> : 'Send Reset Link / OTP'}
+                      {otpLoading ? <Loader size={16} className="spin-icon" /> : 'Send OTP'}
                     </button>
                   </form>
                 ) : (
