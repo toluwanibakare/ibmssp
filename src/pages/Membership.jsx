@@ -51,6 +51,7 @@ const tiers = {
 export default function Membership() {
   const { type } = useParams();
   const [fileName, setFileName] = React.useState('');
+  const [individualCategory, setIndividualCategory] = React.useState('auditor');
 
   // If no type is provided, show the landing overview dashboard with all sections
   if (!type) {
@@ -325,6 +326,37 @@ export default function Membership() {
                     <>
                       <input type="text" placeholder="Full Name" required />
                       <input type="tel" placeholder="Phone Number" required />
+                      
+                      <div className="form-group">
+                        <label className="input-field-label">Select Your Category</label>
+                        <select 
+                          value={individualCategory} 
+                          onChange={(e) => setIndividualCategory(e.target.value)} 
+                          className="form-select"
+                          required
+                        >
+                          <option value="auditor">Trained Auditors</option>
+                          <option value="consultant">Registered Consultants</option>
+                        </select>
+                      </div>
+
+                      <div className="file-upload-container">
+                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Document Upload</label>
+                        <p className="file-upload-subtext">Please upload a copy of your ISO-related document (PDF, DOC, DOCX, JPG, PNG, JPEG — Maximum size: 5MB).</p>
+                        <label className="file-upload-label">
+                          <span>{fileName || 'Upload ISO-related document'}</span>
+                          <input 
+                            type="file" 
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                            required 
+                          />
+                        </label>
+                      </div>
+
+                      <div className="notice-box">
+                        <strong>Important Notice:</strong> Ensure that the document provided corresponds correctly with the category selected above. Submitting a document that does not match your chosen category may delay or invalidate your verification.
+                      </div>
                     </>
                   )}
 
