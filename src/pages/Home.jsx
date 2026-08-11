@@ -450,7 +450,7 @@ export default function Home() {
                   </span>
                 </div>
                 
-                <Link to="/testimonials" className="btn-step-readmore" style={{ margin: 0, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1.5px', color: '#ffffff', borderBottom: '2px solid var(--primary-color)' }}>
+                <Link to="/testimonials" className="btn btn-secondary" style={{ color: '#ffffff', borderColor: '#ffffff', padding: '0.6rem 1.5rem', borderRadius: '4px', fontSize: '0.8rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
                   View All Testimonials
                 </Link>
               </div>
