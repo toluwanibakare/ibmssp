@@ -104,7 +104,7 @@ export default function Footer() {
             <ul className="widget-links">
               <li><Link to="/membership">Membership</Link></li>
               <li><Link to="/testimonials">Testimonials</Link></li>
-              <li><Link to="/faq">Frequently Asked Questions (FAQ)</Link></li>
+              <li><Link to="/faq">Faqs</Link></li>
               {/* <li><a href="#partners">Partners</a></li> */}
               {/* <li><a href="#cases">Case Studies</a></li> */}
             </ul>
