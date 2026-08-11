@@ -27,13 +27,18 @@ export default function Insights() {
   const [comments, setComments] = useState([
     {
       name: 'Dr. Evelyn Peters',
-      date: 'August 10, 2026',
+      date: 'September 15, 2025',
       content: 'This revision is a welcome improvement. The focus on Ethics and Integrity in Leadership addresses a critical gap in organizational standardization implementations.'
     },
     {
       name: 'Chinedu Okeke',
-      date: 'August 8, 2026',
+      date: 'November 22, 2025',
       content: 'The alignment with Industry 4.0 and digital transformation is crucial for tech companies trying to maintain compliance while staying agile.'
+    },
+    {
+      name: 'Sarah Jenkins',
+      date: 'February 5, 2026',
+      content: 'Extremely detailed analysis! Proactive risk strategies will save companies lots of compliance auditing hours.'
     }
   ]);
   const [newCommentName, setNewCommentName] = useState('');

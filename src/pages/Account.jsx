@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText } from 'lucide-react';
 import './Account.css';
 
@@ -65,6 +66,10 @@ export default function Account() {
               </div>
               <button type="submit" className="btn btn-primary w-full">Sign In</button>
             </form>
+            <div className="login-signup-prompt" style={{ marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', marginBottom: '0.85rem' }}>Don't have an account or cannot sign in?</p>
+              <Link to="/membership" className="btn btn-secondary w-full text-center" style={{ display: 'block' }}>Become a Member</Link>
+            </div>
           </div>
         </section>
       </div>
