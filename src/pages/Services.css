@@ -1,33 +1,139 @@
-.service-detail-card {
-  background-color: white;
-  padding: 3rem 2rem;
-  border-radius: var(--border-radius);
+.services-premium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 3rem 2rem;
+  margin-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.service-premium-card {
+  background-color: #ffffff;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
-  box-shadow: var(--box-shadow);
-  transition: var(--transition);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  margin-bottom: 1.5rem; /* Leaves space for the bottom overlapping button */
 }
 
-.service-detail-card:hover {
+.service-premium-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
 }
 
-.service-detail-card h3 {
-  font-family: var(--font-sans);
-  font-size: 1.4rem;
-  color: var(--secondary-slate);
+.service-card-image {
+  width: 100%;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+
+/* Floating Badge in Middle of Card Divider */
+.service-floating-icon {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  width: 46px;
+  height: 46px;
+  background-color: var(--primary-color);
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(48, 88, 88, 0.3);
+  z-index: 3;
+}
+
+.service-card-content {
+  padding: 3rem 2rem 3rem 2rem; /* Extra bottom padding for button spacing */
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.service-card-content h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-color);
   margin-bottom: 1rem;
+  line-height: 1.4;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.svc-desc {
-  font-weight: 600;
-  color: var(--primary-color);
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
-}
-
-.svc-details {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+.service-card-content p {
+  font-size: 0.88rem;
+  color: var(--secondary-slate);
   line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Overlapping Expandable Button at the Bottom */
+.service-button-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 4;
+}
+
+.service-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-radius: 50px;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(48, 88, 88, 0.3);
+  transition: width 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s ease, padding 0.35s ease;
+}
+
+.btn-read-more-text {
+  opacity: 0;
+  max-width: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: opacity 0.2s ease, max-width 0.35s ease, margin-right 0.35s ease;
+}
+
+/* Card hover triggers button expansion */
+.service-premium-card:hover .service-expand-btn {
+  width: 140px;
+  padding: 0 1.25rem;
+  background-color: var(--near-green);
+}
+
+.service-premium-card:hover .btn-read-more-text {
+  opacity: 1;
+  max-width: 85px;
+  margin-right: 0.5rem;
+}
+
+.service-expand-btn:hover {
+  background-color: var(--near-green) !important;
+}
+
+@media (max-width: 768px) {
+  .services-premium-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem 2rem;
+  }
 }
