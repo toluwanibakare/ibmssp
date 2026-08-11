@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, X, Send, ChevronUp, RotateCcw } from 'lucide-react';
+import { MessageSquare, X, Send, ChevronUp, RotateCcw, Headset, User, Bot } from 'lucide-react';
 import IBMSSP_KNOWLEDGE_BASE from '../data/knowledgeBase';
+import { supabase } from '../lib/supabase';
 import './FloatingWidgets.css';
 
-const STORAGE_KEY = 'ibmssp_chat_history';
+const SESSION_KEY = 'ibmssp_chat_session_id';
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = 'llama-3.1-8b-instant';
 
@@ -28,9 +29,8 @@ KNOWLEDGE BASE:
 ${IBMSSP_KNOWLEDGE_BASE}`;
 
 const INITIAL_MESSAGE = {
-  role: 'assistant',
-  text: 'Hello and welcome to IBMSSP. I am here to help you find information about our membership, services, assessments, and how to use the site. What can I help you with today?',
-  links: []
+  role: 'bot',
+  content: 'Hello and welcome to IBMSSP. I am here to help you find information about our membership, services, assessments, and how to use the site. What can I help you with today?',
 };
 
 const QUICK_ACTIONS = [
@@ -55,69 +55,19 @@ export default function FloatingWidgets() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [messages, setMessages] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [INITIAL_MESSAGE];
-    } catch {
-      return [INITIAL_MESSAGE];
-    }
-  });
+  
+  const [chatId, setChatId] = useState(null); // The uuid from live_chats
+  const [chatStatus, setChatStatus] = useState('bot');
+  const [sessionId, setSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  
   const messagesEndRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Persist messages to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-  }, [messages]);
-
-  // Scroll logic: users go to bottom, bot responses align at their top
-  useEffect(() => {
-    const container = chatMessagesRef.current;
-    if (!container || messages.length === 0) return;
-
-    const lastMessage = messages[messages.length - 1];
-
-    if (isTyping) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-      return;
-    }
-
-    if (lastMessage.role === 'user') {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-    } else if (lastMessage.role === 'assistant') {
-      // Give a tiny timeout for DOM to paint updated text
-      setTimeout(() => {
-        const messageElements = container.querySelectorAll('.chat-message');
-        if (messageElements.length > 0) {
-          const lastElement = messageElements[messageElements.length - 1];
-          container.scrollTo({
-            top: lastElement.offsetTop - 10,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    }
-  }, [messages, isTyping]);
-
-  // Focus input when chat opens
-  useEffect(() => {
-    if (isChatOpen) {
-      setTimeout(() => inputRef.current?.focus(), 200);
-    }
-  }, [isChatOpen]);
-
-  // Scroll progress tracking
+  // Scroll tracking
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -131,29 +81,163 @@ export default function FloatingWidgets() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const clearChat = () => {
-    setMessages([INITIAL_MESSAGE]);
-    localStorage.removeItem(STORAGE_KEY);
-    setHasError(false);
+  // Initialize chat session
+  useEffect(() => {
+    async function initChat() {
+      let currentSession = localStorage.getItem(SESSION_KEY);
+      if (!currentSession) {
+        currentSession = crypto.randomUUID();
+        localStorage.setItem(SESSION_KEY, currentSession);
+      }
+      setSessionId(currentSession);
+
+      // Check if session exists in DB
+      let { data: existingChat } = await supabase
+        .from('live_chats')
+        .select('*')
+        .eq('session_id', currentSession)
+        .single();
+
+      if (!existingChat) {
+        const { data: newChat } = await supabase
+          .from('live_chats')
+          .insert([{ session_id: currentSession }])
+          .select()
+          .single();
+        existingChat = newChat;
+      }
+      
+      if (existingChat) {
+        setChatId(existingChat.id);
+        setChatStatus(existingChat.status);
+        
+        // Fetch existing messages
+        const { data: existingMsgs } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('chat_id', existingChat.id)
+          .order('created_at', { ascending: true });
+          
+        if (existingMsgs && existingMsgs.length > 0) {
+          setMessages(existingMsgs);
+        } else {
+          // If no messages, insert initial message
+          await insertMessage('bot', INITIAL_MESSAGE.content, existingChat.id);
+        }
+      }
+    }
+    
+    if (isChatOpen && !chatId) {
+      initChat();
+    }
+  }, [isChatOpen, chatId]);
+
+  // Subscribe to real-time messages (Admin replies) and status updates
+  useEffect(() => {
+    if (!chatId) return;
+
+    const channel = supabase.channel(`chat_${chatId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `chat_id=eq.${chatId}` }, payload => {
+        // Only append if it's not our own message (which we add optimistically)
+        setMessages(prev => {
+          if (prev.find(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_chats', filter: `id=eq.${chatId}` }, payload => {
+        setChatStatus(payload.new.status);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [chatId]);
+
+  // Scroll to bottom
+  useEffect(() => {
+    const container = chatMessagesRef.current;
+    if (!container || messages.length === 0) return;
+    
+    // Smooth scroll to bottom
+    setTimeout(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }, 100);
+  }, [messages, isTyping]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isChatOpen) {
+      setTimeout(() => inputRef.current?.focus(), 200);
+    }
+  }, [isChatOpen]);
+
+  const insertMessage = async (role, content, targetChatId = chatId) => {
+    if (!targetChatId) return null;
+    const { data } = await supabase
+      .from('chat_messages')
+      .insert([{ chat_id: targetChatId, role, content }])
+      .select()
+      .single();
+    if (data) {
+       setMessages(prev => [...prev.filter(m => m.id !== 'temp'), data]);
+    }
+    return data;
+  };
+
+  const requestHumanSupport = async () => {
+    if (!chatId) return;
+    setIsTyping(true);
+    await supabase.from('live_chats').update({ status: 'human_requested' }).eq('id', chatId);
+    
+    // Trigger email notification
+    await supabase.functions.invoke('send-email', {
+      body: {
+        to: 'info@ibmssp.org.ng',
+        subject: 'Support Request: Live Chat Escalation',
+        text: 'A user has requested human support in the live chat. Please log in to the admin dashboard to reply.'
+      }
+    });
+
+    await insertMessage('bot', 'A human representative has been notified and will be with you shortly. You will see their response here.');
+    setChatStatus('human_requested');
+    setIsTyping(false);
+  };
+
+  const clearChat = async () => {
+    if (chatId) {
+      await supabase.from('chat_messages').delete().eq('chat_id', chatId);
+      const newInitial = await insertMessage('bot', INITIAL_MESSAGE.content);
+      setMessages([newInitial]);
+    }
   };
 
   const sendMessage = async (userText) => {
-    if (!userText.trim() || isTyping) return;
+    if (!userText.trim() || isTyping || !chatId) return;
 
-    const userMsg = { role: 'user', text: userText, links: [] };
-    const updated = [...messages, userMsg];
-    setMessages(updated);
+    // Optimistically add
+    const tempUserMsg = { id: 'temp', role: 'user', content: userText };
+    setMessages(prev => [...prev, tempUserMsg]);
     setInputVal('');
     setIsTyping(true);
-    setHasError(false);
 
-    // Build conversation history for Groq
-    const history = updated
-      .filter(m => m.role !== 'assistant' || m !== INITIAL_MESSAGE)
+    // Save user msg to DB
+    await insertMessage('user', userText);
+
+    // If human active/requested, don't use AI
+    if (chatStatus === 'human_requested' || chatStatus === 'human_active') {
+      setIsTyping(false);
+      return;
+    }
+
+    // Build Groq history
+    const history = messages
+      .filter(m => m.role === 'user' || m.role === 'bot')
       .map(m => ({
         role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.text
+        content: m.content
       }));
+    history.push({ role: 'user', content: userText });
 
     try {
       if (!GROQ_API_KEY) throw new Error('API key not configured');
@@ -176,20 +260,14 @@ export default function FloatingWidgets() {
       });
 
       if (!response.ok) throw new Error(`API error ${response.status}`);
-
       const data = await response.json();
       const rawText = data.choices?.[0]?.message?.content || '';
-      const { cleanText, links } = parseLinks(rawText);
-      const sanitizedText = cleanText.replace(/--/g, '-').replace(/—/g, '-');
+      const sanitizedText = rawText.replace(/--/g, '-').replace(/—/g, '-');
+      
+      await insertMessage('bot', sanitizedText);
 
-      setMessages(prev => [...prev, { role: 'assistant', text: sanitizedText, links }]);
     } catch (err) {
-      setHasError(true);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        text: 'I am having trouble connecting right now. Please try again in a moment or reach out to us directly at info@ibmssp.org.ng.',
-        links: [{ path: '/contact', label: 'Visit Contact Page' }]
-      }]);
+      await insertMessage('bot', 'I am having trouble connecting right now. Please try again in a moment or reach out to us directly at info@ibmssp.org.ng.');
     } finally {
       setIsTyping(false);
     }
@@ -206,7 +284,7 @@ export default function FloatingWidgets() {
 
   return (
     <>
-      {/* Chat Widget (Bottom Left) */}
+      {/* Chat Widget */}
       <div className="chatbot-widget-container">
         <button
           className={`chat-bubble-launcher ${isChatOpen ? 'active' : ''}`}
@@ -222,8 +300,8 @@ export default function FloatingWidgets() {
             <div className="chat-title">
               <span className="online-indicator"></span>
               <div>
-                <h4>IBMSSP Assistant</h4>
-                <span>Powered by AI</span>
+                <h4>IBMSSP Support</h4>
+                <span>{chatStatus === 'bot' ? 'Powered by AI' : 'Live Support'}</span>
               </div>
             </div>
             <div className="chat-header-actions">
@@ -238,36 +316,46 @@ export default function FloatingWidgets() {
 
           {/* Messages */}
           <div className="chat-messages" ref={chatMessagesRef}>
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`chat-message ${msg.role}`}>
-                {msg.role === 'assistant' && (
-                  <div className="bot-avatar">
-                    <span>I</span>
-                  </div>
-                )}
-                <div className="message-content-wrap">
-                  <div className="message-bubble">{msg.text}</div>
-                  {msg.links && msg.links.length > 0 && (
-                    <div className="message-link-buttons">
-                      {msg.links.map((link, li) => (
-                        <Link
-                          key={li}
-                          to={link.path}
-                          className="chat-link-btn"
-                          onClick={() => setIsChatOpen(false)}
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+            {messages.map((msg, idx) => {
+              const { cleanText, links } = parseLinks(msg.content || '');
+              
+              return (
+                <div key={msg.id || idx} className={`chat-message ${msg.role === 'user' ? 'user' : 'assistant'}`}>
+                  {msg.role === 'bot' && (
+                    <div className="bot-avatar" title="AI Assistant">
+                      <Bot size={16} />
                     </div>
                   )}
+                  {msg.role === 'admin' && (
+                    <div className="bot-avatar admin-avatar" title="Customer Care Rep" style={{backgroundColor: 'var(--rust-red)'}}>
+                      <Headset size={16} color="#fff" />
+                    </div>
+                  )}
+                  <div className="message-content-wrap">
+                    {msg.role === 'admin' && <div style={{fontSize: '10px', color: 'var(--rust-red)', marginBottom: '2px', fontWeight: 'bold'}}>Customer Care Rep</div>}
+                    <div className="message-bubble">{cleanText}</div>
+                    {links && links.length > 0 && (
+                      <div className="message-link-buttons">
+                        {links.map((link, li) => (
+                          <Link
+                            key={li}
+                            to={link.path}
+                            className="chat-link-btn"
+                            onClick={() => setIsChatOpen(false)}
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isTyping && (
               <div className="chat-message assistant">
-                <div className="bot-avatar"><span>I</span></div>
+                <div className="bot-avatar"><Bot size={16} /></div>
                 <div className="message-content-wrap">
                   <div className="message-bubble typing-indicator">
                     <span></span><span></span><span></span>
@@ -278,28 +366,37 @@ export default function FloatingWidgets() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Actions (shown only when just opened / first message) */}
-          {messages.length <= 1 && (
-            <div className="chat-quick-actions">
-              {QUICK_ACTIONS.map((qa, i) => (
-                <button
-                  key={i}
-                  className="quick-action-btn"
-                  onClick={() => sendMessage(qa.message)}
+          {/* Quick Actions / Human Request */}
+          <div className="chat-quick-actions-wrap">
+            {messages.length <= 2 && chatStatus === 'bot' && (
+              <div className="chat-quick-actions" style={{marginBottom: '10px'}}>
+                {QUICK_ACTIONS.map((qa, i) => (
+                  <button key={i} className="quick-action-btn" onClick={() => sendMessage(qa.message)} disabled={isTyping}>
+                    {qa.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {chatStatus === 'bot' && messages.length > 1 && (
+              <div className="chat-quick-actions" style={{justifyContent: 'center', marginBottom: '8px'}}>
+                <button 
+                  className="quick-action-btn" 
+                  style={{backgroundColor: 'var(--rust-red)', color: '#fff', border: 'none'}} 
+                  onClick={requestHumanSupport} 
                   disabled={isTyping}
                 >
-                  {qa.label}
+                  <Headset size={12} style={{marginRight: '4px', display: 'inline'}} /> Request Human Support
                 </button>
-              ))}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
           {/* Input */}
           <form onSubmit={handleSubmit} className="chat-input-area">
             <input
               ref={inputRef}
               type="text"
-              placeholder="Type your question..."
+              placeholder="Type your message..."
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               disabled={isTyping}
@@ -308,14 +405,10 @@ export default function FloatingWidgets() {
               <Send size={16} />
             </button>
           </form>
-
-          <div className="chat-footer-note">
-            Questions outside our knowledge base will be escalated to a support rep.
-          </div>
         </div>
       </div>
 
-      {/* Scroll-to-Top Button with Progress Ring (Bottom Right) */}
+      {/* Scroll-to-Top Button */}
       <button
         className={`scroll-to-top-progress ${isVisible ? 'visible' : ''}`}
         onClick={scrollToTop}

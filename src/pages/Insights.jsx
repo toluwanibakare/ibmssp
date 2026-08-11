@@ -21,56 +21,87 @@ const otherPosts = [
   }
 ];
 
+import { supabase } from '../lib/supabase';
+
+const BLOG_SLUG = 'changes-in-iso-9001-2026-standards';
+
 export default function Insights() {
-  const [likes, setLikes] = useState(148);
+  const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
-  const [comments, setComments] = useState([
-    {
-      name: 'Dr. Evelyn Peters',
-      date: 'September 15, 2025',
-      content: 'This revision is a welcome improvement. The focus on Ethics and Integrity in Leadership addresses a critical gap in organizational standardization implementations.'
-    },
-    {
-      name: 'Chinedu Okeke',
-      date: 'November 22, 2025',
-      content: 'The alignment with Industry 4.0 and digital transformation is crucial for tech companies trying to maintain compliance while staying agile.'
-    },
-    {
-      name: 'Sarah Jenkins',
-      date: 'February 5, 2026',
-      content: 'Extremely detailed analysis! Proactive risk strategies will save companies lots of compliance auditing hours.'
-    }
-  ]);
+  const [comments, setComments] = useState([]);
   const [newCommentName, setNewCommentName] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLike = () => {
-    if (!hasLiked) {
-      setLikes(likes + 1);
-      setHasLiked(true);
-    } else {
-      setLikes(likes - 1);
-      setHasLiked(false);
+  useEffect(() => {
+    fetchBlogData();
+    // Check local storage for like status
+    const liked = localStorage.getItem(`liked_${BLOG_SLUG}`);
+    if (liked) setHasLiked(true);
+  }, []);
+
+  const fetchBlogData = async () => {
+    // Fetch likes
+    const { data: postData } = await supabase.from('blog_posts').select('likes_count').eq('slug', BLOG_SLUG).single();
+    if (postData) setLikes(postData.likes_count);
+
+    // Fetch comments
+    const { data: commentsData } = await supabase.from('blog_comments').select('*').eq('post_slug', BLOG_SLUG).order('created_at', { ascending: true });
+    if (commentsData) {
+      const formattedComments = commentsData.map(c => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return {
+          id: c.id,
+          name: c.name,
+          date: new Date(c.created_at).toLocaleDateString('en-US', options),
+          content: c.content
+        };
+      });
+      setComments(formattedComments);
     }
   };
 
-  const handleCommentSubmit = (e) => {
+  const handleLike = async () => {
+    if (!hasLiked) {
+      setLikes(prev => prev + 1);
+      setHasLiked(true);
+      localStorage.setItem(`liked_${BLOG_SLUG}`, 'true');
+      
+      // We can use RPC to increment in a real app, but for now we fetch current and add 1
+      // Actually we can just update it safely or let a trigger do it.
+      // Let's do a simple update
+      await supabase.from('blog_posts').update({ likes_count: likes + 1 }).eq('slug', BLOG_SLUG);
+    } else {
+      setLikes(prev => prev - 1);
+      setHasLiked(false);
+      localStorage.removeItem(`liked_${BLOG_SLUG}`);
+      await supabase.from('blog_posts').update({ likes_count: likes - 1 }).eq('slug', BLOG_SLUG);
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newCommentName.trim() || !newCommentText.trim()) return;
+    if (!newCommentText.trim()) return;
+    
+    setIsSubmitting(true);
+    const nameToUse = newCommentName.trim() || 'Anonymous';
 
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const today = new Date().toLocaleDateString('en-US', options);
+    const { data, error } = await supabase.from('blog_comments').insert([
+      { post_slug: BLOG_SLUG, name: nameToUse, content: newCommentText }
+    ]).select().single();
 
-    setComments([
-      ...comments,
-      {
-        name: newCommentName,
-        date: today,
-        content: newCommentText
-      }
-    ]);
-    setNewCommentName('');
-    setNewCommentText('');
+    if (data) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      setComments(prev => [...prev, {
+        id: data.id,
+        name: data.name,
+        date: new Date(data.created_at).toLocaleDateString('en-US', options),
+        content: data.content
+      }]);
+      setNewCommentName('');
+      setNewCommentText('');
+    }
+    setIsSubmitting(false);
   };
 
   return (
@@ -205,10 +236,9 @@ export default function Insights() {
                   <div className="form-group-row">
                     <input 
                       type="text" 
-                      placeholder="Your Name" 
+                      placeholder="Your Name (Optional)" 
                       value={newCommentName}
                       onChange={(e) => setNewCommentName(e.target.value)}
-                      required 
                     />
                   </div>
                   <textarea 

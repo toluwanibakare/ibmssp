@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -15,8 +15,20 @@ import Privacy from './pages/Privacy';
 import Account from './pages/Account';
 import Testimonials from './pages/Testimonials';
 import FAQ from './pages/FAQ';
+import NotFound from './pages/NotFound';
 import FloatingWidgets from './components/FloatingWidgets';
 import ScrollToTop from './components/ScrollToTop';
+
+const Layout = () => (
+  <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Header />
+    <main className="main-content" style={{ flexGrow: 1 }}>
+      <Outlet />
+    </main>
+    <Footer />
+    <FloatingWidgets />
+  </div>
+);
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -69,32 +81,39 @@ export default function App() {
         </div>
       )}
 
-      <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Header />
-        
-        <main className="main-content" style={{ flexGrow: 1 }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/membership/:type" element={<Membership />} />
-            <Route path="/membership" element={<Membership />} />
-            <Route path="/services/:type" element={<Services />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/insights" element={<Insights />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/facilitator" element={<Facilitator />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/faq" element={<FAQ />} />
-          </Routes>
-        </main>
-
-        <Footer />
-        <FloatingWidgets />
-      </div>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/membership/:type" element={<Membership />} />
+          <Route path="/membership" element={<Membership />} />
+          <Route path="/services/:type" element={<Services />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/insights" element={<Insights />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/facilitator" element={<Facilitator />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/admin/*" element={
+            <AdminRedirect />
+          } />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
     </Router>
   );
+}
+
+function AdminRedirect() {
+  useEffect(() => {
+    // Redirect to the admin portal
+    // In production, this would be the actual admin URL.
+    // For local development, assuming it runs on 5174
+    window.location.href = 'http://localhost:5174';
+  }, []);
+  return null;
 }

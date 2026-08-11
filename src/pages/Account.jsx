@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText, Lock, Mail, Loader, Key } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import html2canvas from 'html2canvas';
+import RegistrationCertificate from '../components/RegistrationCertificate';
 import './Account.css';
 
-// Paystack Public Key loaded from VITE env config
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || import.meta.env.VITE_PAYSTACK_TEST_PUBLIC_KEY;
+// Paystack configuration is fetched dynamically in the handler
 
 export default function Account() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,6 +37,26 @@ export default function Account() {
 
   // Dashboard tab state
   const [activeTab, setActiveTab] = useState('overview');
+
+  const certificateRef = React.useRef(null);
+
+  const downloadCertificate = async () => {
+    if (!certificateRef.current) return;
+    try {
+      // Small timeout to ensure font loading if any
+      await new Promise(res => setTimeout(res, 300));
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `IBMSSP-Certificate-${memberData?.first_name}-${memberData?.last_name}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Error generating certificate', err);
+    }
+  };
 
   // Monitor active session
   useEffect(() => {
@@ -192,8 +213,23 @@ export default function Account() {
   };
 
   // ─── Paystack Payment Popup Handler ────────────────────────────────────────
-  const handlePaystackPayment = () => {
+  const handlePaystackPayment = async () => {
     if (!memberData) return;
+
+    // Fetch the current global Paystack mode ('test' or 'live')
+    let mode = 'test';
+    try {
+      const { data } = await supabase.from('app_settings').select('setting_value').eq('setting_key', 'paystack_mode').single();
+      if (data && typeof data.setting_value === 'string') {
+        mode = data.setting_value;
+      }
+    } catch(err) {
+      console.error('Error fetching paystack mode:', err);
+    }
+    
+    const activePublicKey = mode === 'live' 
+      ? (import.meta.env.VITE_PAYSTACK_LIVE_PUBLIC_KEY || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY)
+      : (import.meta.env.VITE_PAYSTACK_TEST_PUBLIC_KEY || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY);
 
     // Calculate fee based on category
     let amount = 10000; // default for individual/graduate (10k)
@@ -201,7 +237,7 @@ export default function Account() {
     if (memberData.category === 'student') amount = 5000;
 
     const handler = window.PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
+      key: activePublicKey,
       email: memberData.email,
       amount: amount * 100, // Paystack works in kobo
       currency: 'NGN',
@@ -233,6 +269,15 @@ export default function Account() {
               to: 'info@ibmssp.org.ng',
               subject: `Payment Confirmed: ${memberData.first_name} ${memberData.last_name}`,
               text: `A payment of ₦${amount} has been received and verified for ${memberData.first_name} ${memberData.last_name} (${memberData.public_id}). Category: ${memberData.category}. Ref: ${response.reference}.`,
+            }
+          });
+
+          // Send welcome email to user
+          await supabase.functions.invoke('send-email', {
+            body: {
+              to: memberData.email,
+              subject: `Welcome to IBMSSP! Payment Confirmed`,
+              text: `Dear ${memberData.first_name},\n\nYour payment of ₦${amount} has been successfully verified. Welcome to the Institute of Business Management System Sustainability Standardization & Practitioners (IBMSSP)!\n\nPlease log in to your account portal to download your official Registration Certificate and access our resources.\n\nBest Regards,\nThe IBMSSP Team`,
             }
           });
 
@@ -503,6 +548,13 @@ export default function Account() {
                   <p>
                     Thank you! Your transaction is complete and your practitioner portal is fully active. You now have unrestricted access to all standard templates and training certificates.
                   </p>
+                  <button 
+                    className="btn btn-secondary mt-3" 
+                    onClick={downloadCertificate}
+                    style={{display: 'inline-flex', alignItems: 'center', gap: '8px'}}
+                  >
+                    <Download size={16} /> Download Registration Certificate
+                  </button>
                 </div>
               </div>
             )}
@@ -645,6 +697,9 @@ export default function Account() {
           </div>
         )}
       </section>
+
+      {/* Hidden Certificate Component */}
+      <RegistrationCertificate memberData={memberData} certificateRef={certificateRef} />
     </div>
   );
 }

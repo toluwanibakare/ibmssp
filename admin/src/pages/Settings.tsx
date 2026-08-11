@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, Globe, Key, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const WP_INTEGRATION_SETTINGS_KEY = 'ibmssp_admin_wp_integration_settings';
 
@@ -16,6 +17,8 @@ export default function Settings() {
   const [requiredHeaderName, setRequiredHeaderName] = useState(defaultIntegrationSettings.requiredHeaderName);
   const [requiredHeaderValue, setRequiredHeaderValue] = useState(defaultIntegrationSettings.requiredHeaderValue);
   const [saveMessage, setSaveMessage] = useState('');
+  const [paystackMode, setPaystackMode] = useState<'test' | 'live'>('test');
+  const [paystackSaveMessage, setPaystackSaveMessage] = useState('');
 
   useEffect(() => {
     try {
@@ -28,7 +31,31 @@ export default function Settings() {
     } catch {
       // Ignore malformed local settings and fall back to defaults
     }
+
+    // Fetch Paystack Mode
+    const fetchPaystackMode = async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('setting_value')
+        .eq('setting_key', 'paystack_mode')
+        .single();
+      
+      if (data && typeof data.setting_value === 'string') {
+        setPaystackMode(data.setting_value as 'test' | 'live');
+      }
+    };
+    fetchPaystackMode();
   }, []);
+
+  const savePaystackMode = async (mode: 'test' | 'live') => {
+    setPaystackMode(mode);
+    await supabase.from('app_settings').upsert({
+      setting_key: 'paystack_mode',
+      setting_value: `"${mode}"`
+    });
+    setPaystackSaveMessage('Paystack mode updated successfully.');
+    setTimeout(() => setPaystackSaveMessage(''), 2500);
+  };
 
   const saveIntegrationSettings = () => {
     const payload = {
@@ -173,6 +200,51 @@ export default function Settings() {
           )}
 
           <p className="text-xs text-muted-foreground">Method: <span className="font-semibold text-foreground">POST</span> &nbsp;|&nbsp; Content-Type: <span className="font-semibold text-foreground">application/json</span></p>
+        </div>
+      </div>
+
+      {/* Paystack Settings */}
+      <div className="bg-card rounded-xl border border-border shadow-card p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Key size={15} className="text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Paystack Configuration</h2>
+        </div>
+        <div className="space-y-4 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium">API Mode</p>
+              <p className="text-xs text-muted-foreground mt-1">Switch between Test and Live environments. Ensure your Live keys are set in the .env file.</p>
+            </div>
+            <div className="flex bg-muted/30 p-1 rounded-lg border border-border">
+              <button
+                type="button"
+                onClick={() => savePaystackMode('test')}
+                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  paystackMode === 'test' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Test Mode
+              </button>
+              <button
+                type="button"
+                onClick={() => savePaystackMode('live')}
+                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  paystackMode === 'live' 
+                    ? 'bg-success text-success-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Live Mode
+              </button>
+            </div>
+          </div>
+          {paystackSaveMessage && (
+            <div className="text-xs text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2 mt-2">
+              {paystackSaveMessage}
+            </div>
+          )}
         </div>
       </div>
 

@@ -11,6 +11,7 @@ const navItems = [
   { to: '/members', icon: Users, label: 'Members Registry' },
   { to: '/newsletter', icon: Newspaper, label: 'Newsletter Hub' },
   { to: '/email-composer', icon: Mail, label: 'Email Composer' },
+  { to: '/chat', icon: MessageSquare, label: 'Live Support' },
   { to: '/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/activity-logs', icon: ClipboardList, label: 'Activity Logs' },
   { to: '/settings', icon: Settings, label: 'Settings' },

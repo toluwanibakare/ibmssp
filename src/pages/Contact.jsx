@@ -3,13 +3,47 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, User, Mail, Folder, MessageSquare, MapPin, Phone, Clock, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import './Contact.css';
 
+import { supabase } from '../lib/supabase';
+
 export default function Contact() {
   const [openFaqIdx, setOpenFaqIdx] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Message sent successfully!');
-    e.target.reset();
+    setIsSubmitting(true);
+    
+    const formData = new FormData(e.target);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const subject = formData.get('subject');
+    const message = formData.get('message');
+
+    try {
+      // Save to database
+      const { error } = await supabase.from('contact_messages').insert([{
+        name, email, subject, message
+      }]);
+      
+      if (error) throw error;
+
+      // Send email to admin
+      await supabase.functions.invoke('send-email', {
+        body: {
+          to: 'info@ibmssp.org.ng',
+          subject: `New Contact Form Submission: ${subject}`,
+          text: `You have received a new message from ${name} (${email}).\n\nMessage:\n${message}`
+        }
+      });
+
+      alert('Message sent successfully! Our team will get back to you shortly.');
+      e.target.reset();
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      alert('Failed to send message. Please try again or use our direct contact info.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -32,7 +66,7 @@ export default function Contact() {
               <div className="premium-form-group">
                 <label>YOUR NAME</label>
                 <div className="input-with-icon-wrapper">
-                  <input type="text" placeholder="Enter Your Name" required />
+                  <input type="text" name="name" placeholder="Enter Your Name" required />
                   <User size={16} className="input-field-icon" />
                 </div>
               </div>
@@ -40,7 +74,7 @@ export default function Contact() {
               <div className="premium-form-group">
                 <label>YOUR EMAIL</label>
                 <div className="input-with-icon-wrapper">
-                  <input type="email" placeholder="Enter Your Email" required />
+                  <input type="email" name="email" placeholder="Enter Your Email" required />
                   <Mail size={16} className="input-field-icon" />
                 </div>
               </div>
@@ -48,7 +82,7 @@ export default function Contact() {
               <div className="premium-form-group">
                 <label>SUBJECT</label>
                 <div className="input-with-icon-wrapper">
-                  <input type="text" placeholder="Enter Your Subject" required />
+                  <input type="text" name="subject" placeholder="Enter Your Subject" required />
                   <Folder size={16} className="input-field-icon" />
                 </div>
               </div>
@@ -56,13 +90,13 @@ export default function Contact() {
               <div className="premium-form-group">
                 <label>YOUR MESSAGE</label>
                 <div className="input-with-icon-wrapper">
-                  <textarea placeholder="Enter Your Message" rows={5} required></textarea>
+                  <textarea name="message" placeholder="Enter Your Message" rows={5} required></textarea>
                   <MessageSquare size={16} className="input-field-icon textarea-icon" />
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary premium-submit-btn">
-                SUBMIT
+              <button type="submit" disabled={isSubmitting} className="btn btn-primary premium-submit-btn">
+                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
               </button>
             </form>
           </div>

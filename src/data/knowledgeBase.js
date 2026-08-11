@@ -182,6 +182,19 @@ A: Yes. The MSAT assessment at assessment.ibmssp.org.ng is accessible without me
 - To read FAQ: Go to /faq
 - To read privacy policy: Go to /privacy
 - To read terms: Go to /terms
+
+=== PRIVACY POLICY SUMMARY ===
+- We collect Personal Data (name, email, phone, address, etc.) and Usage Data (IP address, browser type).
+- We use this to provide our Service, notify you about changes, provide customer care, and monitor usage.
+- We do not sell your personal data. We take reasonable security measures to protect data.
+- Read the full policy at /privacy.
+
+=== TERMS AND CONDITIONS SUMMARY ===
+- By using our site, you agree to comply with our Terms.
+- All site content is intellectual property of IBMSSP.
+- We are not liable for direct/indirect damages arising from using the site.
+- Members must provide accurate information when registering.
+- Read the full terms at /terms.
 `;
 
 export default IBMSSP_KNOWLEDGE_BASE;

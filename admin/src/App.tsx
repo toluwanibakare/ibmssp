@@ -13,6 +13,7 @@ import MemberProfile from "./pages/MemberProfile";
 import EmailComposer from "./pages/EmailComposer";
 import Newsletter from "./pages/Newsletter";
 import Messages from "./pages/Messages";
+import LiveChat from "./pages/LiveChat";
 import ActivityLogs from "./pages/ActivityLogs";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="/email-composer" element={<EmailComposer />} />
                 <Route path="/newsletter" element={<Newsletter />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/chat" element={<LiveChat />} />
                 <Route path="/activity-logs" element={<ActivityLogs />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
