@@ -414,7 +414,9 @@ export default function Membership() {
                   {/* Acceptance Checkbox */}
                   <div className="form-checkbox-row">
                     <input type="checkbox" id="terms" required />
-                    <label htmlFor="terms">I accept the Terms & Conditions and Privacy Policy</label>
+                    <label htmlFor="terms">
+                      I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
+                    </label>
                   </div>
 
                   {/* Optional Newsletter Checkbox */}
