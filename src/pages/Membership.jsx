@@ -52,6 +52,7 @@ export default function Membership() {
   const { type } = useParams();
   const [fileName, setFileName] = React.useState('');
   const [individualCategory, setIndividualCategory] = React.useState('auditor');
+  const [submitted, setSubmitted] = React.useState(false);
 
   // If no type is provided, show the landing overview dashboard with all sections
   if (!type) {
@@ -295,140 +296,164 @@ export default function Membership() {
               <p>Get listed, access resources, and join standardisation workshops immediately.</p>
               
               <div className="registration-form">
-                <h3>Apply for Membership</h3>
-                <form onSubmit={(e) => { e.preventDefault(); alert('Application submitted successfully!'); }}>
-                  {/* Login Credentials */}
-                  <input type="email" placeholder="Login Email" required />
-                  <input type="password" placeholder="Password" required />
+                {!submitted ? (
+                  <>
+                    <h3>Apply for Membership</h3>
+                    <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+                      {/* Login Credentials */}
+                      <input type="email" placeholder="Login Email" required />
+                      <input type="password" placeholder="Password" required />
 
-                  {/* Business Category specific fields */}
-                  {activeType === 'business' && (
-                    <>
-                      <input type="text" placeholder="Organization Name" required />
-                      <input type="email" placeholder="Organization Contact Email" required />
-                      <input type="tel" placeholder="Contact Phone Number" required />
-                      <div className="file-upload-container">
-                        <label className="file-upload-label">
-                          <span>{fileName || 'Upload ISO Certificate / Proof'}</span>
-                          <input 
-                            type="file" 
-                            accept=".pdf,.png,.jpg,.jpeg"
-                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                            required 
-                          />
+                      {/* Business Category specific fields */}
+                      {activeType === 'business' && (
+                        <>
+                          <input type="text" placeholder="Organization Name" required />
+                          <input type="email" placeholder="Organization Contact Email" required />
+                          <input type="tel" placeholder="Contact Phone Number" required />
+                          <div className="file-upload-container">
+                            <label className="file-upload-label">
+                              <span>{fileName || 'Upload ISO Certificate / Proof'}</span>
+                              <input 
+                                type="file" 
+                                accept=".pdf,.png,.jpg,.jpeg"
+                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                                required 
+                              />
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Individual Category specific fields */}
+                      {activeType === 'individuals' && (
+                        <>
+                          <input type="text" placeholder="Full Name" required />
+                          <input type="tel" placeholder="Phone Number" required />
+                          
+                          <div className="form-group">
+                            <label className="input-field-label">Select Your Category</label>
+                            <select 
+                              value={individualCategory} 
+                              onChange={(e) => setIndividualCategory(e.target.value)} 
+                              className="form-select"
+                              required
+                            >
+                              <option value="auditor">Trained Auditors</option>
+                              <option value="consultant">Registered Consultants</option>
+                            </select>
+                          </div>
+
+                          <div className="file-upload-container">
+                            <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Document Upload</label>
+                            <p className="file-upload-subtext">Please upload a copy of your ISO-related document (PDF, DOC, DOCX, JPG, PNG, JPEG — Maximum size: 5MB).</p>
+                            <label className="file-upload-label">
+                              <span>{fileName || 'Upload ISO-related document'}</span>
+                              <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                                required 
+                              />
+                            </label>
+                          </div>
+
+                          <div className="notice-box">
+                            <strong>Important Notice:</strong> Ensure that the document provided corresponds correctly with the category selected above. Submitting a document that does not match your chosen category may delay or invalidate your verification.
+                          </div>
+                        </>
+                      )}
+
+                      {/* Graduates Category specific fields */}
+                      {activeType === 'graduates' && (
+                        <>
+                          <input type="text" placeholder="Full Name" required />
+                          <input type="tel" placeholder="Phone Number" required />
+                          
+                          <input type="text" placeholder="Name of Institution" required />
+                          <input type="text" placeholder="Degree Obtained" required />
+                          <input type="text" placeholder="Course of Study" required />
+                          <input type="text" placeholder="Year of Graduation (e.g. 2022)" required />
+                          <input type="text" placeholder="Duration of Study (e.g. 4 years)" required />
+
+                          <div className="file-upload-container">
+                            <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Certificate</label>
+                            <label className="file-upload-label">
+                              <span>{fileName || 'No file chosen'}</span>
+                              <input 
+                                type="file" 
+                                accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                                required 
+                              />
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Students Category specific fields */}
+                      {activeType === 'students' && (
+                        <>
+                          <input type="text" placeholder="Full Name" required />
+                          <input type="tel" placeholder="Phone Number" required />
+                          
+                          <input type="text" placeholder="Name of School" required />
+                          <input type="text" placeholder="Course of Study" required />
+
+                          <div className="file-upload-container">
+                            <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Student ID Verification</label>
+                            <label className="file-upload-label">
+                              <span>{fileName || 'No file chosen'}</span>
+                              <input 
+                                type="file" 
+                                accept=".pdf,.png,.jpg,.jpeg"
+                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                                required 
+                              />
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Acceptance Checkbox */}
+                      <div className="form-checkbox-row">
+                        <input type="checkbox" id="terms" required />
+                        <label htmlFor="terms">
+                          I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
                         </label>
                       </div>
-                    </>
-                  )}
 
-                  {/* Individual Category specific fields */}
-                  {activeType === 'individuals' && (
-                    <>
-                      <input type="text" placeholder="Full Name" required />
-                      <input type="tel" placeholder="Phone Number" required />
-                      
-                      <div className="form-group">
-                        <label className="input-field-label">Select Your Category</label>
-                        <select 
-                          value={individualCategory} 
-                          onChange={(e) => setIndividualCategory(e.target.value)} 
-                          className="form-select"
-                          required
-                        >
-                          <option value="auditor">Trained Auditors</option>
-                          <option value="consultant">Registered Consultants</option>
-                        </select>
+                      {/* Optional Newsletter Checkbox */}
+                      <div className="form-checkbox-row">
+                        <input type="checkbox" id="newsletter" />
+                        <label htmlFor="newsletter">Subscribe to newsletter & updates</label>
                       </div>
 
-                      <div className="file-upload-container">
-                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Document Upload</label>
-                        <p className="file-upload-subtext">Please upload a copy of your ISO-related document (PDF, DOC, DOCX, JPG, PNG, JPEG — Maximum size: 5MB).</p>
-                        <label className="file-upload-label">
-                          <span>{fileName || 'Upload ISO-related document'}</span>
-                          <input 
-                            type="file" 
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                            required 
-                          />
-                        </label>
-                      </div>
-
-                      <div className="notice-box">
-                        <strong>Important Notice:</strong> Ensure that the document provided corresponds correctly with the category selected above. Submitting a document that does not match your chosen category may delay or invalidate your verification.
-                      </div>
-                    </>
-                  )}
-
-                  {/* Graduates Category specific fields */}
-                  {activeType === 'graduates' && (
-                    <>
-                      <input type="text" placeholder="Full Name" required />
-                      <input type="tel" placeholder="Phone Number" required />
-                      
-                      <input type="text" placeholder="Name of Institution" required />
-                      <input type="text" placeholder="Degree Obtained" required />
-                      <input type="text" placeholder="Course of Study" required />
-                      <input type="text" placeholder="Year of Graduation (e.g. 2022)" required />
-                      <input type="text" placeholder="Duration of Study (e.g. 4 years)" required />
-
-                      <div className="file-upload-container">
-                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Certificate</label>
-                        <label className="file-upload-label">
-                          <span>{fileName || 'No file chosen'}</span>
-                          <input 
-                            type="file" 
-                            accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                            required 
-                          />
-                        </label>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Students Category specific fields */}
-                  {activeType === 'students' && (
-                    <>
-                      <input type="text" placeholder="Full Name" required />
-                      <input type="tel" placeholder="Phone Number" required />
-                      
-                      <input type="text" placeholder="Name of School" required />
-                      <input type="text" placeholder="Course of Study" required />
-
-                      <div className="file-upload-container">
-                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Student ID Verification</label>
-                        <label className="file-upload-label">
-                          <span>{fileName || 'No file chosen'}</span>
-                          <input 
-                            type="file" 
-                            accept=".pdf,.png,.jpg,.jpeg"
-                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                            required 
-                          />
-                        </label>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Acceptance Checkbox */}
-                  <div className="form-checkbox-row">
-                    <input type="checkbox" id="terms" required />
-                    <label htmlFor="terms">
-                      I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
-                    </label>
+                      <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '0.5rem' }}>
+                        Upload & Sign Up
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <div className="application-success-view" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                    <div className="success-icon-wrapper" style={{ display: 'inline-flex', padding: '1rem', backgroundColor: 'rgba(48, 88, 88, 0.1)', borderRadius: '50%', color: 'var(--primary-color)', marginBottom: '1.25rem' }}>
+                      <Check size={32} />
+                    </div>
+                    <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-color)', marginBottom: '1rem' }}>Application Submitted!</h3>
+                    <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                      Thank you for applying. An email has been sent to you containing your registration details and instructions on how to complete your registration payment.
+                    </p>
+                    <div className="next-steps-box" style={{ backgroundColor: 'var(--bg-offset)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1.25rem', textAlign: 'left', marginBottom: '1.5rem' }}>
+                      <strong style={{ fontSize: '0.82rem', textTransform: 'uppercase', color: 'var(--primary-color)', display: 'block', marginBottom: '0.65rem', letterSpacing: '0.5px' }}>Next Steps:</strong>
+                      <ol style={{ paddingLeft: '1.15rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.8rem', color: 'var(--text-color)', lineHeight: '1.45' }}>
+                        <li>Check your email inbox (and spam folder) for the registration invoice.</li>
+                        <li>Log in to your <strong>Account</strong> page to view your application status.</li>
+                        <li>You will see a <strong>"Payment Pending"</strong> status on your dashboard until verification is complete and payment is confirmed.</li>
+                        <li>If there are any issues with your verification documents, our board will contact you directly via email.</li>
+                      </ol>
+                    </div>
+                    <Link to="/account" className="btn btn-primary w-full text-center">Go to My Account</Link>
                   </div>
-
-                  {/* Optional Newsletter Checkbox */}
-                  <div className="form-checkbox-row">
-                    <input type="checkbox" id="newsletter" />
-                    <label htmlFor="newsletter">Subscribe to newsletter & updates</label>
-                  </div>
-
-                  <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '0.5rem' }}>
-                    Upload & Sign Up
-                  </button>
-                </form>
+                )}
               </div>
             </div>
           </div>
