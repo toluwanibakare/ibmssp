@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Mail, CheckCircle, Clock, FileText, Phone, Tag, MapPin, Pencil, Save, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, Mail, CheckCircle, Clock, FileText, Phone, Tag, MapPin, Pencil, Save, X, Trash2, ShieldAlert, Download } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CategoryBadge, StatusBadge, formatDateTime, formatDate, timeAgo } from '@/lib/utils-ui';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
+import { supabase } from '@/lib/supabase';
 
 function InfoRow({ label, value }: { label: string; value?: string | number | null }) {
   if (!value) return null;
@@ -28,11 +29,15 @@ function EditRow({ label, value, onChange, type = 'text' }: { label: string; val
 export default function MemberProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { approveMember, logs, getMemberById, updateMember, deleteMember } = useData();
+  const { approveMember, logs, getMemberById, updateMember, deleteMember, sendEmail } = useData();
   const { user } = useAuth();
+
   const [member, setMember] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [approving, setApproving] = useState(false);
+  const [flagging, setFlagging] = useState(false);
+  const [flagReason, setFlagReason] = useState('');
+  const [showFlagInput, setShowFlagInput] = useState(false);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -64,8 +69,58 @@ export default function MemberProfile() {
     try {
       await approveMember(member.member_id);
       setMember((prev: any) => prev ? { ...prev, registration_status: 'approved' } : null);
+
+      // Send approval notification email
+      await sendEmail({
+        to: member.email,
+        subject: "IBMSSP Membership Approved",
+        text: `Hello ${member.first_name},\n\nWe are pleased to inform you that your IBMSSP registration has been verified and approved!\n\nYou can now log in to your account page at https://ibmssp.org.ng/account to access all resources.\n\nBest regards,\nIBMSSP Credentials Board`
+      });
+    } catch (err: any) {
+      setError(err?.message || 'Failed to approve member.');
     } finally {
       setApproving(false);
+    }
+  };
+
+  const handleFlagSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member || !flagReason.trim()) return;
+    setFlagging(true);
+    try {
+      // Update registration_status to 'rejected' and save the reason in 'other_name'
+      await supabase
+        .from('members')
+        .update({ 
+          registration_status: 'rejected',
+          other_name: flagReason 
+        })
+        .eq('member_id', member.member_id);
+
+      // Log the flag action
+      await supabase.from('activity_logs').insert({
+        member_id: member.member_id,
+        action: 'FLAGGED',
+        description: `Registration flagged: ${flagReason}`,
+        performed_by: user?.id || null
+      });
+
+      // Send notification email
+      await sendEmail({
+        to: member.email,
+        subject: "IBMSSP Registration Flagged",
+        text: `Hello ${member.first_name},\n\nYour IBMSSP registration submission was flagged for revision by the credentials board.\n\nReason for Flag:\n"${flagReason}"\n\nPlease log in to your account dashboard (https://ibmssp.org.ng/account) and update your profile or documents as requested.\n\nBest regards,\nIBMSSP Credentials Board`
+      });
+
+      const refreshed = await getMemberById(member.member_id);
+      setMember(refreshed);
+      setShowFlagInput(false);
+      setFlagReason('');
+      alert('Member flagged and notified successfully.');
+    } catch (err: any) {
+      setError(err?.message || 'Failed to flag member.');
+    } finally {
+      setFlagging(false);
     }
   };
 
@@ -83,7 +138,6 @@ export default function MemberProfile() {
       date_of_birth: member.date_of_birth || '',
       registration_status: member.registration_status || 'pending',
       payment_status: member.payment_status || 'unpaid',
-      // Category-specific
       ...(member.studentDetails ? {
         institution_name: member.studentDetails.institution_name || '',
         course_of_study: member.studentDetails.course_of_study || '',
@@ -228,6 +282,12 @@ export default function MemberProfile() {
 
   const details = member.studentDetails || member.graduateDetails || member.professionalDetails || member.organizationDetails;
 
+  // Retrieve document URLs dynamically if present
+  const documentUrl = member.organizationDetails?.company_certificate_file || 
+                      member.professionalDetails?.cv_file || 
+                      member.graduateDetails?.certificate_file || 
+                      member.studentDetails?.student_id_card_file;
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -249,6 +309,12 @@ export default function MemberProfile() {
                 <button onClick={handleApprove} disabled={approving}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-success/40 bg-success/10 text-success text-sm font-medium hover:bg-success/20 transition-colors disabled:opacity-60">
                   <CheckCircle size={13} /> {approving ? 'Approving…' : 'Approve Registration'}
+                </button>
+              )}
+              {member.registration_status !== 'rejected' && (
+                <button onClick={() => setShowFlagInput(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-yellow-500/40 bg-yellow-500/10 text-yellow-600 text-sm font-medium hover:bg-yellow-500/20 transition-colors">
+                  <ShieldAlert size={13} /> Flag Submission
                 </button>
               )}
               {isAdmin && (
@@ -277,6 +343,36 @@ export default function MemberProfile() {
 
       {error && editing && <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>}
 
+      {/* Flag submission popup overlay */}
+      {showFlagInput && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <form onSubmit={handleFlagSubmit} className="bg-card rounded-xl border border-border shadow-lg max-w-md w-full p-6 space-y-4">
+            <h3 className="text-base font-semibold flex items-center gap-2 text-yellow-600">
+              <ShieldAlert size={18} /> Flag Registration Submission
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Please state why this registration form or uploaded document is flagged. The user will see this on their dashboard and receive an automated email.
+            </p>
+            <textarea
+              required
+              rows={4}
+              placeholder="e.g., Uploaded certificate has expired or RC number mismatch."
+              value={flagReason}
+              onChange={e => setFlagReason(e.target.value)}
+              className="w-full text-sm p-3 border border-border rounded-lg bg-background outline-none"
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowFlagInput(false)} className="px-3 py-2 rounded-lg border border-border text-xs font-medium hover:bg-accent">
+                Cancel
+              </button>
+              <button type="submit" disabled={flagging} className="px-3 py-2 rounded-lg bg-yellow-600 text-white text-xs font-medium hover:bg-yellow-700 disabled:opacity-60">
+                {flagging ? 'Flagging...' : 'Confirm Flag'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-5 gap-5">
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-card rounded-xl border border-border shadow-card p-5">
@@ -286,14 +382,14 @@ export default function MemberProfile() {
               </div>
               {!editing ? (
                 <>
-                  <h2 className="text-base font-semibold">{member.first_name} {member.other_name} {member.last_name}</h2>
+                  <h2 className="text-base font-semibold">{member.first_name} {member.last_name}</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">{member.email}</p>
                 </>
               ) : (
                 <div className="w-full space-y-2 text-left mt-2">
                   <EditRow label="First Name" value={ef('first_name')} onChange={v => setEf('first_name', v)} />
                   <EditRow label="Last Name" value={ef('last_name')} onChange={v => setEf('last_name', v)} />
-                  <EditRow label="Other Name" value={ef('other_name')} onChange={v => setEf('other_name', v)} />
+                  <EditRow label="Flag Reason / Other Name" value={ef('other_name')} onChange={v => setEf('other_name', v)} />
                 </div>
               )}
               <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
@@ -310,7 +406,7 @@ export default function MemberProfile() {
                     <select value={ef('registration_status')} onChange={e => setEf('registration_status', e.target.value)} className="input-field text-xs py-0.5 px-1.5 h-7">
                       <option value="pending">Pending</option>
                       <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
+                      <option value="rejected">Rejected (Flagged)</option>
                     </select>
                     <select value={ef('payment_status')} onChange={e => setEf('payment_status', e.target.value)} className="input-field text-xs py-0.5 px-1.5 h-7">
                       <option value="unpaid">Unpaid</option>
@@ -351,6 +447,25 @@ export default function MemberProfile() {
         </div>
 
         <div className="lg:col-span-3 space-y-4">
+          
+          {/* ── SUBMITTED VERIFICATION DOCUMENTS ── */}
+          {documentUrl && (
+            <div className="bg-card rounded-xl border border-border shadow-card p-5">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-primary">
+                <Download size={15} /> Submitted Verification Documents
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Click below to download or inspect the files uploaded by this member for accreditation.
+              </p>
+              <div className="flex items-center gap-3">
+                <a href={documentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-3 rounded-lg border border-border bg-background hover:bg-accent text-sm font-semibold transition-colors">
+                  <FileText size={16} className="text-primary" />
+                  <span>Inspect Attachment Document</span>
+                </a>
+              </div>
+            </div>
+          )}
+
           {(details || editing) && (
             <div className="bg-card rounded-xl border border-border shadow-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -450,7 +565,7 @@ export default function MemberProfile() {
               <div className="relative pl-4 border-l border-border space-y-4">
                 {memberLogs.map(log => (
                   <div key={log.id} className="relative">
-                    <div className={`absolute -left-[17px] w-2 h-2 rounded-full mt-1.5 ${log.action === 'APPROVAL' ? 'bg-success' : 'bg-primary'}`} />
+                    <div className={`absolute -left-[17px] w-2 h-2 rounded-full mt-1.5 ${log.action === 'APPROVAL' ? 'bg-success' : log.action === 'FLAGGED' ? 'bg-yellow-500' : 'bg-primary'}`} />
                     <p className="text-sm">{log.description}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{formatDateTime(log.created_at)}</p>
                   </div>
