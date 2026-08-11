@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Award, CheckCircle, Clock, BookOpen, Download } from 'lucide-react';
+import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText } from 'lucide-react';
 import './Account.css';
 
 export default function Account() {
@@ -7,11 +7,25 @@ export default function Account() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Profile fields states (Editable)
+  const [profileName, setProfileName] = useState('Supreme Standards Ltd');
+  const [profileEmail, setProfileEmail] = useState('operations@supremestandards.com');
+  const [profilePhone, setProfilePhone] = useState('+234 803 570 6827');
+  const [profileAddress, setProfileAddress] = useState('334 Ikorodu Road, Anthony, Lagos');
+  
+  // Dashboard tab state
+  const [activeTab, setActiveTab] = useState('overview');
+  
   const handleLogin = (e) => {
     e.preventDefault();
     if (email && password) {
       setIsLoggedIn(true);
     }
+  };
+
+  const handleProfileSave = (e) => {
+    e.preventDefault();
+    alert('Profile settings saved successfully!');
   };
 
   if (!isLoggedIn) {
@@ -59,6 +73,7 @@ export default function Account() {
 
   return (
     <div className="account-page">
+      {/* Portal Header */}
       <section className="page-hero portal-hero">
         <div className="container portal-hero-container">
           <div className="portal-user-info">
@@ -66,73 +81,166 @@ export default function Account() {
               <User size={32} />
             </div>
             <div>
-              <h1>Welcome, Standards Practitioner</h1>
-              <p>Corporate Practitioner Tier • Member ID: #SSP-2026-9043</p>
+              <h1>Welcome, {profileName}</h1>
+              <p>Corporate Organization Tier • Member ID: #SSP-2026-9043</p>
             </div>
           </div>
           <button className="btn btn-secondary text-white" onClick={() => setIsLoggedIn(false)}>Log Out</button>
         </div>
       </section>
 
-      <section className="section-padding container portal-grid">
-        {/* Left Column: Dashboard metrics */}
-        <div className="portal-main">
-          <div className="portal-metrics">
-            <div className="metric-box">
-              <CheckCircle size={24} className="metric-icon green" />
-              <h3>Active</h3>
-              <p>Account Status</p>
-            </div>
-            <div className="metric-box">
-              <Award size={24} className="metric-icon gold" />
-              <h3>ISO 9001</h3>
-              <p>Primary Standards Tracker</p>
-            </div>
-            <div className="metric-box">
-              <Clock size={24} className="metric-icon blue" />
-              <h3>3</h3>
-              <p>Upcoming Workshops</p>
-            </div>
-          </div>
+      {/* Portal Tabs Bar */}
+      <div className="container portal-tabs-bar">
+        <button 
+          className={`portal-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          <Award size={16} /> <span>Dashboard Overview</span>
+        </button>
+        <button 
+          className={`portal-tab-btn ${activeTab === 'edit-profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('edit-profile')}
+        >
+          <Edit size={16} /> <span>Edit Profile Info</span>
+        </button>
+        <button 
+          className={`portal-tab-btn ${activeTab === 'resources' ? 'active' : ''}`}
+          onClick={() => setActiveTab('resources')}
+        >
+          <BookOpen size={16} /> <span>Resources & Certs</span>
+        </button>
+      </div>
 
-          <div className="portal-card cert-card">
-            <div className="card-header">
-              <Award size={22} className="card-icon" />
-              <h3>Practitioner Certificate</h3>
+      <section className="section-padding container">
+        {activeTab === 'overview' && (
+          <div className="portal-overview-tab">
+            {/* 1. Payment Pending Alert Warning Box */}
+            <div className="portal-warning-box">
+              <div className="warning-box-left">
+                <ShieldAlert size={28} />
+              </div>
+              <div className="warning-box-right">
+                <h3>Payment Pending</h3>
+                <p>
+                  Your registration is complete, but your annual corporate membership fee of <strong>₦20,000</strong> is currently pending. Settle the invoice to fully activate your portal and access all certification study keys.
+                </p>
+                <button className="btn btn-primary btn-settle-payment" onClick={() => alert('Redirecting to invoice secure payment gateway...')}>
+                  Complete Registration Payment
+                </button>
+              </div>
             </div>
-            <p>Your annual membership is active and compliant. You can download your official compliance certification below.</p>
-            <button className="btn btn-primary" onClick={() => alert('Certificate PDF download started!')}>
-              <Download size={16} /> Download Certificate
-            </button>
-          </div>
-        </div>
 
-        {/* Right Column: Resources & courses */}
-        <div className="portal-sidebar">
-          <div className="portal-card">
-            <div className="card-header">
-              <BookOpen size={22} className="card-icon" />
-              <h3>Exclusive Resources</h3>
+            {/* Metrics cards */}
+            <div className="portal-metrics" style={{ marginTop: '2.5rem' }}>
+              <div className="metric-box">
+                <Clock size={24} className="metric-icon gold" />
+                <h3>Pending Activation</h3>
+                <p>Account Status</p>
+              </div>
+              <div className="metric-box">
+                <Award size={24} className="metric-icon blue" />
+                <h3>QMS Maturity Assessment</h3>
+                <p>Pending Payment</p>
+              </div>
+              <div className="metric-box">
+                <FileText size={24} className="metric-icon green" />
+                <h3>ISO 9001:2015</h3>
+                <p>Standard Module Tracker</p>
+              </div>
             </div>
-            <ul className="resources-list">
-              <li>
-                <a href="#doc1" onClick={(e) => { e.preventDefault(); alert('Opening file...'); }}>
-                  ISO 9001:2015 Audit Checklist.pdf
-                </a>
-              </li>
-              <li>
-                <a href="#doc2" onClick={(e) => { e.preventDefault(); alert('Opening file...'); }}>
-                  SME Compliance Guide.pdf
-                </a>
-              </li>
-              <li>
-                <a href="#doc3" onClick={(e) => { e.preventDefault(); alert('Opening file...'); }}>
-                  System Standard Codes of Ethics.pdf
-                </a>
-              </li>
-            </ul>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'edit-profile' && (
+          <div className="portal-edit-profile-tab">
+            <div className="edit-profile-card">
+              <h3>Edit Profile Information</h3>
+              <p>Update your corporate registration and contact detail parameters below.</p>
+              
+              <form onSubmit={handleProfileSave} className="edit-profile-form">
+                <div className="edit-form-grid">
+                  <div className="form-group">
+                    <label>Organization / Full Name</label>
+                    <input 
+                      type="text" 
+                      value={profileName} 
+                      onChange={(e) => setProfileName(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Contact Email</label>
+                    <input 
+                      type="email" 
+                      value={profileEmail} 
+                      onChange={(e) => setProfileEmail(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Contact Phone</label>
+                    <input 
+                      type="text" 
+                      value={profilePhone} 
+                      onChange={(e) => setProfilePhone(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Office Address Location</label>
+                    <input 
+                      type="text" 
+                      value={profileAddress} 
+                      onChange={(e) => setProfileAddress(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-primary save-profile-btn">
+                  <Save size={16} /> <span>Save Profile Settings</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'resources' && (
+          <div className="portal-resources-tab grid-2">
+            {/* Download Certificate Card */}
+            <div className="portal-card cert-card">
+              <div className="card-header">
+                <Award size={22} className="card-icon" />
+                <h3>Practitioner Certificate</h3>
+              </div>
+              <p>Complete your registration payment to activate and download your official compliance certification.</p>
+              <button className="btn btn-primary" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                <Download size={16} /> Download Certificate (Locked)
+              </button>
+            </div>
+
+            {/* Exclusive Resources List */}
+            <div className="portal-card resources-card">
+              <div className="card-header">
+                <BookOpen size={22} className="card-icon" />
+                <h3>Exclusive Resources</h3>
+              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', marginBottom: '1.5rem' }}>
+                The resources below are locked until your payment is confirmed.
+              </p>
+              <ul className="resources-list-locked">
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>ISO 9001:2015 Audit Checklist.pdf</span>
+                </li>
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>SME Compliance Guide.pdf</span>
+                </li>
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>System Standard Codes of Ethics.pdf</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
