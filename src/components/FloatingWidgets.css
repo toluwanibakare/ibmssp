@@ -286,6 +286,7 @@
   line-height: 1.55;
   font-weight: 500;
   word-wrap: break-word;
+  white-space: pre-line;
 }
 
 .chat-message.assistant .message-bubble {

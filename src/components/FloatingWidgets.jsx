@@ -149,8 +149,9 @@ export default function FloatingWidgets() {
       const data = await response.json();
       const rawText = data.choices?.[0]?.message?.content || '';
       const { cleanText, links } = parseLinks(rawText);
+      const sanitizedText = cleanText.replace(/--/g, '-').replace(/—/g, '-');
 
-      setMessages(prev => [...prev, { role: 'assistant', text: cleanText, links }]);
+      setMessages(prev => [...prev, { role: 'assistant', text: sanitizedText, links }]);
     } catch (err) {
       setHasError(true);
       setMessages(prev => [...prev, {
