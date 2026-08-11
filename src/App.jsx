@@ -98,11 +98,11 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/faq" element={<FAQ />} />
-          <Route path="/admin/*" element={
-            <AdminRedirect />
-          } />
           <Route path="*" element={<NotFound />} />
         </Route>
+        
+        {/* Admin Route outside Layout to prevent Header/Footer from rendering */}
+        <Route path="/admin/*" element={<AdminRedirect />} />
       </Routes>
     </Router>
   );
@@ -110,10 +110,9 @@ export default function App() {
 
 function AdminRedirect() {
   useEffect(() => {
-    // Redirect to the admin portal
-    // In production, this would be the actual admin URL.
-    // For local development, assuming it runs on 5174
-    window.location.href = 'http://localhost:5174';
+    // If we land here via client-side routing, force a hard reload
+    // so the Vite dev server proxy or production server can serve the admin app directly.
+    window.location.href = window.location.pathname;
   }, []);
   return null;
 }
