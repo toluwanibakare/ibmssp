@@ -117,6 +117,58 @@
   width: 100%;
 }
 
+.file-upload-container {
+  width: 100%;
+}
+
+.file-upload-label {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--bg-offset);
+  border: 2px dashed var(--border-color);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--secondary-slate);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.file-upload-label:hover {
+  border-color: var(--primary-color);
+  background-color: #f0f4f4;
+}
+
+.file-upload-label input[type="file"] {
+  display: none;
+}
+
+.form-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  text-align: left;
+}
+
+.form-checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.form-checkbox-row label {
+  font-size: 0.82rem;
+  color: var(--secondary-slate);
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+
 /* Membership Structure Section Styles */
 .structure-grid {
   display: grid;

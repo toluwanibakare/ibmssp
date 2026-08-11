@@ -50,6 +50,7 @@ const tiers = {
 
 export default function Membership() {
   const { type } = useParams();
+  const [fileName, setFileName] = React.useState('');
 
   // If no type is provided, show the landing overview dashboard with all sections
   if (!type) {
@@ -293,12 +294,93 @@ export default function Membership() {
               <p>Get listed, access resources, and join standardisation workshops immediately.</p>
               
               <div className="registration-form">
-                <h3>Quick Application</h3>
+                <h3>Apply for Membership</h3>
                 <form onSubmit={(e) => { e.preventDefault(); alert('Application submitted successfully!'); }}>
-                  <input type="text" placeholder="Full Name / Organization" required />
-                  <input type="email" placeholder="Email Address" required />
-                  <input type="tel" placeholder="Phone Number" required />
-                  <button type="submit" className="btn btn-primary w-full">Apply Now</button>
+                  {/* Login Credentials */}
+                  <input type="email" placeholder="Login Email" required />
+                  <input type="password" placeholder="Password" required />
+
+                  {/* Business Category specific fields */}
+                  {activeType === 'business' && (
+                    <>
+                      <input type="text" placeholder="Organization Name" required />
+                      <input type="email" placeholder="Organization Contact Email" required />
+                      <input type="tel" placeholder="Contact Phone Number" required />
+                      <div className="file-upload-container">
+                        <label className="file-upload-label">
+                          <span>{fileName || 'Upload ISO Certificate / Proof'}</span>
+                          <input 
+                            type="file" 
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                            required 
+                          />
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Individual Category specific fields */}
+                  {activeType === 'individuals' && (
+                    <>
+                      <input type="text" placeholder="Full Name" required />
+                      <input type="tel" placeholder="Phone Number" required />
+                    </>
+                  )}
+
+                  {/* Graduates Category specific fields */}
+                  {activeType === 'graduates' && (
+                    <>
+                      <input type="text" placeholder="Full Name" required />
+                      <input type="tel" placeholder="Phone Number" required />
+                      <div className="file-upload-container">
+                        <label className="file-upload-label">
+                          <span>{fileName || 'Upload Proof of Graduation'}</span>
+                          <input 
+                            type="file" 
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                            required 
+                          />
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Students Category specific fields */}
+                  {activeType === 'students' && (
+                    <>
+                      <input type="text" placeholder="Full Name" required />
+                      <input type="tel" placeholder="Phone Number" required />
+                      <div className="file-upload-container">
+                        <label className="file-upload-label">
+                          <span>{fileName || 'Upload Student ID Verification'}</span>
+                          <input 
+                            type="file" 
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
+                            required 
+                          />
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Acceptance Checkbox */}
+                  <div className="form-checkbox-row">
+                    <input type="checkbox" id="terms" required />
+                    <label htmlFor="terms">I accept the Terms & Conditions and Privacy Policy</label>
+                  </div>
+
+                  {/* Optional Newsletter Checkbox */}
+                  <div className="form-checkbox-row">
+                    <input type="checkbox" id="newsletter" />
+                    <label htmlFor="newsletter">Subscribe to newsletter & updates</label>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '0.5rem' }}>
+                    Upload & Sign Up
+                  </button>
                 </form>
               </div>
             </div>
