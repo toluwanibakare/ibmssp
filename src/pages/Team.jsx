@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Share2, X } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import './Team.css';
 
 // Import board member images
@@ -115,18 +115,7 @@ const teamMembers = [
 export default function Team() {
   const [selectedMember, setSelectedMember] = useState(null);
 
-  const handleShare = (e, memberName) => {
-    e.stopPropagation();
-    if (navigator.share) {
-      navigator.share({
-        title: `${memberName} - IBMSSP Board Member`,
-        text: `Meet ${memberName}, a member of the Board of Directors at IBMSSP.`,
-        url: window.location.href,
-      }).catch(err => console.log(err));
-    } else {
-      alert(`Sharing details for ${memberName}`);
-    }
-  };
+
 
   const renderBio = (member) => {
     if (Array.isArray(member.bio)) {
@@ -176,13 +165,6 @@ export default function Team() {
                 className="member-premium-image" 
                 style={{ backgroundImage: `url(${member.image})` }}
               >
-                {/* Vertical Share Tag */}
-                <div className="share-vertical-tag">
-                  <span>SHARE</span>
-                  <button className="share-circle-btn" onClick={(e) => handleShare(e, member.name)} aria-label="Share profile">
-                    <Share2 size={12} />
-                  </button>
-                </div>
 
                 {/* Normal overlay (Name & Role) at the bottom */}
                 <div className="member-card-details-overlay">
