@@ -213,7 +213,7 @@ export default function Membership() {
               <div className="pricing-right-info">
                 {/* Default state */}
                 <div className="pricing-right-default">
-                  <div className="horiz-badge">Auditors</div>
+
                   <h3>Graduate Membership</h3>
                   <p>For fresh graduates with interest to choose a career in the ISO business sector.</p>
                 </div>
@@ -234,7 +234,7 @@ export default function Membership() {
               <div className="pricing-right-info">
                 {/* Default state */}
                 <div className="pricing-right-default">
-                  <div className="horiz-badge">Students</div>
+
                   <h3>Student Membership</h3>
                   <p>For undergraduates with interest to choose a career in the ISO business sector.</p>
                 </div>
