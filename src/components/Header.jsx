@@ -81,9 +81,9 @@ export default function Header() {
               <li className="dropdown-parent" 
                   onMouseEnter={() => setActiveDropdown('about')} 
                   onMouseLeave={() => setActiveDropdown(null)}>
-                <button className={`nav-link dropdown-toggle ${location.pathname.startsWith('/about') ? 'active' : ''}`}>
+                <Link to="/about" className={`nav-link dropdown-toggle ${location.pathname.startsWith('/about') ? 'active' : ''}`}>
                   About Us <ChevronDown size={14} />
-                </button>
+                </Link>
                 <ul className={`dropdown-menu ${activeDropdown === 'about' ? 'show' : ''}`}>
                   <li><Link to="/about">Our Identity</Link></li>
                   <li><Link to="/team">Our Team</Link></li>
@@ -93,9 +93,9 @@ export default function Header() {
               <li className="dropdown-parent"
                   onMouseEnter={() => setActiveDropdown('membership')} 
                   onMouseLeave={() => setActiveDropdown(null)}>
-                <button className={`nav-link dropdown-toggle ${location.pathname.startsWith('/membership') ? 'active' : ''}`}>
+                <Link to="/membership" className={`nav-link dropdown-toggle ${location.pathname.startsWith('/membership') ? 'active' : ''}`}>
                   Membership <ChevronDown size={14} />
-                </button>
+                </Link>
                 <ul className={`dropdown-menu ${activeDropdown === 'membership' ? 'show' : ''}`}>
                   <li><Link to="/membership/business">Business Organizations</Link></li>
                   <li><Link to="/membership/individuals">Individual Private Membership</Link></li>

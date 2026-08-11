@@ -116,3 +116,92 @@
 .registration-form button {
   width: 100%;
 }
+
+/* Membership Card Grid Styles */
+.membership-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.tier-card-premium {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tier-card-premium:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+.tier-card-header {
+  margin-bottom: 1.5rem;
+}
+
+.tier-card-header h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.tier-card-header p {
+  font-size: 0.85rem;
+  color: var(--secondary-slate);
+  line-height: 1.45;
+}
+
+.tier-card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tier-price-box {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f2f4f4;
+}
+
+.price-num {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.tier-bullets-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tier-bullets-list li {
+  font-size: 0.88rem;
+  color: var(--secondary-slate);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+.tier-bullets-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tier-card-footer {
+  margin-top: auto;
+}
+

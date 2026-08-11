@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import './Membership.css';
 
 const tiers = {
@@ -59,7 +60,62 @@ const tiers = {
 
 export default function Membership() {
   const { type } = useParams();
-  const activeType = type && tiers[type] ? type : 'business';
+
+  // If no type is provided, show the landing overview dashboard with all cards
+  if (!type) {
+    return (
+      <div className="membership-page">
+        <section className="page-hero">
+          <div className="container">
+            <h1>Membership</h1>
+            <p>Join a network dedicated to business standardizations and sustainability</p>
+          </div>
+        </section>
+
+        <section className="section-padding container">
+          <div className="section-header text-center" style={{ marginBottom: '4rem' }}>
+            <span className="section-tag-underlined">Membership</span>
+            <h2 className="section-title-large" style={{ color: 'var(--text-color)', marginTop: '0.75rem' }}>Categories & Tiers</h2>
+          </div>
+
+          <div className="membership-cards-grid">
+            {Object.keys(tiers).map((key) => {
+              const tier = tiers[key];
+              return (
+                <div key={key} className="tier-card-premium">
+                  <div className="tier-card-header">
+                    <h3>{tier.title}</h3>
+                    <p>{tier.subtitle}</p>
+                  </div>
+                  <div className="tier-card-body">
+                    <div className="tier-price-box">
+                      <span className="price-num">{tier.price}</span>
+                    </div>
+                    <ul className="tier-bullets-list">
+                      {tier.bullets.slice(0, 3).map((bullet, idx) => (
+                        <li key={idx}>
+                          <Check size={16} color="var(--primary-color)" />
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="tier-card-footer">
+                    <Link to={`/membership/${key}`} className="btn btn-primary w-full text-center">
+                      Explore Details
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // If type is provided, show the tabbed deep detail view
+  const activeType = tiers[type] ? type : 'business';
   const tier = tiers[activeType];
 
   return (
