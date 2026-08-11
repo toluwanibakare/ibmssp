@@ -365,12 +365,20 @@ export default function Membership() {
                     <>
                       <input type="text" placeholder="Full Name" required />
                       <input type="tel" placeholder="Phone Number" required />
+                      
+                      <input type="text" placeholder="Name of Institution" required />
+                      <input type="text" placeholder="Degree Obtained" required />
+                      <input type="text" placeholder="Course of Study" required />
+                      <input type="text" placeholder="Year of Graduation (e.g. 2022)" required />
+                      <input type="text" placeholder="Duration of Study (e.g. 4 years)" required />
+
                       <div className="file-upload-container">
+                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Certificate</label>
                         <label className="file-upload-label">
-                          <span>{fileName || 'Upload Proof of Graduation'}</span>
+                          <span>{fileName || 'No file chosen'}</span>
                           <input 
                             type="file" 
-                            accept=".pdf,.png,.jpg,.jpeg"
+                            accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
                             onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
                             required 
                           />
@@ -384,9 +392,14 @@ export default function Membership() {
                     <>
                       <input type="text" placeholder="Full Name" required />
                       <input type="tel" placeholder="Phone Number" required />
+                      
+                      <input type="text" placeholder="Name of School" required />
+                      <input type="text" placeholder="Course of Study" required />
+
                       <div className="file-upload-container">
+                        <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Student ID Verification</label>
                         <label className="file-upload-label">
-                          <span>{fileName || 'Upload Student ID Verification'}</span>
+                          <span>{fileName || 'No file chosen'}</span>
                           <input 
                             type="file" 
                             accept=".pdf,.png,.jpg,.jpeg"
