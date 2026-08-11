@@ -102,10 +102,11 @@ export default function Footer() {
           <div className="footer-widget menu-widget">
             <h4 className="widget-title">Information</h4>
             <ul className="widget-links">
-              <li><Link to="/membership/business">Membership</Link></li>
-              <li><a href="#partners">Partners</a></li>
-              <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="#cases">Case Studies</a></li>
+              <li><Link to="/membership">Membership</Link></li>
+              <li><Link to="/testimonials">Testimonials</Link></li>
+              <li><Link to="/faq">Frequently Asked Questions (FAQ)</Link></li>
+              {/* <li><a href="#partners">Partners</a></li> */}
+              {/* <li><a href="#cases">Case Studies</a></li> */}
             </ul>
           </div>
 

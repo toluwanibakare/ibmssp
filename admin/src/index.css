@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Page surface */
+    --background: 200 20% 97%;
+    --foreground: 200 30% 12%;
+
+    /* Card / panel surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 200 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 30% 12%;
+
+    /* Deep teal – primary actions */
+    --primary: 181 70% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Blue-gray – secondary */
+    --secondary: 207 25% 88%;
+    --secondary-foreground: 207 30% 25%;
+
+    /* Disabled / placeholder tones */
+    --muted: 205 18% 93%;
+    --muted-foreground: 205 16% 50%;
+
+    /* Highlight / hover tint */
+    --accent: 181 70% 93%;
+    --accent-foreground: 181 70% 22%;
+
+    /* Danger */
+    --destructive: 0 80% 57%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & inputs */
+    --border: 205 18% 88%;
+    --input: 205 18% 88%;
+    --ring: 181 70% 32%;
+
+    --radius: 0.625rem;
+
+    /* Dark sidebar – deep teal-slate */
+    --sidebar-bg: 200 35% 13%;
+    --sidebar-fg: 200 30% 88%;
+    --sidebar-active-bg: 181 70% 32%;
+    --sidebar-active-fg: 0 0% 100%;
+    --sidebar-hover-bg: 200 30% 20%;
+    --sidebar-muted: 200 20% 52%;
+    --sidebar-border: 200 30% 18%;
+
+    /* Status colors */
+    --success: 142 71% 45%;
+    --success-fg: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-fg: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-fg: 0 0% 100%;
+
+    /* Category badge colors */
+    --badge-std: 181 70% 32%;
+    --badge-std-bg: 181 70% 93%;
+    --badge-org: 142 71% 45%;
+    --badge-org-bg: 142 71% 93%;
+    --badge-grd: 38 92% 50%;
+    --badge-grd-bg: 38 92% 93%;
+    --badge-ind: 280 67% 55%;
+    --badge-ind-bg: 280 67% 95%;
+    --badge-con: 199 89% 38%;
+    --badge-con-bg: 199 89% 92%;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px 0 hsl(200 20% 75% / 0.4), 0 1px 2px -1px hsl(200 20% 75% / 0.4);
+    --shadow-dropdown: 0 10px 15px -3px hsl(200 35% 13% / 0.08), 0 4px 6px -4px hsl(200 35% 13% / 0.08);
+    --shadow-modal: 0 20px 25px -5px hsl(200 35% 13% / 0.1), 0 8px 10px -6px hsl(200 35% 13% / 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  /* Stat card */
+  .stat-card {
+    @apply bg-card rounded-xl p-4 sm:p-5 border border-border min-w-0 overflow-hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Data table */
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table th {
+    @apply text-left font-medium text-muted-foreground px-4 py-3 border-b border-border bg-muted/40;
+  }
+  .data-table td {
+    @apply px-4 py-3 border-b border-border;
+  }
+  .data-table tr:last-child td {
+    @apply border-b-0;
+  }
+  .data-table tbody tr {
+    @apply hover:bg-accent/30 transition-colors duration-150;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer;
+    color: hsl(var(--sidebar-fg));
+  }
+  .nav-item:hover {
+    background: hsl(var(--sidebar-hover-bg));
+  }
+  .nav-item.active {
+    background: hsl(var(--sidebar-active-bg));
+    color: hsl(var(--sidebar-active-fg));
+  }
+
+  /* Page header */
+  .page-header {
+    @apply flex flex-col items-start justify-between gap-3 mb-6 sm:flex-row sm:items-center;
+  }
+  .page-title {
+    @apply text-xl font-semibold tracking-tight text-foreground;
+  }
+  .page-subtitle {
+    @apply text-sm text-muted-foreground mt-0.5 break-words;
+  }
+
+  /* Input style override */
+  .input-field {
+    @apply w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all;
+  }
+}
+

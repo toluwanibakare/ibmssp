@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText } from 'lucide-react';
+import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText, Lock, Mail } from 'lucide-react';
 import './Account.css';
 
 export default function Account() {
@@ -44,27 +44,36 @@ export default function Account() {
             <h2>Log In</h2>
             <p>Enter your practitioner credentials to access files and certificates.</p>
             <form onSubmit={handleLogin}>
-              <div className="form-group">
-                <label>Email Address</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@organization.com"
-                  required 
-                />
+              <div className="premium-form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>YOUR EMAIL</label>
+                <div className="input-with-icon-wrapper" style={{ position: 'relative' }}>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter Your Email"
+                    style={{ width: '100%', padding: '0.85rem 2.5rem 0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
+                    required 
+                  />
+                  <Mail size={16} style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Password</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required 
-                />
+
+              <div className="premium-form-group" style={{ marginBottom: '2rem', textAlign: 'left' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>PASSWORD</label>
+                <div className="input-with-icon-wrapper" style={{ position: 'relative' }}>
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    style={{ width: '100%', padding: '0.85rem 2.5rem 0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
+                    required 
+                  />
+                  <Lock size={16} style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
+                </div>
               </div>
-              <button type="submit" className="btn btn-primary w-full">Sign In</button>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', display: 'block', padding: '0.9rem', fontWeight: 700, letterSpacing: '0.5px' }}>Sign In</button>
             </form>
             <div className="login-signup-prompt" style={{ marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', textAlign: 'center' }}>
               <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', marginBottom: '0.85rem' }}>Don't have an account or cannot sign in?</p>

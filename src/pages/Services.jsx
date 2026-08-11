@@ -8,7 +8,7 @@ const servicesList = [
     id: 'consultation-advisory',
     title: 'Consultation & Advisory on ISO Implementation & Certification',
     desc: 'Professional Guidance on ISO Based Performance Improvements and Sustained Success.',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=600&q=80',
     details: [
       "We provide professional advice and guidance on ISO based business management performance evaluation for improvements and sustained success.",
       "Through our evidence-based assessments, technology platform, data, and analytics, we help organizations improve and manage change through measurement, tracking and improving performance in their key business areas and processes.",
@@ -62,7 +62,7 @@ const servicesList = [
     id: 'recognition',
     title: 'Recognition',
     desc: 'Recognition certificate that matches the maturity level achieved.',
-    image: 'https://images.unsplash.com/photo-1578269174936-2709b5a5e06e?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=600&q=80',
     details: [
       "The Institute Recognition Scheme is designed for any organization, regardless of size, sector or location. We can even help you to find the most suitable level of recognition.",
       "It’s an award system to demonstrates stakeholders’ continuous improvement to global standards. The recognition shows how well organization is performing against a globally proven management framework. The process is carried out by independent IBMSSP trained Assessors. They review performance using the ISO Based Business Performance Model and offer tailored feedback throughout the process. Along with their own expertise running organizations all over the world.",

@@ -1,0 +1,208 @@
+.testimonials-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 4rem;
+  align-items: start;
+}
+
+.testimonials-subheading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.testimonials-mainheading {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-color);
+  margin-bottom: 2.5rem;
+  line-height: 1.25;
+}
+
+.testimonials-grid-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.testimonial-premium-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+  padding: 2.25rem;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.testimonial-premium-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.07);
+}
+
+.card-quote-icon {
+  color: var(--primary-color);
+  opacity: 0.2;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.75rem;
+}
+
+.testimonial-rating-row {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.testimonial-card-text {
+  font-size: 0.95rem;
+  color: var(--secondary-slate);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.testimonial-card-author {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+.author-avatar-circle {
+  width: 38px;
+  height: 38px;
+  background-color: rgba(48, 88, 88, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.author-card-meta h4 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 0.2rem;
+}
+
+.author-card-meta span {
+  font-size: 0.78rem;
+  color: var(--secondary-slate);
+}
+
+.load-more-testimonials-row {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.load-more-btn {
+  padding: 0.85rem 2.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+}
+
+/* Right Form Column */
+.testimony-form-column {
+  position: sticky;
+  top: 100px;
+}
+
+.testimony-form-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.05);
+  padding: 2.5rem 2rem;
+}
+
+.testimony-form-card h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.testimony-form-card p {
+  font-size: 0.88rem;
+  color: var(--secondary-slate);
+  margin-bottom: 1.75rem;
+  line-height: 1.5;
+}
+
+.premium-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.premium-form-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--secondary-slate);
+  letter-spacing: 0.5px;
+}
+
+.input-with-icon-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-with-icon-wrapper input,
+.testimony-form-card textarea {
+  width: 100%;
+  padding: 0.85rem 2.5rem 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  background-color: #ffffff;
+  color: var(--text-color);
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.testimony-form-card textarea {
+  padding: 0.85rem 1rem;
+  resize: vertical;
+}
+
+.input-with-icon-wrapper input:focus,
+.testimony-form-card textarea:focus {
+  border-color: var(--primary-color);
+}
+
+.input-field-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  pointer-events: none;
+}
+
+@media (max-width: 1199px) {
+  .testimonials-layout-grid {
+    grid-template-columns: 1fr 340px;
+    gap: 3rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .testimonials-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .testimony-form-column {
+    position: static;
+  }
+}

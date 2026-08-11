@@ -13,6 +13,8 @@ import Facilitator from './pages/Facilitator';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Account from './pages/Account';
+import Testimonials from './pages/Testimonials';
+import FAQ from './pages/FAQ';
 import FloatingWidgets from './components/FloatingWidgets';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -85,6 +87,8 @@ export default function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/faq" element={<FAQ />} />
           </Routes>
         </main>
 
