@@ -8,7 +8,7 @@ const servicesList = [
     id: 'consultation-advisory',
     title: 'Consultation & Advisory on ISO Implementation & Certification',
     desc: 'Professional Guidance on ISO Based Performance Improvements and Sustained Success.',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
     details: [
       "We provide professional advice and guidance on ISO based business management performance evaluation for improvements and sustained success.",
       "Through our evidence-based assessments, technology platform, data, and analytics, we help organizations improve and manage change through measurement, tracking and improving performance in their key business areas and processes.",
@@ -32,7 +32,7 @@ const servicesList = [
     id: 'capacity-building',
     title: 'Capacity Building (Learning & Development)',
     desc: 'Business Performance Improvement Assessment Training',
-    image: 'https://images.unsplash.com/photo-1531535934027-667f6db87590?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80',
     details: [
       "We provide training that helps organizations learn how to use of our iconic ISO Based Business Performance Improvement Assessment (BPIA) Model for managing and improving business performance; a diagnostic tools and unique enterprise performance data, that enables organizations analyze their businesses in order to better prepare for their improvement, change and transformation challenges.",
       "The technology that is developed based on the requirements of the international standard organization on management systems and evaluation tools for continual improvement, provides unique insights into your organization to help you master changes, improve and manage business growth and success."
@@ -80,7 +80,7 @@ const servicesList = [
     id: 'knowledge-base',
     title: 'Knowledge Base',
     desc: 'Access to ISO Based Information and Data.',
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=600&q=80',
     details: [
       "We provide access to an extensive repository of ISO-based information, compliance guidelines, templates, and self-assessment benchmarks.",
       "This system serves as a central registry to standardisation documentation, enabling organizations to research systems standards requirements and study global best practices efficiently."
@@ -102,7 +102,7 @@ const servicesList = [
     id: 'advocacy',
     title: 'Advocacy',
     desc: 'Representation on related policies through a collaborative approach.',
-    image: 'https://images.unsplash.com/photo-1521791136368-1a851900d141?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1573497491208-6b1acb260507?auto=format&fit=crop&w=600&q=80',
     details: [
       "We adopt a multifaceted approach to inform, leverage, voice, organize, and assess all related issues on business management systems with respects to the international standard requirements. We engage with stakeholders, collaborate with networks and coalitions, raise awareness about crucial issues, and drive meaningful change for business success through standardization.",
       "We aim to bring change, whether it's through public awareness, offering support, contracting advocacy services, or influencing policies on business sustainability through standardization. This will help stakeholders to express their views, thoughts, and concerns.",
@@ -114,7 +114,7 @@ const servicesList = [
     id: 'help-desk',
     title: 'Business Help Desk Services',
     desc: 'Timely guidance on management systems implementation and certification.',
-    image: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=600&q=80',
     details: [
       "We provide on time guidance and support to stakeholders and other end-users on business management systems implementation and certification issues, troubleshooting problems, and answering questions, including:"
     ],
