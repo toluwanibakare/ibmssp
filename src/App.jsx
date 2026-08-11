@@ -77,6 +77,7 @@ export default function App() {
             <Route path="/team" element={<Team />} />
             <Route path="/membership/:type" element={<Membership />} />
             <Route path="/membership" element={<Membership />} />
+            <Route path="/services/:type" element={<Services />} />
             <Route path="/services" element={<Services />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/contact" element={<Contact />} />
