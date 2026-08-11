@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Check, Building2, UserCheck, GraduationCap, ArrowRight } from 'lucide-react';
+import { Check, Building2, UserCheck, GraduationCap, ArrowRight, Loader } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './Membership.css';
 
 const tiers = {
@@ -13,7 +14,8 @@ const tiers = {
       'Specialized ISO implementation support frameworks',
       'One-time free Annual Performance Assessment of QMS Maturity Level'
     ],
-    price: '₦20,000 / One-Time'
+    price: '₦20,000 / One-Time',
+    dbCategory: 'business'
   },
   individuals: {
     title: 'Individual Private Membership',
@@ -24,7 +26,8 @@ const tiers = {
       'Networking with industrial executives and standards leaders',
       'Eligibility to join facilitation panels'
     ],
-    price: '₦10,000 / One-Time'
+    price: '₦10,000 / One-Time',
+    dbCategory: 'individual'
   },
   graduates: {
     title: 'Graduate Membership',
@@ -34,7 +37,8 @@ const tiers = {
       'Mentorship alignment with industry compliance auditors',
       'Foundation workshops'
     ],
-    price: '₦10,000 / One-Time'
+    price: '₦10,000 / One-Time',
+    dbCategory: 'graduate'
   },
   students: {
     title: 'Student Membership',
@@ -44,18 +48,153 @@ const tiers = {
       'Introductory systems standards study guides',
       'Student chapter resources'
     ],
-    price: '₦5,000 / One-Time'
+    price: '₦5,000 / One-Time',
+    dbCategory: 'student'
   }
 };
 
 export default function Membership() {
   const { type } = useParams();
-  const [fileName, setFileName] = React.useState('');
-  const [individualCategory, setIndividualCategory] = React.useState('auditor');
-  const [submitted, setSubmitted] = React.useState(false);
-  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const fileRef = useRef(null);
 
-  // If no type is provided, show the landing overview dashboard with all sections
+  // Form state
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [fullName, setFullName] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [fileName, setFileName] = React.useState('');
+  const [fileObj, setFileObj] = React.useState(null);
+  const [individualCategory, setIndividualCategory] = React.useState('auditor');
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(false);
+
+  // Business-specific
+  const [orgName, setOrgName] = React.useState('');
+  const [orgEmail, setOrgEmail] = React.useState('');
+  const [orgPhone, setOrgPhone] = React.useState('');
+  // Graduate-specific
+  const [institution, setInstitution] = React.useState('');
+  const [degree, setDegree] = React.useState('');
+  const [course, setCourse] = React.useState('');
+  const [gradYear, setGradYear] = React.useState('');
+  const [studyDuration, setStudyDuration] = React.useState('');
+  // Student-specific
+  const [school, setSchool] = React.useState('');
+  const [studentCourse, setStudentCourse] = React.useState('');
+
+  // ─── Supabase Registration Handler ───────────────────────────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const tier = tiers[activeType];
+
+      // 1. Create Supabase Auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } }
+      });
+
+      if (authError) throw new Error(authError.message);
+
+      // 2. Upload document file to Supabase Storage if provided
+      let fileUrl = null;
+      if (fileObj) {
+        const ext = fileObj.name.split('.').pop();
+        const path = `member-docs/${Date.now()}-${email.replace('@','_')}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('member-documents')
+          .upload(path, fileObj, { upsert: false });
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('member-documents')
+            .getPublicUrl(path);
+          fileUrl = urlData?.publicUrl || null;
+        }
+      }
+
+      // 3. Parse first/last name
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // 4. Insert into members table
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .insert({
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: phone,
+          category: tier.dbCategory,
+          payment_status: 'pending',
+          registration_status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (memberError) throw new Error(memberError.message);
+      const memberId = memberData.member_id;
+
+      // 5. Insert category-specific detail record
+      if (activeType === 'business') {
+        await supabase.from('organization_details').insert({
+          member_id: memberId,
+          organization_name: orgName,
+          company_email: orgEmail,
+          company_phone: orgPhone,
+          company_certificate_file: fileUrl,
+        });
+      } else if (activeType === 'individuals') {
+        await supabase.from('professional_details').insert({
+          member_id: memberId,
+          profession: individualCategory === 'auditor' ? 'Trained Auditor' : 'Registered Consultant',
+          professional_certifications: individualCategory,
+          cv_file: fileUrl,
+        });
+      } else if (activeType === 'graduates') {
+        await supabase.from('graduate_details').insert({
+          member_id: memberId,
+          institution,
+          qualification: degree,
+          graduation_year: parseInt(gradYear) || 0,
+          study_duration: studyDuration,
+          certificate_file: fileUrl,
+        });
+      } else if (activeType === 'students') {
+        // Students use graduate_details table with minimal fields
+        await supabase.from('graduate_details').insert({
+          member_id: memberId,
+          institution: school,
+          qualification: studentCourse,
+          graduation_year: 0,
+          cv_file: fileUrl,
+        });
+      }
+
+      // 6. Log the activity
+      await supabase.from('activity_logs').insert({
+        action: 'member_registered',
+        description: `New ${tier.dbCategory} member registered: ${email}`,
+        member_id: memberId,
+        performed_by: 'self-registration',
+      });
+
+      setSubmitted(true);
+
+    } catch (err) {
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Membership Landing (no type selected) ───────────────────────────────
   if (!type) {
     return (
       <div className="membership-page">
@@ -78,104 +217,35 @@ export default function Membership() {
               <div className="structure-icon-box">
                 <Building2 size={24} color="#ffffff" />
               </div>
-              <h3>Corporate Members</h3>
-              <p>These are business organizations already practicing ISO implementation and certification. They form the bulk of IBMSSP members.</p>
+              <h3>Business Organizations</h3>
+              <p>ISO-certified companies seeking standardization and operational maturity benchmarking.</p>
             </div>
-
             <div className="structure-col">
               <div className="structure-icon-box">
                 <UserCheck size={24} color="#ffffff" />
               </div>
-              <h3>Individual Private Members</h3>
-              <p>These are ISO registered stakeholders who have acquired evidence of training and experience in the implementation process of ISO practices either as a trained individuals, Consultants, and Tutors.</p>
+              <h3>Individual Practitioners</h3>
+              <p>Certified ISO auditors, consultants, and QMS trainers seeking professional recognition.</p>
             </div>
-
             <div className="structure-col">
               <div className="structure-icon-box">
                 <GraduationCap size={24} color="#ffffff" />
               </div>
-              <h3>Student Members</h3>
-              <p>These are intending candidates with interest to choose a career in the ISO business sector.</p>
+              <h3>Graduates & Students</h3>
+              <p>Fresh graduates and undergraduates building careers in quality management and ISO standards.</p>
             </div>
           </div>
         </section>
 
-        {/* 2. Membership Benefits Section */}
-        <section className="benefits-section section-padding">
-          <div className="container">
-            <div className="section-header text-center" style={{ marginBottom: '4rem' }}>
-              <span className="section-tag-underlined">Privileges</span>
-              <h2 className="section-title-large" style={{ color: 'var(--text-color)', marginTop: '0.75rem' }}>Membership Benefits</h2>
-            </div>
-
-            <div className="benefits-grid">
-              {/* Column 1 */}
-              <div className="benefits-col">
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Subsidized ISO training & development programmes and consultancy services through workshops and seminars.</p>
-                </div>
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Promotion of business linkages and networking.</p>
-                </div>
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>For all those that register under any corporate membership plan, there is a one-time free Annual Performance Assessment of QMS Maturity Level.</p>
-                </div>
-              </div>
-
-              {/* Column 2 */}
-              <div className="benefits-col">
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Knowledge sharing with access to comparative info and data on ISO.</p>
-                </div>
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Intervention Programme to support your journey of constant improvement.</p>
-                </div>
-              </div>
-
-              {/* Column 3 */}
-              <div className="benefits-col">
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Access to information and advisory services on ISO related issues.</p>
-                </div>
-                <div className="benefit-item">
-                  <div className="benefit-check">
-                    <Check size={16} color="#ffffff" />
-                  </div>
-                  <p>Representation of interest.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. Membership Categories Grid (iStock-style Pricing layout) */}
+        {/* 2. Pricing Cards Section */}
         <section className="section-padding container">
           <div className="section-header text-center" style={{ marginBottom: '4rem' }}>
-            <span className="section-tag-underlined">One-Time Registration</span>
-            <h2 className="section-title-large" style={{ color: 'var(--text-color)', marginTop: '0.75rem' }}>Membership Categories</h2>
+            <span className="section-tag-underlined">Pricing</span>
+            <h2 className="section-title-large" style={{ color: 'var(--text-color)', marginTop: '0.75rem' }}>Pick a Membership Tier</h2>
           </div>
 
           {/* Row 1: 2 Tall Cards */}
           <div className="pricing-top-row">
-            {/* Corporate Membership */}
             <div className="pricing-card-tall">
               <div className="pricing-card-badge">For Organizations</div>
               <div className="pricing-card-content">
@@ -190,7 +260,6 @@ export default function Membership() {
               </div>
             </div>
 
-            {/* Individual Private Membership */}
             <div className="pricing-card-tall">
               <div className="pricing-card-badge">For Individuals</div>
               <div className="pricing-card-content">
@@ -208,20 +277,16 @@ export default function Membership() {
 
           {/* Row 2: 2 Horizontal Cards */}
           <div className="pricing-bottom-row">
-            {/* Graduate Membership */}
             <div className="pricing-card-horizontal">
               <div className="pricing-left-price">
                 <strong>10k</strong>
                 <span>One-Time</span>
               </div>
               <div className="pricing-right-info">
-                {/* Default state */}
                 <div className="pricing-right-default">
-
                   <h3>Graduate Membership</h3>
                   <p>For fresh graduates with interest to choose a career in the ISO business sector.</p>
                 </div>
-                {/* Hover state */}
                 <div className="pricing-right-hover">
                   <p className="subscribe-prompt">Click on the button below to subscribe</p>
                   <Link to="/membership/graduates" className="btn btn-primary pill-btn">Get Started</Link>
@@ -229,20 +294,16 @@ export default function Membership() {
               </div>
             </div>
 
-            {/* Student Membership */}
             <div className="pricing-card-horizontal">
               <div className="pricing-left-price">
                 <strong>5k</strong>
                 <span>One-Time</span>
               </div>
               <div className="pricing-right-info">
-                {/* Default state */}
                 <div className="pricing-right-default">
-
                   <h3>Student Membership</h3>
                   <p>For undergraduates with interest to choose a career in the ISO business sector.</p>
                 </div>
-                {/* Hover state */}
                 <div className="pricing-right-hover">
                   <p className="subscribe-prompt">Click on the button below to subscribe</p>
                   <Link to="/membership/students" className="btn btn-primary pill-btn">Get Started</Link>
@@ -255,8 +316,8 @@ export default function Membership() {
     );
   }
 
-  // If type is provided, show the tabbed deep detail view
-  const activeType = tiers[type] ? type : 'business';
+  // ─── Individual Tier Form ─────────────────────────────────────────────────
+  const activeType = Object.keys(tiers).includes(type) ? type : 'business';
   const tier = tiers[activeType];
 
   return (
@@ -282,7 +343,6 @@ export default function Membership() {
             <h2>{tier.title}</h2>
             <p className="tier-subtitle">{tier.subtitle}</p>
             <p className="tier-desc">{tier.desc}</p>
-            
             <ul className="tier-bullets">
               {tier.bullets.map((bullet, idx) => (
                 <li key={idx}>{bullet}</li>
@@ -295,154 +355,174 @@ export default function Membership() {
               <h4>Annual Registration</h4>
               <div className="price-tag">{tier.price}</div>
               <p>Get listed, access resources, and join standardisation workshops immediately.</p>
-              
+
               <div className="registration-form">
                 {!submitted ? (
                   <>
                     <h3>Apply for Membership</h3>
-                    <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
-                      {/* Login Credentials */}
-                      <input type="email" placeholder="Login Email" required />
-                      <input type="password" placeholder="Password" required />
+                    {error && (
+                      <div className="form-error-banner">
+                        {error}
+                      </div>
+                    )}
+                    <form onSubmit={handleSubmit}>
 
-                      {/* Business Category specific fields */}
+                      {/* ── Shared Login Credentials ── */}
+                      <input type="email" placeholder="Login Email" value={email} onChange={e => setEmail(e.target.value)} required />
+                      <input type="password" placeholder="Password (min 8 characters)" value={password} onChange={e => setPassword(e.target.value)} minLength={8} required />
+
+                      {/* ── BUSINESS fields ── */}
                       {activeType === 'business' && (
                         <>
-                          <input type="text" placeholder="Organization Name" required />
-                          <input type="email" placeholder="Organization Contact Email" required />
-                          <input type="tel" placeholder="Contact Phone Number" required />
+                          <input type="text" placeholder="Contact Person Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                          <input type="tel" placeholder="Contact Person Phone" value={phone} onChange={e => setPhone(e.target.value)} required />
+                          <input type="text" placeholder="Organization Name" value={orgName} onChange={e => setOrgName(e.target.value)} required />
+                          <input type="email" placeholder="Organization Contact Email" value={orgEmail} onChange={e => setOrgEmail(e.target.value)} required />
+                          <input type="tel" placeholder="Organization Phone Number" value={orgPhone} onChange={e => setOrgPhone(e.target.value)} required />
                           <div className="file-upload-container">
                             <label className="file-upload-label">
                               <span>{fileName || 'Upload ISO Certificate / Proof'}</span>
-                              <input 
-                                type="file" 
+                              <input
+                                ref={fileRef}
+                                type="file"
                                 accept=".pdf,.png,.jpg,.jpeg"
-                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                                required 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  setFileObj(f || null);
+                                  setFileName(f ? f.name : '');
+                                }}
+                                required
                               />
                             </label>
                           </div>
                         </>
                       )}
 
-                      {/* Individual Category specific fields */}
+                      {/* ── INDIVIDUAL fields ── */}
                       {activeType === 'individuals' && (
                         <>
-                          <input type="text" placeholder="Full Name" required />
-                          <input type="tel" placeholder="Phone Number" required />
-                          
+                          <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                          <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
                           <div className="form-group">
                             <label className="input-field-label">Select Your Category</label>
-                            <select 
-                              value={individualCategory} 
-                              onChange={(e) => setIndividualCategory(e.target.value)} 
-                              className="form-select"
-                              required
-                            >
+                            <select value={individualCategory} onChange={(e) => setIndividualCategory(e.target.value)} className="form-select" required>
                               <option value="auditor">Trained Auditors</option>
                               <option value="consultant">Registered Consultants</option>
                             </select>
                           </div>
-
                           <div className="file-upload-container">
                             <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Document Upload</label>
                             <p className="file-upload-subtext">Please upload a copy of your ISO-related document (PDF, DOC, DOCX, JPG, PNG, JPEG — Maximum size: 5MB).</p>
                             <label className="file-upload-label">
                               <span>{fileName || 'Upload ISO-related document'}</span>
-                              <input 
-                                type="file" 
+                              <input
+                                type="file"
                                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                                required 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  setFileObj(f || null);
+                                  setFileName(f ? f.name : '');
+                                }}
+                                required
                               />
                             </label>
                           </div>
-
                           <div className="notice-box">
-                            <strong>Important Notice:</strong> Ensure that the document provided corresponds correctly with the category selected above. Submitting a document that does not match your chosen category may delay or invalidate your verification.
+                            <strong>Important Notice:</strong> Ensure that the document provided corresponds correctly with the category selected above.
                           </div>
                         </>
                       )}
 
-                      {/* Graduates Category specific fields */}
+                      {/* ── GRADUATE fields ── */}
                       {activeType === 'graduates' && (
                         <>
-                          <input type="text" placeholder="Full Name" required />
-                          <input type="tel" placeholder="Phone Number" required />
-                          
-                          <input type="text" placeholder="Name of Institution" required />
-                          <input type="text" placeholder="Degree Obtained" required />
-                          <input type="text" placeholder="Course of Study" required />
-                          <input type="text" placeholder="Year of Graduation (e.g. 2022)" required />
-                          <input type="text" placeholder="Duration of Study (e.g. 4 years)" required />
-
+                          <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                          <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
+                          <input type="text" placeholder="Name of Institution" value={institution} onChange={e => setInstitution(e.target.value)} required />
+                          <input type="text" placeholder="Degree Obtained" value={degree} onChange={e => setDegree(e.target.value)} required />
+                          <input type="text" placeholder="Course of Study" value={course} onChange={e => setCourse(e.target.value)} required />
+                          <input type="text" placeholder="Year of Graduation (e.g. 2022)" value={gradYear} onChange={e => setGradYear(e.target.value)} required />
+                          <input type="text" placeholder="Duration of Study (e.g. 4 years)" value={studyDuration} onChange={e => setStudyDuration(e.target.value)} required />
                           <div className="file-upload-container">
                             <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Certificate</label>
                             <label className="file-upload-label">
                               <span>{fileName || 'No file chosen'}</span>
-                              <input 
-                                type="file" 
+                              <input
+                                type="file"
                                 accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                                required 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  setFileObj(f || null);
+                                  setFileName(f ? f.name : '');
+                                }}
+                                required
                               />
                             </label>
                           </div>
                         </>
                       )}
 
-                      {/* Students Category specific fields */}
+                      {/* ── STUDENT fields ── */}
                       {activeType === 'students' && (
                         <>
-                          <input type="text" placeholder="Full Name" required />
-                          <input type="tel" placeholder="Phone Number" required />
-                          
-                          <input type="text" placeholder="Name of School" required />
-                          <input type="text" placeholder="Course of Study" required />
-
+                          <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                          <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} required />
+                          <input type="text" placeholder="Name of School" value={school} onChange={e => setSchool(e.target.value)} required />
+                          <input type="text" placeholder="Course of Study" value={studentCourse} onChange={e => setStudentCourse(e.target.value)} required />
                           <div className="file-upload-container">
                             <label className="input-field-label" style={{ display: 'block', textAlign: 'left', marginBottom: '0.25rem' }}>Upload Student ID Verification</label>
                             <label className="file-upload-label">
                               <span>{fileName || 'No file chosen'}</span>
-                              <input 
-                                type="file" 
+                              <input
+                                type="file"
                                 accept=".pdf,.png,.jpg,.jpeg"
-                                onChange={(e) => setFileName(e.target.files[0] ? e.target.files[0].name : '')} 
-                                required 
+                                onChange={(e) => {
+                                  const f = e.target.files[0];
+                                  setFileObj(f || null);
+                                  setFileName(f ? f.name : '');
+                                }}
+                                required
                               />
                             </label>
                           </div>
                         </>
                       )}
 
-                      {/* Acceptance Checkbox */}
+                      {/* ── Terms ── */}
                       <div className="form-checkbox-row">
-                        <input 
-                          type="checkbox" 
-                          id="terms" 
+                        <input
+                          type="checkbox"
+                          id="terms"
                           checked={termsAccepted}
                           onChange={(e) => setTermsAccepted(e.target.checked)}
-                          required 
+                          required
                         />
                         <label htmlFor="terms">
-                          I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
+                          I accept the <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Terms &amp; Conditions</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>Privacy Policy</Link>
                         </label>
                       </div>
 
-                      {/* Optional Newsletter Checkbox */}
                       <div className="form-checkbox-row">
                         <input type="checkbox" id="newsletter" />
-                        <label htmlFor="newsletter">Subscribe to newsletter & updates</label>
+                        <label htmlFor="newsletter">Subscribe to newsletter &amp; updates</label>
                       </div>
 
-                      <button 
-                        type="submit" 
-                        className="btn btn-primary w-full" 
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-full"
                         style={{ marginTop: '0.5rem' }}
-                        disabled={!termsAccepted}
+                        disabled={!termsAccepted || loading}
                       >
-                        Upload & Sign Up
+                        {loading ? (
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <Loader size={16} className="spin-icon" /> Submitting...
+                          </span>
+                        ) : 'Upload & Sign Up'}
                       </button>
+
+                      <p style={{ fontSize: '0.78rem', color: 'var(--secondary-slate)', textAlign: 'center', marginTop: '0.75rem' }}>
+                        Already have an account? <Link to="/account" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>Log in</Link>
+                      </p>
                     </form>
                   </>
                 ) : (
@@ -452,14 +532,14 @@ export default function Membership() {
                     </div>
                     <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-color)', marginBottom: '1rem' }}>Application Submitted!</h3>
                     <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                      Thank you for applying. An email has been sent to you containing your registration details and instructions on how to complete your registration payment.
+                      Thank you for applying. Please check your email to confirm your account, then log in to view your dashboard and complete your payment.
                     </p>
                     <div className="next-steps-box" style={{ backgroundColor: 'var(--bg-offset)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1.25rem', textAlign: 'left', marginBottom: '1.5rem' }}>
                       <strong style={{ fontSize: '0.82rem', textTransform: 'uppercase', color: 'var(--primary-color)', display: 'block', marginBottom: '0.65rem', letterSpacing: '0.5px' }}>Next Steps:</strong>
                       <ol style={{ paddingLeft: '1.15rem', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.8rem', color: 'var(--text-color)', lineHeight: '1.45' }}>
-                        <li>Check your email inbox (and spam folder) for the registration invoice.</li>
+                        <li>Check your email inbox (and spam folder) and click the confirmation link.</li>
                         <li>Log in to your <strong>Account</strong> page to view your application status.</li>
-                        <li>You will see a <strong>"Payment Pending"</strong> status on your dashboard until verification is complete and payment is confirmed.</li>
+                        <li>You will see a <strong>"Payment Pending"</strong> status on your dashboard until payment is confirmed.</li>
                         <li>If there are any issues with your verification documents, our board will contact you directly via email.</li>
                       </ol>
                     </div>
