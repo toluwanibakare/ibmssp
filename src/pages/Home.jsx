@@ -431,22 +431,28 @@ export default function Home() {
               </div>
 
               {/* Slider Arrows */}
-              <div className="testimonial-controls">
-                <button 
-                  onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-                  className="control-btn"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button 
-                  onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
-                  className="control-btn"
-                >
-                  <ChevronRight size={20} />
-                </button>
-                <span className="control-count">
-                  {currentTestimonial + 1} / {testimonials.length}
-                </span>
+              <div className="testimonial-controls" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button 
+                    onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                    className="control-btn"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                    className="control-btn"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                  <span className="control-count" style={{ marginLeft: '0.5rem' }}>
+                    {currentTestimonial + 1} / {testimonials.length}
+                  </span>
+                </div>
+                
+                <Link to="/testimonials" className="btn-step-readmore" style={{ margin: 0, textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1.5px', color: '#ffffff', borderBottom: '2px solid var(--primary-color)' }}>
+                  View All Testimonials
+                </Link>
               </div>
             </div>
           </div>
