@@ -27,6 +27,7 @@ export default function Account() {
   const [newPassword, setNewPassword] = useState('');
   const [otpError, setOtpError] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   // Profile editable fields
   const [profileFirstName, setProfileFirstName] = useState('');
@@ -91,6 +92,17 @@ export default function Account() {
     };
   }, []);
 
+  // OTP Resend Timer effect
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
   const fetchMemberRecord = async (userEmail) => {
     try {
       const { data, error } = await supabase
@@ -144,6 +156,7 @@ export default function Account() {
 
       if (error) throw new Error(error.message);
       setOtpSent(true);
+      setResendTimer(60);
     } catch (err) {
       setOtpError(err.message || 'Error sending recovery instructions.');
     } finally {
@@ -424,6 +437,16 @@ export default function Account() {
                     <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
                       {otpLoading ? <Loader size={16} className="spin-icon" /> : 'Verify & Set Password'}
                     </button>
+                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                      <button 
+                        type="button" 
+                        onClick={handleSendResetOTP} 
+                        disabled={resendTimer > 0 || otpLoading}
+                        style={{ background: 'none', border: 'none', color: resendTimer > 0 ? '#9ca3af' : 'var(--primary-color)', fontSize: '0.85rem', fontWeight: 600, cursor: resendTimer > 0 ? 'not-allowed' : 'pointer' }}
+                      >
+                        {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+                      </button>
+                    </div>
                   </form>
                 )}
 
