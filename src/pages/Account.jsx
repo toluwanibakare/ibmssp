@@ -365,15 +365,44 @@ export default function Account() {
       amount: amount * 100, // Paystack works in kobo
       currency: 'NGN',
       ref: 'SSP-' + Math.floor(Math.random() * 1000000000 + 1),
+      callback: function(response) {
+        (async () => {
+          try {
+            const { error } = await supabase
+              .from('members')
+              .update({
+                payment_status: 'paid',
+                registration_status: 'approved'
+              })
+              .eq('member_id', memberData.member_id);
 
-          alert('Payment Successful! Your membership account is now fully active.');
-          await fetchMemberRecord(sessionUser.email);
-        } catch (err) {
-          console.error('Error confirming transaction:', err);
-        }
+            if (error) throw error;
+
+            await supabase.from('activity_logs').insert({
+              member_id: memberData.member_id,
+              action: 'PAYMENT_RECEIVED',
+              description: `Payment of ₦${amount} received via Paystack. Ref: ${response.reference}`,
+              performed_by: 'system',
+            });
+
+            await callEdgeFunction('send-email', {
+              type: 'payment_confirmation',
+              to: memberData.email,
+              name: `${memberData.first_name || ''} ${memberData.last_name || ''}`.trim() || 'Member',
+              memberId: memberData.public_id || memberData.member_id,
+              amount: `₦${amount.toLocaleString()}`,
+            });
+
+            alert('Payment Successful! Your membership account is now fully active.');
+            await fetchMemberRecord(sessionUser.email);
+          } catch (err) {
+            console.error('Error confirming transaction:', err);
+            alert('Payment recorded, but failed to update status automatically. Please contact support.');
+          }
+        })();
       },
-      onClose: () => {
-        alert('Transaction cancelled.');
+      onClose: function() {
+        console.log('Paystack popup closed.');
       }
     });
 
