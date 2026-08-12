@@ -757,7 +757,7 @@ export default function Account() {
                 <h4 style={{ color: 'var(--primary-color)', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>1. Personal Information</h4>
                 <div className="edit-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>First Name</label>
+                    <label className="input-field-label">First Name</label>
                     <input 
                       type="text" 
                       value={profileFirstName} 
@@ -766,7 +766,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Last Name</label>
+                    <label className="input-field-label">Last Name</label>
                     <input 
                       type="text" 
                       value={profileLastName} 
@@ -775,7 +775,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Other Name</label>
+                    <label className="input-field-label">Other Name</label>
                     <input 
                       type="text" 
                       value={profileOtherName} 
@@ -783,7 +783,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Contact Phone</label>
+                    <label className="input-field-label">Contact Phone</label>
                     <input 
                       type="text" 
                       value={profilePhone} 
@@ -792,7 +792,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Office / Contact Address</label>
+                    <label className="input-field-label">Office / Contact Address</label>
                     <input 
                       type="text" 
                       value={profileAddress} 
@@ -801,7 +801,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>State</label>
+                    <label className="input-field-label">State</label>
                     <input 
                       type="text" 
                       value={profileState} 
@@ -809,7 +809,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Country</label>
+                    <label className="input-field-label">Country</label>
                     <input 
                       type="text" 
                       value={profileCountry} 
@@ -827,23 +827,23 @@ export default function Account() {
                   {(memberData?.category || '').toLowerCase() === 'business' && (
                     <>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Organization Name</label>
+                        <label className="input-field-label">Organization Name</label>
                         <input type="text" value={catOrgName} onChange={(e) => setCatOrgName(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>RC / CAC Number</label>
+                        <label className="input-field-label">RC / CAC Number</label>
                         <input type="text" value={catRcNumber} onChange={(e) => setCatRcNumber(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Contact Person Name</label>
+                        <label className="input-field-label">Contact Person Name</label>
                         <input type="text" value={catContactPerson} onChange={(e) => setCatContactPerson(e.target.value)} />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Company Official Email</label>
+                        <label className="input-field-label">Company Official Email</label>
                         <input type="email" value={catCompanyEmail} onChange={(e) => setCatCompanyEmail(e.target.value)} />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Company Official Phone</label>
+                        <label className="input-field-label">Company Official Phone</label>
                         <input type="tel" value={catCompanyPhone} onChange={(e) => setCatCompanyPhone(e.target.value)} />
                       </div>
                     </>
@@ -852,23 +852,23 @@ export default function Account() {
                   {(memberData?.category || '').toLowerCase() === 'student' && (
                     <>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Institution Name</label>
+                        <label className="input-field-label">Institution Name</label>
                         <input type="text" value={catInstitution} onChange={(e) => setCatInstitution(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Course of Study</label>
+                        <label className="input-field-label">Course of Study</label>
                         <input type="text" value={catCourse} onChange={(e) => setCatCourse(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Current Academic Level</label>
+                        <label className="input-field-label">Current Academic Level</label>
                         <input type="text" value={catLevel} onChange={(e) => setCatLevel(e.target.value)} placeholder="e.g. 400 Level" />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Matriculation Number</label>
+                        <label className="input-field-label">Matriculation Number</label>
                         <input type="text" value={catMatricNumber} onChange={(e) => setCatMatricNumber(e.target.value)} />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Expected Graduation Year</label>
+                        <label className="input-field-label">Expected Graduation Year</label>
                         <input type="number" value={catGraduationYear} onChange={(e) => setCatGraduationYear(e.target.value)} placeholder="e.g. 2026" />
                       </div>
                     </>
@@ -877,15 +877,15 @@ export default function Account() {
                   {(memberData?.category || '').toLowerCase() === 'graduate' && (
                     <>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Graduated Institution</label>
+                        <label className="input-field-label">Graduated Institution</label>
                         <input type="text" value={catInstitution} onChange={(e) => setCatInstitution(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Degree / Qualification</label>
+                        <label className="input-field-label">Degree / Qualification</label>
                         <input type="text" value={catCourse} onChange={(e) => setCatCourse(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Graduation Year</label>
+                        <label className="input-field-label">Graduation Year</label>
                         <input type="number" value={catGraduationYear} onChange={(e) => setCatGraduationYear(e.target.value)} placeholder="e.g. 2024" />
                       </div>
                     </>
@@ -894,19 +894,19 @@ export default function Account() {
                   {((memberData?.category || '').toLowerCase() === 'individual' || (memberData?.category || '').toLowerCase() === 'professional') && (
                     <>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Profession</label>
+                        <label className="input-field-label">Profession</label>
                         <input type="text" value={catProfession} onChange={(e) => setCatProfession(e.target.value)} required />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Specialization / Area of Expertise</label>
+                        <label className="input-field-label">Specialization / Area of Expertise</label>
                         <input type="text" value={catSpecialization} onChange={(e) => setCatSpecialization(e.target.value)} />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Current Company / Employer</label>
+                        <label className="input-field-label">Current Company / Employer</label>
                         <input type="text" value={catCurrentCompany} onChange={(e) => setCatCurrentCompany(e.target.value)} />
                       </div>
                       <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Years of Experience</label>
+                        <label className="input-field-label">Years of Experience</label>
                         <input type="number" value={catYearsExp} onChange={(e) => setCatYearsExp(e.target.value)} placeholder="e.g. 5" />
                       </div>
                     </>

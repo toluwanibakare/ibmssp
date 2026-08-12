@@ -204,6 +204,48 @@
   gap: 1.5rem;
 }
 
+.edit-profile-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  text-align: left;
+}
+
+.edit-profile-form label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-align: left;
+}
+
+.edit-profile-form input,
+.edit-profile-form select {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  background-color: #ffffff;
+  width: 100%;
+  color: var(--text-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edit-profile-form input:focus,
+.edit-profile-form select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(48, 88, 88, 0.1);
+}
+
+.edit-profile-form input:read-only,
+.edit-profile-form input:disabled {
+  background-color: var(--bg-offset);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 .save-profile-btn {
   align-self: flex-start;
   display: inline-flex;
