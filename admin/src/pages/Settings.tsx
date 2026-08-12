@@ -3,10 +3,12 @@ import { User, Globe, Key, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-const WP_INTEGRATION_SETTINGS_KEY = 'ibmssp_admin_wp_integration_settings';
+const SUPABASE_INTEGRATION_SETTINGS_KEY = 'ibmssp_admin_supabase_integration_settings';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 
 const defaultIntegrationSettings = {
-  webhookUrl: `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'ukjmduimszrydwoyrksi'}.supabase.co/functions/v1/register`,
+  webhookUrl: SUPABASE_URL ? `${SUPABASE_URL.replace(/\/$/, '')}/functions/v1/register` : '/functions/v1/register',
   requiredHeaderName: 'x-api-key',
   requiredHeaderValue: 'ibmssp_admin_secret_key_2025',
 };
@@ -22,7 +24,7 @@ export default function Settings() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(WP_INTEGRATION_SETTINGS_KEY);
+      const raw = localStorage.getItem(SUPABASE_INTEGRATION_SETTINGS_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as Partial<typeof defaultIntegrationSettings>;
       if (typeof parsed.webhookUrl === 'string') setWebhookUrl(parsed.webhookUrl);
@@ -64,11 +66,11 @@ export default function Settings() {
       requiredHeaderValue: requiredHeaderValue.trim() || defaultIntegrationSettings.requiredHeaderValue,
     };
 
-    localStorage.setItem(WP_INTEGRATION_SETTINGS_KEY, JSON.stringify(payload));
+    localStorage.setItem(SUPABASE_INTEGRATION_SETTINGS_KEY, JSON.stringify(payload));
     setWebhookUrl(payload.webhookUrl);
     setRequiredHeaderName(payload.requiredHeaderName);
     setRequiredHeaderValue(payload.requiredHeaderValue);
-    setSaveMessage('WordPress integration settings saved.');
+    setSaveMessage('Supabase registration settings saved.');
     window.setTimeout(() => setSaveMessage(''), 2500);
   };
 
@@ -76,8 +78,8 @@ export default function Settings() {
     setWebhookUrl(defaultIntegrationSettings.webhookUrl);
     setRequiredHeaderName(defaultIntegrationSettings.requiredHeaderName);
     setRequiredHeaderValue(defaultIntegrationSettings.requiredHeaderValue);
-    localStorage.setItem(WP_INTEGRATION_SETTINGS_KEY, JSON.stringify(defaultIntegrationSettings));
-    setSaveMessage('WordPress integration settings reset to defaults.');
+    localStorage.setItem(SUPABASE_INTEGRATION_SETTINGS_KEY, JSON.stringify(defaultIntegrationSettings));
+    setSaveMessage('Supabase registration settings reset to defaults.');
     window.setTimeout(() => setSaveMessage(''), 2500);
   };
 
@@ -131,11 +133,11 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* WordPress Integration */}
+      {/* Supabase Integration */}
       <div className="bg-card rounded-xl border border-border shadow-card p-5">
         <div className="flex items-center gap-2 mb-4">
           <Key size={15} className="text-muted-foreground" />
-          <h2 className="text-sm font-semibold">WordPress Integration</h2>
+          <h2 className="text-sm font-semibold">Supabase Registration Webhook</h2>
         </div>
         <div className="space-y-4 text-sm">
           <div className="space-y-1.5">
@@ -144,7 +146,7 @@ export default function Settings() {
               value={webhookUrl}
               onChange={e => setWebhookUrl(e.target.value)}
               className="input-field font-mono text-xs"
-              placeholder="https://your-domain.com/api/register"
+              placeholder={`${SUPABASE_URL || 'https://your-project.supabase.co'}/functions/v1/register`}
             />
           </div>
 
@@ -200,6 +202,7 @@ export default function Settings() {
           )}
 
           <p className="text-xs text-muted-foreground">Method: <span className="font-semibold text-foreground">POST</span> &nbsp;|&nbsp; Content-Type: <span className="font-semibold text-foreground">application/json</span></p>
+          <p className="text-xs text-muted-foreground">This webhook posts to the shared site Supabase function.</p>
         </div>
       </div>
 

@@ -10,8 +10,7 @@ export default function SupabaseHealth() {
     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-sm text-yellow-800">
       <strong>Supabase not configured:</strong> Admin features are disabled until environment variables are set.
       <div className="mt-1">
-        Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> (or <code>VITE_SUPABASE_ANON_KEY</code>)
-        to your deployment environment and redeploy.
+        Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to the shared deployment environment and redeploy.
       </div>
     </div>
   );
