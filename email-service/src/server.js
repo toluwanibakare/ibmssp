@@ -247,7 +247,13 @@ const universalHandler = async (req, res) => {
   }
 };
 
-const LISTEN_PORT = process.env.PORT || 0;
+router.post('/api/send-email', universalHandler);
+router.post('/send-email', universalHandler);
+
+app.use('/', router);
+app.use('/email-api', router);
+
+const LISTEN_PORT = process.env.PORT || 5000;
 
 const server = app.listen(LISTEN_PORT, () => {
   const addressInfo = server.address();
