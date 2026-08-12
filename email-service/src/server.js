@@ -247,19 +247,16 @@ const universalHandler = async (req, res) => {
   }
 };
 
-router.post('/api/send-email', universalHandler);
-router.post('/send-email', universalHandler);
+const LISTEN_PORT = process.env.PORT || 0;
 
-app.use('/', router);
-app.use('/email-api', router);
-
-app.listen(PORT, () => {
+const server = app.listen(LISTEN_PORT, () => {
+  const addressInfo = server.address();
+  const boundAddress = typeof addressInfo === 'string' ? addressInfo : addressInfo?.port;
   console.log(`
 🚀 ===================================================
    IBMSSP Dedicated Email Microservice
-   Port: ${PORT}
+   Listening on: ${boundAddress}
    Env:  ${process.env.NODE_ENV || 'development'}
-   URL:  http://localhost:${PORT}/health
 ===================================================
   `);
 });
