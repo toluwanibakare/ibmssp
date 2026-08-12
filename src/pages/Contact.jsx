@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, User, Mail, Folder, MessageSquare, MapPin, Phone, Clock, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import './Contact.css';
 
-import { supabase } from '../lib/supabase';
+import { supabase, callEdgeFunction } from '../lib/supabase';
 
 export default function Contact() {
   const [openFaqIdx, setOpenFaqIdx] = useState(null);
@@ -28,12 +28,12 @@ export default function Contact() {
       if (error) throw error;
 
       // Send email to admin
-      await supabase.functions.invoke('send-email', {
-        body: {
-          to: 'info@ibmssp.org.ng',
-          subject: `New Contact Form Submission: ${subject}`,
-          text: `You have received a new message from ${name} (${email}).\n\nMessage:\n${message}`
-        }
+      await callEdgeFunction('send-email', {
+        type: 'announcement',
+        to: 'info@ibmssp.org.ng',
+        subject: `New Contact Form Submission: ${subject}`,
+        headline: `New Message from ${name}`,
+        content: `Sender: ${name} (${email})\nSubject: ${subject}\n\nMessage:\n${message}`
       });
 
       alert('Message sent successfully! Our team will get back to you shortly.');

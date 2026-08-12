@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Check, Building2, UserCheck, GraduationCap, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, callEdgeFunction } from '../lib/supabase';
 import './Membership.css';
 
 const tiers = {
@@ -206,13 +206,11 @@ export default function Membership() {
       });
 
       // 7. Send welcome registration email
-      await supabase.functions.invoke('send-email', {
-        body: {
-          type: 'registration',
-          to: email,
-          name: fullName.trim() || 'Member',
-          memberId: memberData.public_id || memberId,
-        },
+      await callEdgeFunction('send-email', {
+        type: 'registration',
+        to: email,
+        name: fullName.trim() || 'Member',
+        memberId: memberData?.public_id || memberId,
       });
 
       setSubmitted(true);

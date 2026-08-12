@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, X, Send, ChevronUp, RotateCcw, Headset, User, Bot } from 'lucide-react';
 import IBMSSP_KNOWLEDGE_BASE from '../data/knowledgeBase';
-import { supabase } from '../lib/supabase';
+import { supabase, callEdgeFunction } from '../lib/supabase';
 import './FloatingWidgets.css';
 
 const SESSION_KEY = 'ibmssp_chat_session_id';
@@ -191,12 +191,12 @@ export default function FloatingWidgets() {
     await supabase.from('live_chats').update({ status: 'human_requested' }).eq('id', chatId);
     
     // Trigger email notification
-    await supabase.functions.invoke('send-email', {
-      body: {
-        to: 'info@ibmssp.org.ng',
-        subject: 'Support Request: Live Chat Escalation',
-        text: 'A user has requested human support in the live chat. Please log in to the admin dashboard to reply.'
-      }
+    await callEdgeFunction('send-email', {
+      type: 'announcement',
+      to: 'info@ibmssp.org.ng',
+      subject: 'Support Request: Live Chat Escalation',
+      headline: 'Support Request: Live Chat Escalation',
+      content: 'A user has requested human support in the live chat. Please log in to the admin dashboard to reply.'
     });
 
     await insertMessage('bot', 'A human representative has been notified and will be with you shortly. You will see their response here.');

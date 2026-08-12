@@ -117,8 +117,48 @@ export default function Account() {
         setMemberData(data);
         setProfileFirstName(data.first_name || '');
         setProfileLastName(data.last_name || '');
+        setProfileOtherName(data.other_name || '');
         setProfilePhone(data.phone || '');
         setProfileAddress(data.address || '');
+        setProfileState(data.state || '');
+        setProfileCountry(data.country || '');
+
+        // Fetch Category Specific Record
+        const cat = (data.category || '').toLowerCase();
+        if (cat === 'business') {
+          const { data: org } = await supabase.from('organization_details').select('*').eq('member_id', data.member_id).maybeSingle();
+          if (org) {
+            setCatOrgName(org.organization_name || '');
+            setCatRcNumber(org.rc_number || '');
+            setCatContactPerson(org.contact_person || '');
+            setCatCompanyEmail(org.company_email || '');
+            setCatCompanyPhone(org.company_phone || '');
+          }
+        } else if (cat === 'student') {
+          const { data: st } = await supabase.from('student_details').select('*').eq('member_id', data.member_id).maybeSingle();
+          if (st) {
+            setCatInstitution(st.institution_name || '');
+            setCatCourse(st.course_of_study || '');
+            setCatLevel(st.level || '');
+            setCatMatricNumber(st.matric_number || '');
+            setCatGraduationYear(st.expected_graduation_year || '');
+          }
+        } else if (cat === 'graduate') {
+          const { data: gr } = await supabase.from('graduate_details').select('*').eq('member_id', data.member_id).maybeSingle();
+          if (gr) {
+            setCatInstitution(gr.institution || '');
+            setCatCourse(gr.qualification || '');
+            setCatGraduationYear(gr.graduation_year || '');
+          }
+        } else if (cat === 'individual' || cat === 'professional') {
+          const { data: pr } = await supabase.from('professional_details').select('*').eq('member_id', data.member_id).maybeSingle();
+          if (pr) {
+            setCatProfession(pr.profession || '');
+            setCatSpecialization(pr.specialization || '');
+            setCatCurrentCompany(pr.current_company || '');
+            setCatYearsExp(pr.years_of_experience || '');
+          }
+        }
       }
     } catch (err) {
       console.error('Error fetching member record:', err);
@@ -216,18 +256,61 @@ export default function Account() {
     setProfileSaveLoading(true);
 
     try {
+      // 1. Update main member record
       const { error } = await supabase
         .from('members')
         .update({
           first_name: profileFirstName,
           last_name: profileLastName,
+          other_name: profileOtherName,
           phone: profilePhone,
-          address: profileAddress
+          address: profileAddress,
+          state: profileState,
+          country: profileCountry,
+          updated_at: new Date().toISOString()
         })
-        .eq('email', sessionUser.email);
+        .eq('member_id', memberData.member_id);
 
       if (error) throw error;
-      alert('Profile updated successfully!');
+
+      // 2. Upsert Category Specific Detail Record
+      const cat = (memberData.category || '').toLowerCase();
+      if (cat === 'business') {
+        await supabase.from('organization_details').upsert({
+          member_id: memberData.member_id,
+          organization_name: catOrgName,
+          rc_number: catRcNumber,
+          contact_person: catContactPerson,
+          company_email: catCompanyEmail,
+          company_phone: catCompanyPhone
+        });
+      } else if (cat === 'student') {
+        await supabase.from('student_details').upsert({
+          member_id: memberData.member_id,
+          institution_name: catInstitution,
+          course_of_study: catCourse,
+          level: catLevel,
+          matric_number: catMatricNumber,
+          expected_graduation_year: parseInt(catGraduationYear) || null
+        });
+      } else if (cat === 'graduate') {
+        await supabase.from('graduate_details').upsert({
+          member_id: memberData.member_id,
+          institution: catInstitution,
+          qualification: catCourse,
+          graduation_year: parseInt(catGraduationYear) || null
+        });
+      } else if (cat === 'individual' || cat === 'professional') {
+        await supabase.from('professional_details').upsert({
+          member_id: memberData.member_id,
+          profession: catProfession,
+          specialization: catSpecialization,
+          current_company: catCurrentCompany,
+          years_of_experience: parseInt(catYearsExp) || null
+        });
+      }
+
+      alert('Profile information updated successfully!');
       await fetchMemberRecord(sessionUser.email);
     } catch (err) {
       alert(err.message || 'Failed to update profile settings.');
@@ -282,44 +365,6 @@ export default function Account() {
       amount: amount * 100, // Paystack works in kobo
       currency: 'NGN',
       ref: 'SSP-' + Math.floor(Math.random() * 1000000000 + 1),
-      callback: async (response) => {
-        // Success callback: update payment status inside Supabase
-        try {
-          const { error } = await supabase
-            .from('members')
-            .update({
-              payment_status: 'paid',
-              registration_status: 'approved' // Auto-approve upon payment
-            })
-            .eq('member_id', memberData.member_id);
-
-          if (error) throw error;
-
-          // Log transaction activity
-          await supabase.from('activity_logs').insert({
-            member_id: memberData.member_id,
-            action: 'PAYMENT_RECEIVED',
-            description: `Payment of ₦${amount} received via Paystack. Ref: ${response.reference}`,
-            performed_by: 'system',
-          });
-
-          // Send payment notification to admin
-          await callEdgeFunction('send-email', {
-            type: 'payment_confirmation',
-            to: 'info@ibmssp.org.ng',
-            name: `${memberData.first_name} ${memberData.last_name}`,
-            memberId: memberData.public_id || memberData.member_id,
-            amount: `₦${amount.toLocaleString()}`,
-          });
-
-          // Send payment confirmation email to the member
-          await callEdgeFunction('send-email', {
-            type: 'payment_confirmation',
-            to: memberData.email,
-            name: memberData.first_name,
-            memberId: memberData.public_id || memberData.member_id,
-            amount: `₦${amount.toLocaleString()}`,
-          });
 
           alert('Payment Successful! Your membership account is now fully active.');
           await fetchMemberRecord(sessionUser.email);
@@ -648,13 +693,21 @@ export default function Account() {
         {activeTab === 'edit-profile' && (
           <div className="portal-edit-profile-tab">
             <div className="edit-profile-card">
-              <h3>Edit Profile Information</h3>
-              <p>Update your registration parameters and contact details below.</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+                <div>
+                  <h3 style={{ margin: 0, color: 'var(--text-dark)', fontSize: '1.25rem' }}>Edit Profile Information</h3>
+                  <p style={{ margin: '0.25rem 0 0 0', color: 'var(--secondary-slate)', fontSize: '0.88rem' }}>Update your account details and category parameters below.</p>
+                </div>
+                <div style={{ background: 'var(--primary-color)', color: '#ffffff', padding: '0.4rem 0.9rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {memberData?.category || 'General'} Member
+                </div>
+              </div>
               
               <form onSubmit={handleProfileSave} className="edit-profile-form">
-                <div className="edit-form-grid">
+                <h4 style={{ color: 'var(--primary-color)', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>1. Personal Information</h4>
+                <div className="edit-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
                   <div className="form-group">
-                    <label>First Name</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>First Name</label>
                     <input 
                       type="text" 
                       value={profileFirstName} 
@@ -663,7 +716,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Last Name</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Last Name</label>
                     <input 
                       type="text" 
                       value={profileLastName} 
@@ -672,7 +725,15 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Contact Phone</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Other Name</label>
+                    <input 
+                      type="text" 
+                      value={profileOtherName} 
+                      onChange={(e) => setProfileOtherName(e.target.value)} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Contact Phone</label>
                     <input 
                       type="text" 
                       value={profilePhone} 
@@ -681,7 +742,7 @@ export default function Account() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Office Address Location</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Office / Contact Address</label>
                     <input 
                       type="text" 
                       value={profileAddress} 
@@ -689,8 +750,120 @@ export default function Account() {
                       required 
                     />
                   </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>State</label>
+                    <input 
+                      type="text" 
+                      value={profileState} 
+                      onChange={(e) => setProfileState(e.target.value)} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Country</label>
+                    <input 
+                      type="text" 
+                      value={profileCountry} 
+                      onChange={(e) => setProfileCountry(e.target.value)} 
+                    />
+                  </div>
                 </div>
-                <button type="submit" className="btn btn-primary save-profile-btn" disabled={profileSaveLoading}>
+
+                {/* ── 2. Category Specific Parameters ── */}
+                <h4 style={{ color: 'var(--primary-color)', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+                  2. {memberData?.category?.toUpperCase()} Category Details
+                </h4>
+
+                <div className="edit-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+                  {(memberData?.category || '').toLowerCase() === 'business' && (
+                    <>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Organization Name</label>
+                        <input type="text" value={catOrgName} onChange={(e) => setCatOrgName(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>RC / CAC Number</label>
+                        <input type="text" value={catRcNumber} onChange={(e) => setCatRcNumber(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Contact Person Name</label>
+                        <input type="text" value={catContactPerson} onChange={(e) => setCatContactPerson(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Company Official Email</label>
+                        <input type="email" value={catCompanyEmail} onChange={(e) => setCatCompanyEmail(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Company Official Phone</label>
+                        <input type="tel" value={catCompanyPhone} onChange={(e) => setCatCompanyPhone(e.target.value)} />
+                      </div>
+                    </>
+                  )}
+
+                  {(memberData?.category || '').toLowerCase() === 'student' && (
+                    <>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Institution Name</label>
+                        <input type="text" value={catInstitution} onChange={(e) => setCatInstitution(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Course of Study</label>
+                        <input type="text" value={catCourse} onChange={(e) => setCatCourse(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Current Academic Level</label>
+                        <input type="text" value={catLevel} onChange={(e) => setCatLevel(e.target.value)} placeholder="e.g. 400 Level" />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Matriculation Number</label>
+                        <input type="text" value={catMatricNumber} onChange={(e) => setCatMatricNumber(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Expected Graduation Year</label>
+                        <input type="number" value={catGraduationYear} onChange={(e) => setCatGraduationYear(e.target.value)} placeholder="e.g. 2026" />
+                      </div>
+                    </>
+                  )}
+
+                  {(memberData?.category || '').toLowerCase() === 'graduate' && (
+                    <>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Graduated Institution</label>
+                        <input type="text" value={catInstitution} onChange={(e) => setCatInstitution(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Degree / Qualification</label>
+                        <input type="text" value={catCourse} onChange={(e) => setCatCourse(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Graduation Year</label>
+                        <input type="number" value={catGraduationYear} onChange={(e) => setCatGraduationYear(e.target.value)} placeholder="e.g. 2024" />
+                      </div>
+                    </>
+                  )}
+
+                  {((memberData?.category || '').toLowerCase() === 'individual' || (memberData?.category || '').toLowerCase() === 'professional') && (
+                    <>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Profession</label>
+                        <input type="text" value={catProfession} onChange={(e) => setCatProfession(e.target.value)} required />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Specialization / Area of Expertise</label>
+                        <input type="text" value={catSpecialization} onChange={(e) => setCatSpecialization(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Current Company / Employer</label>
+                        <input type="text" value={catCurrentCompany} onChange={(e) => setCatCurrentCompany(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)' }}>Years of Experience</label>
+                        <input type="number" value={catYearsExp} onChange={(e) => setCatYearsExp(e.target.value)} placeholder="e.g. 5" />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <button type="submit" className="btn btn-primary save-profile-btn" disabled={profileSaveLoading} style={{ padding: '0.85rem 1.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                   {profileSaveLoading ? <Loader size={16} className="spin-icon" /> : <Save size={16} />}
                   <span>Save Profile Settings</span>
                 </button>

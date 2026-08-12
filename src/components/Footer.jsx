@@ -1,17 +1,34 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Send, Phone, MapPin, HelpCircle } from 'lucide-react';
+import { callEdgeFunction } from '../lib/supabase';
 import './Footer.css';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (email) {
       setSubscribed(true);
+      const targetEmail = email;
       setEmail('');
+      
+      try {
+        await callEdgeFunction('send-email', {
+          type: 'newsletter',
+          to: targetEmail,
+          subject: 'Welcome to IBMSSP Mailing List',
+          headline: 'Thank You for Subscribing!',
+          content: 'You have successfully joined the IBMSSP mailing list. You will now receive regular updates, ISO standardization news, and official announcements directly in your inbox.',
+          ctaText: 'Visit IBMSSP Portal',
+          ctaUrl: 'https://ibmssp.org.ng'
+        });
+      } catch (err) {
+        console.error('Newsletter welcome email error:', err);
+      }
+
       setTimeout(() => setSubscribed(false), 5000);
     }
   };
