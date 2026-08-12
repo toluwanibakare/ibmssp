@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prebuild": "node ./scripts/clean-dist.js",
+    "prebuild": "node ./scripts/clean-dist.cjs",
     "dev": "vite",
     "dev:main": "vite",
     "dev:admin": "cd admin && npm run dev",
