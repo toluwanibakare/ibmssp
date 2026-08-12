@@ -150,20 +150,15 @@ export default function Account() {
     setOtpLoading(true);
 
     try {
-      // Generate 6-digit OTP
-      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-      const { error } = await callEdgeFunction('send-email', {
-        type: 'otp',
-        to: email,
-        otp: generatedOtp,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/account',
       });
 
-      if (error) throw new Error(error.message || 'Failed to send OTP');
+      if (error) throw new Error(error.message);
       setOtpSent(true);
       setResendTimer(60);
     } catch (err) {
-      setOtpError(err.message || 'Error sending OTP. Please try again.');
+      setOtpError(err.message || 'Error sending recovery instructions.');
     } finally {
       setOtpLoading(false);
     }
@@ -176,15 +171,24 @@ export default function Account() {
     setOtpLoading(true);
 
     try {
-      // Call server-side reset-password function which verifies the OTP and updates the password
-      const data = await callEdgeFunction('reset-password', { email, otp: otpToken, newPassword });
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: otpToken,
+        type: 'recovery',
+      });
 
-      if (data?.error) throw new Error(data.error || 'Password reset failed');
+      if (verifyError) throw new Error(verifyError.message);
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) throw new Error(updateError.message);
 
       setForgotMode(false);
       setOtpSent(false);
       setPassword('');
-      alert('Password reset successfully! You can now log in with your new password.');
+      alert('Password reset successfully!');
     } catch (err) {
       setOtpError(err.message || 'OTP Verification failed.');
     } finally {
