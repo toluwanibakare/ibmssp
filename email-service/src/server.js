@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './mailer.js';
 import {
   registrationTemplate,
@@ -17,14 +16,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const API_SECRET = process.env.EMAIL_API_SECRET || 'ibmssp_mail_secret_2026';
 
-// Supabase Service Client for storing/verifying OTPs
+// Supabase REST details (uses native lightweight fetch - no heavy WebAssembly dependencies)
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://rihltpxgyocqqjbspmrw.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-let supabaseAdmin = null;
-if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
-  supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-}
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
 
@@ -69,6 +63,59 @@ const healthHandler = (req, res) => {
 router.get('/health', healthHandler);
 router.get('/', healthHandler);
 
+// ─── Supabase REST Helper Functions (Zero Overhead) ───────────────────────
+
+async function deleteOtpFromDb(email) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/password_reset_otps?email=eq.${encodeURIComponent(email)}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      },
+    });
+  } catch (err) {
+    console.warn('[OTP DB Delete Warning]:', err.message);
+  }
+}
+
+async function insertOtpToDb(email, otp, expiresAt) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
+  try {
+    await deleteOtpFromDb(email);
+    await fetch(`${SUPABASE_URL}/rest/v1/password_reset_otps`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ email, otp, expires_at: expiresAt }),
+    });
+  } catch (err) {
+    console.warn('[OTP DB Insert Warning]:', err.message);
+  }
+}
+
+async function fetchOtpFromDb(email) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return [];
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/password_reset_otps?email=eq.${encodeURIComponent(email)}&select=otp,expires_at`, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn('[OTP DB Fetch Warning]:', err.message);
+    return [];
+  }
+}
+
 // ─── 1. Send OTP Endpoint ────────────────────────────────────────────────────
 
 router.post('/api/send-otp', async (req, res) => {
@@ -79,13 +126,7 @@ router.post('/api/send-otp', async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    if (supabaseAdmin) {
-      await supabaseAdmin.from('password_reset_otps').delete().eq('email', email);
-      const { error: insertErr } = await supabaseAdmin
-        .from('password_reset_otps')
-        .insert([{ email, otp, expires_at: expiresAt }]);
-      if (insertErr) console.warn('[OTP DB Warning]:', insertErr.message);
-    }
+    await insertOtpToDb(email, otp, expiresAt);
 
     const template = otpTemplate({ otp });
     await sendEmail({ to: email, subject: template.subject, html: template.html });
@@ -104,16 +145,9 @@ router.post('/api/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
-    if (!supabaseAdmin) {
-      return res.status(500).json({ error: 'Supabase admin client not initialized' });
-    }
+    const records = await fetchOtpFromDb(email);
 
-    const { data: records, error } = await supabaseAdmin
-      .from('password_reset_otps')
-      .select('otp, expires_at')
-      .eq('email', email);
-
-    if (error || !records || records.length === 0) {
+    if (!records || records.length === 0) {
       return res.status(400).json({ error: 'No active OTP found. Please request a new code.' });
     }
 
@@ -126,7 +160,7 @@ router.post('/api/verify-otp', async (req, res) => {
       return res.status(400).json({ error: 'Incorrect OTP. Please check and try again.' });
     }
 
-    await supabaseAdmin.from('password_reset_otps').delete().eq('email', email);
+    await deleteOtpFromDb(email);
 
     res.json({ success: true, message: 'OTP verified successfully' });
   } catch (error) {
@@ -216,11 +250,8 @@ const universalHandler = async (req, res) => {
 router.post('/api/send-email', universalHandler);
 router.post('/send-email', universalHandler);
 
-// Mount router at both root '/' and '/email-api' so cPanel path prefixes work seamlessly
 app.use('/', router);
 app.use('/email-api', router);
-
-// ─── Start Server ───────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
   console.log(`
