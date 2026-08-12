@@ -193,7 +193,7 @@ export default function FloatingWidgets() {
     // Trigger email notification
     await callEdgeFunction('send-email', {
       type: 'announcement',
-      to: 'info@ibmssp.org.ng',
+      to: 'ibmssp.media2@gmail.com',
       subject: 'Support Request: Live Chat Escalation',
       headline: 'Support Request: Live Chat Escalation',
       content: 'A user has requested human support in the live chat. Please log in to the admin dashboard to reply.'

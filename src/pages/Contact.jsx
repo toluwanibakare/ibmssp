@@ -30,7 +30,7 @@ export default function Contact() {
       // Send email to admin
       await callEdgeFunction('send-email', {
         type: 'announcement',
-        to: 'info@ibmssp.org.ng',
+        to: 'ibmssp.media2@gmail.com',
         subject: `New Contact Form Submission: ${subject}`,
         headline: `New Message from ${name}`,
         content: `Sender: ${name} (${email})\nSubject: ${subject}\n\nMessage:\n${message}`

@@ -422,7 +422,7 @@ export default function Account() {
             // 2. Send payment notification email to the admin
             await callEdgeFunction('send-email', {
               type: 'announcement',
-              to: 'info@ibmssp.org.ng',
+              to: 'ibmssp.media2@gmail.com',
               subject: `Payment Alert: ${memberData.first_name} ${memberData.last_name} (${memberData.public_id || memberData.member_id})`,
               headline: 'New Membership Payment Received',
               content: `A new payment of ₦${amount.toLocaleString()} was successfully received from ${memberData.first_name} ${memberData.last_name} (${memberData.email}).\nMember ID: ${memberData.public_id || memberData.member_id}\nTransaction Ref: ${response.reference}\nStatus: Approved & Active.`
