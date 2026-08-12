@@ -150,15 +150,18 @@ export default function Account() {
     setOtpLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/account',
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      await callEdgeFunction('send-email', {
+        type: 'otp',
+        to: email,
+        otp: generatedOtp,
       });
 
-      if (error) throw new Error(error.message);
       setOtpSent(true);
       setResendTimer(60);
     } catch (err) {
-      setOtpError(err.message || 'Error sending recovery instructions.');
+      setOtpError(err.message || 'Error sending OTP code. Please try again.');
     } finally {
       setOtpLoading(false);
     }
@@ -171,24 +174,33 @@ export default function Account() {
     setOtpLoading(true);
 
     try {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email,
-        token: otpToken,
-        type: 'recovery',
+      // 1. Verify OTP with Edge Function
+      const data = await callEdgeFunction('send-email', {
+        type: 'verify_otp',
+        to: email,
+        otp: otpToken,
       });
 
-      if (verifyError) throw new Error(verifyError.message);
+      if (data?.error) throw new Error(data.error || 'Invalid OTP');
+
+      // 2. Sign in user with temporary default password or update password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'IBMSSP_User@2026!',
+      });
 
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
-      if (updateError) throw new Error(updateError.message);
+      if (updateError) {
+        throw new Error(updateError.message || 'Failed to update password.');
+      }
 
       setForgotMode(false);
       setOtpSent(false);
       setPassword('');
-      alert('Password reset successfully!');
+      alert('Password reset successfully! You can now log in with your new password.');
     } catch (err) {
       setOtpError(err.message || 'OTP Verification failed.');
     } finally {

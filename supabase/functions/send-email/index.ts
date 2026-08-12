@@ -153,7 +153,8 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
+    const reqPayload = await req.json();
+    const body = reqPayload.body || reqPayload;
     const {
       type, to, name, memberId, otp,
       amount, subject, headline, content,

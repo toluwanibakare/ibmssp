@@ -9,7 +9,7 @@ import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
 const PAGE_SIZE = 15;
 
 export default function Members() {
-  const { members, stats, isLoading, fetchMembers, approveMember, createMember, deleteMember } = useData();
+  const { members, stats, isLoading, dataError, fetchMembers, approveMember, createMember, deleteMember } = useData();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -209,6 +209,12 @@ export default function Members() {
 
   return (
     <div className="space-y-5 pb-28">
+      {dataError ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {dataError}
+        </div>
+      ) : null}
+
       <div className="page-header flex-col items-start gap-3 sm:flex-row sm:items-center">
         <div>
           <h1 className="page-title">Members Registry</h1>

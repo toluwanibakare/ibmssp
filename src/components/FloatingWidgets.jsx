@@ -96,7 +96,7 @@ export default function FloatingWidgets() {
         .from('live_chats')
         .select('*')
         .eq('session_id', currentSession)
-        .single();
+        .maybeSingle();
 
       if (!existingChat) {
         const { data: newChat } = await supabase

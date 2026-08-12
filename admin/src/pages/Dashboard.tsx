@@ -30,7 +30,7 @@ function StatCard({ label, value, icon: Icon, sub, color }: {
 }
 
 export default function Dashboard() {
-  const { members, logs, stats, isLoading, fetchMembers, fetchLogs } = useData();
+  const { members, logs, stats, isLoading, dataError, fetchMembers, fetchLogs } = useData();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const handleRefresh = async () => {
@@ -108,6 +108,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {dataError ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {dataError}
+        </div>
+      ) : null}
+
       <div className="page-header flex-col items-start gap-3 sm:flex-row sm:items-center">
         <div>
           <h1 className="page-title">Dashboard</h1>

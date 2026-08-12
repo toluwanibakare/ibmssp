@@ -73,6 +73,7 @@ interface DataContextType {
   templates: EmailTemplate[];
   stats: Stats;
   isLoading: boolean;
+  dataError: string;
   fetchMembers: (params?: any) => Promise<void>;
   fetchLogs: () => Promise<void>;
   fetchEmails: () => Promise<void>;
@@ -107,9 +108,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [stats, setStats] = useState<Stats>(initialStats);
   const [isLoading, setIsLoading] = useState(false);
+  const [dataError, setDataError] = useState('');
 
   const fetchMembers = useCallback(async (params: any = {}) => {
     setIsLoading(true);
+    setDataError('');
     try {
       let query = supabase.from('members').select('*').order('created_at', { ascending: false });
       if (params.category) query = query.eq('category', params.category);
@@ -139,6 +142,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setStats({ total: m.length, ...counts });
     } catch (error) {
       console.error('Fetch members error:', error);
+      setDataError(error instanceof Error ? error.message : 'Failed to load members from Supabase.');
     } finally {
       setIsLoading(false);
     }
@@ -446,6 +450,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       members, logs, emails, templates, stats, isLoading,
+      dataError,
       fetchMembers, fetchLogs, fetchEmails, fetchTemplates, clearEmailHistory, clearActivityLogs, deleteMember, approveMember, createMember, sendEmail, createTemplate, getMemberById, updateMember,
     }}>
       {children}
