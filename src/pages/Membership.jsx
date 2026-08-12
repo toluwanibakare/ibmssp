@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Check, Building2, UserCheck, GraduationCap, ArrowRight, Loader } from 'lucide-react';
+import { Check, Building2, UserCheck, GraduationCap, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './Membership.css';
 
@@ -58,8 +58,9 @@ export default function Membership() {
   const fileRef = useRef(null);
 
   // Form state
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [fileName, setFileName] = React.useState('');
@@ -398,7 +399,24 @@ export default function Membership() {
 
                       {/* ── Shared Login Credentials ── */}
                       <input type="email" placeholder="Login Email" value={email} onChange={e => setEmail(e.target.value)} required />
-                      <input type="password" placeholder="Password (min 8 characters)" value={password} onChange={e => setPassword(e.target.value)} minLength={8} required />
+                      <div className="input-with-icon-wrapper" style={{ position: 'relative', width: '100%', marginBottom: '1rem' }}>
+                        <input 
+                          type={showPassword ? "text" : "password"} 
+                          placeholder="Password (min 8 characters)" 
+                          value={password} 
+                          onChange={e => setPassword(e.target.value)} 
+                          minLength={8} 
+                          style={{ width: '100%', paddingRight: '2.8rem' }}
+                          required 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-color)', padding: 0 }}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
 
                       {/* ── BUSINESS fields ── */}
                       {activeType === 'business' && (

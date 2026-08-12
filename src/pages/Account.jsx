@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText, Lock, Mail, Loader, Key } from 'lucide-react';
+import { User, Award, CheckCircle, Clock, BookOpen, Download, ShieldAlert, Edit, Save, FileText, Lock, Mail, Loader, Key, Eye, EyeOff } from 'lucide-react';
 import { supabase, callEdgeFunction } from '../lib/supabase';
 import html2canvas from 'html2canvas';
 import RegistrationCertificate from '../components/RegistrationCertificate';
@@ -17,6 +17,7 @@ export default function Account() {
   // Login / Reset state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -25,6 +26,7 @@ export default function Account() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpToken, setOtpToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [otpError, setOtpError] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -369,14 +371,20 @@ export default function Account() {
                     <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>PASSWORD</label>
                     <div className="input-with-icon-wrapper" style={{ position: 'relative' }}>
                       <input 
-                        type="password" 
+                        type={showPassword ? "text" : "password"} 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        style={{ width: '100%', padding: '0.85rem 2.5rem 0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
+                        style={{ width: '100%', padding: '0.85rem 2.8rem 0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
                         required 
                       />
-                      <Lock size={16} style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-color)', padding: 0 }}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
                     </div>
                   </div>
 
@@ -433,15 +441,24 @@ export default function Account() {
                     </div>
                     <div className="premium-form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
                       <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary-slate)', letterSpacing: '0.5px', marginBottom: '0.5rem', display: 'block' }}>NEW PASSWORD</label>
-                      <input 
-                        type="password" 
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Min 8 characters"
-                        style={{ width: '100%', padding: '0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
-                        minLength={8}
-                        required 
-                      />
+                      <div className="input-with-icon-wrapper" style={{ position: 'relative' }}>
+                        <input 
+                          type={showNewPassword ? "text" : "password"} 
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Min 8 characters"
+                          style={{ width: '100%', padding: '0.85rem 2.8rem 0.85rem 1rem', border: '1px solid var(--border-color)', borderRadius: '6px', outline: 'none' }}
+                          minLength={8}
+                          required 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-color)', padding: 0 }}
+                        >
+                          {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </div>
                     <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
                       {otpLoading ? <Loader size={16} className="spin-icon" /> : 'Verify & Set Password'}

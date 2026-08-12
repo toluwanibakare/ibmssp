@@ -225,10 +225,26 @@ const universalHandler = async (req, res) => {
 
     let template = { subject: subject || 'IBMSSP Notification', html: htmlBody || '' };
 
-    if (type === 'registration') {
+    if (type === 'verify_otp') {
+      const records = await fetchOtpFromDb(to);
+      if (!records || records.length === 0) {
+        return res.status(400).json({ error: 'No active OTP found. Please request a new code.' });
+      }
+      const record = records[0];
+      if (new Date(record.expires_at) < new Date()) {
+        return res.status(400).json({ error: 'OTP has expired. Please request a new code.' });
+      }
+      if (record.otp !== (otp || '').trim()) {
+        return res.status(400).json({ error: 'Incorrect OTP. Please check and try again.' });
+      }
+      await deleteOtpFromDb(to);
+      return res.json({ success: true, message: 'OTP verified successfully' });
+    } else if (type === 'registration') {
       template = registrationTemplate({ name: name || 'Member', memberId: memberId || 'N/A' });
     } else if (type === 'otp') {
       const generatedOtp = otp || Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      await insertOtpToDb(to, generatedOtp, expiresAt);
       template = otpTemplate({ otp: generatedOtp });
     } else if (type === 'payment_confirmation') {
       template = paymentConfirmationTemplate({ name: name || 'Member', memberId: memberId || 'N/A', amount: amount || '' });
