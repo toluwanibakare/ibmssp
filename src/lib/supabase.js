@@ -26,12 +26,30 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY) {
 export const supabase = client;
 
 /**
- * Calls a Supabase Edge Function with the anon key always present in headers.
- * Throws a clear error if Supabase is not configured.
+ * Dispatches email requests to the dedicated Node/Express email microservice if configured,
+ * or falls back to the Supabase Edge Function.
  */
 export async function callEdgeFunction(functionName, body) {
+  const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL;
+
+  // 1. If dedicated Express Node email service is configured, try it first
+  if (EMAIL_SERVICE_URL && functionName === 'send-email') {
+    try {
+      const res = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok) return data;
+    } catch (err) {
+      console.warn('[Email Microservice Fallback]: Primary email service unreachable, falling back to Supabase Edge Function...', err);
+    }
+  }
+
+  // 2. Supabase Edge Function fallback
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error('Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment.');
+    throw new Error('Supabase configuration missing.');
   }
 
   const { data: { session } } = await supabase.auth.getSession();
