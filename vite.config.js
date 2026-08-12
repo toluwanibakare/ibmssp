@@ -1,21 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// https://vite.dev/config/
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(process.cwd(), 'admin/src'),
+      '@': path.resolve(__dirname, 'admin/src'),
+      '@admin': path.resolve(__dirname, 'admin/src'),
     },
   },
   build: {
     rollupOptions: {
       input: {
-        main: path.resolve(process.cwd(), 'index.html'),
-        admin: path.resolve(process.cwd(), 'admin/index.html'),
+        main: path.resolve(__dirname, 'index.html'),
+        admin: path.resolve(__dirname, 'admin/index.html'),
       },
     },
-  }
+  },
 })
