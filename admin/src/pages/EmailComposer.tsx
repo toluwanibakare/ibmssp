@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Send, User, Tag, Clock, Linkedin, MessageCircle } from 'lucide-react';
+import { Send, User, Tag, Clock, Link2, MessageCircle } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { timeAgo } from '@/lib/utils-ui';
 import { useAuth } from '@/contexts/AuthContext';
@@ -415,7 +415,7 @@ export default function EmailComposer() {
                       <div className="p-6 bg-[#fcfcfc] border-t border-slate-100 text-center">
                         <div className="flex justify-center gap-3 mb-4">
                           <div className="w-8 h-8 rounded-full bg-[#0077b5]/10 flex items-center justify-center text-[#0077b5]">
-                            <Linkedin size={16} />
+                            <LinkIcon size={16} />
                           </div>
                           <div className="w-8 h-8 rounded-full bg-slate-900/10 flex items-center justify-center text-slate-900">
                             <span className="font-bold text-[10px]">X</span>

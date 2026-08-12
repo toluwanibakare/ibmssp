@@ -3,7 +3,7 @@ import {
   Send, Image as ImageIcon, Paperclip, Bold, Italic, List, 
   ListOrdered, AlignLeft, AlignCenter, AlignRight, Underline,
   Eye, Save, Trash2, X, Plus, FileText, CheckCircle2, Loader2,
-  Users, UserCheck, GraduationCap, School, Building2, Linkedin, MessageCircle
+  Users, UserCheck, GraduationCap, School, Building2, Link2, MessageCircle
 } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -272,7 +272,7 @@ export default function Newsletter() {
                       <div className="p-10 bg-[#fcfcfc] border-t border-slate-100 text-center">
                         <div className="flex justify-center gap-6 mb-8">
                           <div className="w-10 h-10 rounded-full bg-[#0077b5]/10 flex items-center justify-center text-[#0077b5] border border-[#0077b5]/20">
-                            <Linkedin size={20} />
+                            <LinkIcon size={20} />
                           </div>
                           <div className="w-10 h-10 rounded-full bg-slate-900/10 flex items-center justify-center text-slate-900 border border-slate-900/10">
                             <span className="font-bold text-lg">X</span>
