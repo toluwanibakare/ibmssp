@@ -3,29 +3,21 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const SMTP_HOST = process.env.SMTP_HOST || 'mail.ibmssp.org.ng';
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || '465');
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587'); // Default 587 for cloud compatibility
 const SMTP_USER = process.env.SMTP_USER || 'info@ibmssp.org.ng';
 const SMTP_PASS = process.env.SMTP_PASS || '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 
-let transporter = null;
-
-if (SMTP_PASS) {
-  transporter = nodemailer.createTransport({
+function createTransporter(port) {
+  return nodemailer.createTransport({
     host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_PORT === 465,
+    port: port,
+    secure: port === 465, // SSL for 465, STARTTLS for 587/2525
     auth: { user: SMTP_USER, pass: SMTP_PASS },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 10000,
-  });
-
-  transporter.verify((error) => {
-    if (error) {
-      console.warn('⚠️ [cPanel SMTP Verification Warning]:', error.message);
-    } else {
-      console.log(`✅ [cPanel SMTP Transporter]: Connected on ${SMTP_HOST}:${SMTP_PORT}`);
-    }
+    connectionTimeout: 8000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
   });
 }
 
@@ -57,23 +49,28 @@ export async function sendEmail({ to, subject, html }) {
 
   const recipients = Array.isArray(to) ? to.join(', ') : to;
 
-  // 1. Prioritize cPanel SMTP if password is provided (Sends to ANY email)
-  if (transporter && SMTP_PASS) {
-    try {
-      console.log(`✉️ Sending via cPanel SMTP (${SMTP_USER}) to ${recipients}...`);
-      const mailOptions = { from: `"IBMSSP" <${SMTP_USER}>`, to: recipients, subject, html };
-      return await transporter.sendMail(mailOptions);
-    } catch (smtpErr) {
-      console.warn('⚠️ cPanel SMTP error:', smtpErr.message);
-      if (!RESEND_API_KEY) throw smtpErr;
+  // 1. Try cPanel SMTP via configured port (Default 587 or 465)
+  if (SMTP_PASS) {
+    const portsToTry = [SMTP_PORT, SMTP_PORT === 465 ? 587 : 465, 2525];
+    for (const port of portsToTry) {
+      try {
+        console.log(`✉️ Attempting cPanel SMTP (${SMTP_USER}) via Port ${port}...`);
+        const tempTransporter = createTransporter(port);
+        const mailOptions = { from: `"IBMSSP" <${SMTP_USER}>`, to: recipients, subject, html };
+        const info = await tempTransporter.sendMail(mailOptions);
+        console.log(`✅ [cPanel SMTP Sent Successfully on Port ${port}]: MessageId=${info.messageId}`);
+        return info;
+      } catch (err) {
+        console.warn(`⚠️ cPanel SMTP Port ${port} failed: ${err.message}. Trying next port...`);
+      }
     }
   }
 
-  // 2. Fallback to Resend API if configured
+  // 2. Fallback to Resend API if API Key is configured
   if (RESEND_API_KEY) {
     console.log('🌐 Sending via Resend API...');
     return await sendViaResend({ to, subject, html });
   }
 
-  throw new Error('No email credentials configured. Please set SMTP_PASS in environment variables.');
+  throw new Error('Could not connect to cPanel SMTP on ports 587, 465, or 2525. Please verify SMTP_PASS or webmail firewall settings.');
 }
