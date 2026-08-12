@@ -340,9 +340,12 @@ export default function Account() {
     }
   };
 
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+
   // ─── Paystack Payment Popup Handler ────────────────────────────────────────
   const handlePaystackPayment = async () => {
     if (!memberData) return;
+    setPaymentProcessing(true);
 
     // Fetch the current global Paystack mode ('test' or 'live')
     let mode = 'test';
@@ -375,6 +378,7 @@ export default function Account() {
           document.head.appendChild(script);
         });
       } catch (scriptErr) {
+        setPaymentProcessing(false);
         alert('Could not load Paystack Payment Gateway. Please check your internet connection.');
         return;
       }
@@ -406,6 +410,7 @@ export default function Account() {
               performed_by: 'system',
             });
 
+            // 1. Send payment confirmation email to the member
             await callEdgeFunction('send-email', {
               type: 'payment_confirmation',
               to: memberData.email,
@@ -414,15 +419,27 @@ export default function Account() {
               amount: `₦${amount.toLocaleString()}`,
             });
 
+            // 2. Send payment notification email to the admin
+            await callEdgeFunction('send-email', {
+              type: 'announcement',
+              to: 'info@ibmssp.org.ng',
+              subject: `Payment Alert: ${memberData.first_name} ${memberData.last_name} (${memberData.public_id || memberData.member_id})`,
+              headline: 'New Membership Payment Received',
+              content: `A new payment of ₦${amount.toLocaleString()} was successfully received from ${memberData.first_name} ${memberData.last_name} (${memberData.email}).\nMember ID: ${memberData.public_id || memberData.member_id}\nTransaction Ref: ${response.reference}\nStatus: Approved & Active.`
+            });
+
             alert('Payment Successful! Your membership account is now fully active.');
             await fetchMemberRecord(sessionUser.email);
           } catch (err) {
             console.error('Error confirming transaction:', err);
             alert('Payment recorded, but failed to update status automatically. Please contact support.');
+          } finally {
+            setPaymentProcessing(false);
           }
         })();
       },
       onClose: function() {
+        setPaymentProcessing(false);
         console.log('Paystack popup closed.');
       }
     });
@@ -690,8 +707,20 @@ export default function Account() {
                   <p>
                     Your registration form is saved, but your one-time membership fee of <strong>{pricingText}</strong> is currently unpaid. Pay now via Paystack to unlock your training resources and printable certificates.
                   </p>
-                  <button className="btn btn-primary btn-settle-payment" onClick={handlePaystackPayment}>
-                    Complete Registration Payment
+                  <button 
+                    className="btn btn-primary btn-settle-payment" 
+                    onClick={handlePaystackPayment} 
+                    disabled={paymentProcessing}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    {paymentProcessing ? (
+                      <>
+                        <Loader size={16} className="spin-icon" />
+                        <span>Processing Payment Gateway...</span>
+                      </>
+                    ) : (
+                      <span>Complete Registration Payment</span>
+                    )}
                   </button>
                 </div>
               </div>

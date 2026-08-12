@@ -101,7 +101,7 @@ export function paymentConfirmationTemplate({ name, memberId, amount }) {
   return {
     subject: 'IBMSSP – Payment Confirmed! Your Membership is Active',
     html: emailWrapper(`
-      <h2 style="color: #305858; margin-top: 0; font-size: 22px;">Payment Confirmed 🎉</h2>
+      <h2 style="color: #305858; margin-top: 0; font-size: 22px;">Payment Confirmed</h2>
       <p style="color: #475569; line-height: 1.8; font-size: 15px;">
         Dear <strong>${name}</strong>, your payment of <strong>${amount}</strong> has been successfully verified. Your IBMSSP membership is now <strong>fully active</strong>.
       </p>
@@ -110,7 +110,7 @@ export function paymentConfirmationTemplate({ name, memberId, amount }) {
           Member ID: <span style="color: #305858;">${memberId}</span>
         </p>
         <p style="margin: 6px 0 0; color: #16a34a; font-size: 13px; font-weight: 700;">
-          ✅ Status: Active Member
+          Status: Active Member
         </p>
       </div>
       <p style="color: #475569; line-height: 1.8; font-size: 15px;">You now have full access to:</p>
