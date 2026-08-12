@@ -31,42 +31,44 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// API Key authentication middleware (optional, skips for /health)
+const router = express.Router();
+
+// API Key authentication middleware
 function authenticateApiKey(req, res, next) {
-  if (req.path === '/health') return next();
+  if (req.path === '/health' || req.path === '/') return next();
 
   const apiKey = req.headers['x-api-key'] || req.query.apiKey;
-  // If API_SECRET is set and passed, allow. Otherwise permit for dev.
   if (process.env.REQUIRE_API_KEY === 'true' && apiKey !== API_SECRET) {
     return res.status(401).json({ error: 'Unauthorized: Invalid x-api-key' });
   }
   next();
 }
 
-app.use(authenticateApiKey);
+router.use(authenticateApiKey);
 
 // ─── Health Check ───────────────────────────────────────────────────────────
 
-app.get('/health', (req, res) => {
+const healthHandler = (req, res) => {
   res.json({
     status: 'online',
     service: 'IBMSSP Dedicated Email Microservice',
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+router.get('/health', healthHandler);
+router.get('/', healthHandler);
 
 // ─── 1. Send OTP Endpoint ────────────────────────────────────────────────────
 
-app.post('/api/send-otp', async (req, res) => {
+router.post('/api/send-otp', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    // Store OTP in Supabase if service role key available
     if (supabaseAdmin) {
       await supabaseAdmin.from('password_reset_otps').delete().eq('email', email);
       const { error: insertErr } = await supabaseAdmin
@@ -75,7 +77,6 @@ app.post('/api/send-otp', async (req, res) => {
       if (insertErr) console.warn('[OTP DB Warning]:', insertErr.message);
     }
 
-    // Render HTML and send email
     const template = otpTemplate({ otp });
     await sendEmail({ to: email, subject: template.subject, html: template.html });
 
@@ -88,7 +89,7 @@ app.post('/api/send-otp', async (req, res) => {
 
 // ─── 2. Verify OTP Endpoint ─────────────────────────────────────────────────
 
-app.post('/api/verify-otp', async (req, res) => {
+router.post('/api/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
@@ -115,7 +116,6 @@ app.post('/api/verify-otp', async (req, res) => {
       return res.status(400).json({ error: 'Incorrect OTP. Please check and try again.' });
     }
 
-    // Delete verified OTP
     await supabaseAdmin.from('password_reset_otps').delete().eq('email', email);
 
     res.json({ success: true, message: 'OTP verified successfully' });
@@ -127,7 +127,7 @@ app.post('/api/verify-otp', async (req, res) => {
 
 // ─── 3. Send Registration Welcome Email ─────────────────────────────────────
 
-app.post('/api/send-welcome', async (req, res) => {
+router.post('/api/send-welcome', async (req, res) => {
   try {
     const { email, name, memberId } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
@@ -148,7 +148,7 @@ app.post('/api/send-welcome', async (req, res) => {
 
 // ─── 4. Send Payment Confirmation Email ─────────────────────────────────────
 
-app.post('/api/send-payment', async (req, res) => {
+router.post('/api/send-payment', async (req, res) => {
   try {
     const { email, name, memberId, amount } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
@@ -170,7 +170,7 @@ app.post('/api/send-payment', async (req, res) => {
 
 // ─── 5. Universal Router Endpoint (Handles any email type) ─────────────────
 
-app.post('/api/send-email', async (req, res) => {
+const universalHandler = async (req, res) => {
   try {
     const payload = req.body.body || req.body;
     const { type, to, name, memberId, otp, amount, subject, headline, content, ctaText, ctaUrl, htmlBody } = payload;
@@ -201,7 +201,14 @@ app.post('/api/send-email', async (req, res) => {
     console.error('Universal send-email error:', error);
     res.status(500).json({ error: error.message || 'Failed to process send-email request' });
   }
-});
+};
+
+router.post('/api/send-email', universalHandler);
+router.post('/send-email', universalHandler);
+
+// Mount router at both root '/' and '/email-api' so cPanel path prefixes work seamlessly
+app.use('/', router);
+app.use('/email-api', router);
 
 // ─── Start Server ───────────────────────────────────────────────────────────
 
