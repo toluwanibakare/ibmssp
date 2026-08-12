@@ -30,7 +30,7 @@ export const supabase = client;
  * or falls back to the Supabase Edge Function.
  */
 export async function callEdgeFunction(functionName, body) {
-  const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'https://ibmssp.org.ng/email-api';
+  const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'https://ibmssp.onrender.com';
 
   // 1. Send via dedicated cPanel Express Node Email Microservice
   if (functionName === 'send-email') {
