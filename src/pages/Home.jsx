@@ -4,6 +4,8 @@ import { ArrowRight, Eye, Target, Star, ChevronLeft, ChevronRight, Play } from '
 import './Home.css';
 
 import heroImg1 from '../assets/hero_image1.png';
+import heroImg2 from '../assets/hero_image2.jpg';
+import heroImg3 from '../assets/hero_image3.jpg';
 
 // Hero Slider Data
 const heroSlides = [
@@ -11,19 +13,22 @@ const heroSlides = [
     tag: 'Advocacy',
     title: 'Multi-Stakeholder Engagement',
     desc: 'We promote broad and balanced engagement, ensuring diverse voices are heard through networking and collaboration.',
-    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1600&q=80'
+    image: heroImg1,
+    position: 'center top'
   },
   {
     tag: 'Credibility',
     title: 'Ethical Practices',
     desc: 'We prioritize accountability and commitment to high standards and professional credibility within the industry.',
-    image: 'https://images.unsplash.com/photo-1573166364524-d9dbfd8bbf83?auto=format&fit=crop&w=1600&q=80'
+    image: heroImg2,
+    position: 'center top'
   },
   {
     tag: 'Business Stability',
     title: 'Empowering Organizations for Growth & Sustained Success',
     desc: 'We assist in monitoring the implementation of standards and hold organizations accountable for compliance.',
-    image: 'https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=1600&q=80'
+    image: heroImg3,
+    position: 'center top'
   }
 ];
 
@@ -85,7 +90,10 @@ export default function Home() {
           <div 
             key={index} 
             className={`hero-slide ${index === currentSlide ? 'active' : ''}`}
-            style={{ backgroundImage: `linear-gradient(rgba(30, 88, 88, 0.7), rgba(4, 4, 4, 0.8)), url(${slide.image})` }}
+            style={{ 
+              backgroundImage: `linear-gradient(rgba(30, 88, 88, 0.7), rgba(4, 4, 4, 0.8)), url(${slide.image})`,
+              backgroundPosition: slide.position || 'center top'
+            }}
           >
             <div className="container hero-container">
               <div className="hero-content">
@@ -284,7 +292,7 @@ export default function Home() {
       </section>
 
       {/* 5. Membership Banner */}
-      <section className="membership-banner-section" style={{ backgroundImage: `linear-gradient(rgba(48, 88, 88, 0.8), rgba(4, 4, 4, 0.85)), url(${heroImg1})` }}>
+      <section className="membership-banner-section" style={{ backgroundImage: `linear-gradient(rgba(48, 88, 88, 0.8), rgba(4, 4, 4, 0.85)), url(https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1600&q=80)` }}>
         <div className="banner-overlay">
           <div className="container banner-grid">
             <div className="banner-left">
