@@ -2,16 +2,34 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Prefer project-specific publishable key, fall back to anon key used by root.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || (typeof window !== 'undefined' && (window as any).__IBMSSP_SUPABASE_URL__) || '';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || (typeof window !== 'undefined' && (window as any).__IBMSSP_SUPABASE_ANON_KEY__) || '';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-});
+let client: any;
+if (SUPABASE_URL && SUPABASE_KEY) {
+  client = createClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+} else {
+  console.warn('Admin Supabase client not configured: VITE_SUPABASE_URL or publishable key missing. Admin features disabled.');
+  client = {
+    auth: {
+      getSession: async () => ({ data: { session: null } })
+    },
+    from: () => ({ insert: async () => ({ data: null, error: null }), select: async () => ({ data: null, error: null }) }),
+    functions: { invoke: async () => ({ data: null, error: 'Supabase not configured' }) },
+    storage: { from: () => ({ getPublicUrl: () => ({ publicURL: '' }) }) },
+    channel: () => ({ on: () => ({}) , subscribe: async () => ({}) , unsubscribe: async () => ({}) }),
+  } as unknown as Database;
+}
+
+export const supabase = client as unknown as Database;
+export default supabase;
