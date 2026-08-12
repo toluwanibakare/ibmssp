@@ -176,31 +176,10 @@ export default function Account() {
     setOtpLoading(true);
 
     try {
-      // Verify OTP via our edge function
-      const data = await callEdgeFunction('send-email', {
-        type: 'verify_otp',
-        to: email,
-        otp: otpToken,
-      });
+      // Call server-side reset-password function which verifies the OTP and updates the password
+      const data = await callEdgeFunction('reset-password', { email, otp: otpToken, newPassword });
 
-      if (data?.error) throw new Error(data.error || 'Invalid OTP');
-
-      // OTP valid — now find the user and update their password using admin API
-      // Since they aren't logged in, we sign them in via magic link workaround:
-      // Store verified flag in sessionStorage and let them set password while logged in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: 'IBMSSP_DefaultUser@2026!',
-      });
-
-      // Whether or not sign-in works, try updating the password
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-
-      if (updateError) {
-        // If update fails, they need to be signed in — send them a magic link as fallback
-        await supabase.auth.signInWithOtp({ email });
-        throw new Error('Please check your email for a magic login link to complete the password reset.');
-      }
+      if (data?.error) throw new Error(data.error || 'Password reset failed');
 
       setForgotMode(false);
       setOtpSent(false);

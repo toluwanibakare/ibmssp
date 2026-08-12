@@ -110,9 +110,7 @@ export default function App() {
 
 function AdminRedirect() {
   useEffect(() => {
-    // If we land here via client-side routing, force a hard reload
-    // so the Vite dev server proxy or production server can serve the admin app directly.
-    window.location.href = window.location.pathname;
+    window.location.replace('/admin/');
   }, []);
   return null;
 }

@@ -1,15 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      '/admin': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      }
-    }
+  resolve: {
+    alias: {
+      '@': path.resolve(process.cwd(), 'admin/src'),
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(process.cwd(), 'index.html'),
+        admin: path.resolve(process.cwd(), 'admin/index.html'),
+      },
+    },
   }
 })
