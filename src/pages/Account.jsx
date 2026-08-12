@@ -260,6 +260,22 @@ export default function Account() {
     if (memberData.category === 'business') amount = 20000;
     if (memberData.category === 'student') amount = 5000;
 
+    // Dynamically load Paystack script if not present
+    if (!window.PaystackPop) {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://js.paystack.co/v1/inline.js';
+          script.onload = resolve;
+          script.onerror = () => reject(new Error('Failed to load Paystack SDK script.'));
+          document.head.appendChild(script);
+        });
+      } catch (scriptErr) {
+        alert('Could not load Paystack Payment Gateway. Please check your internet connection.');
+        return;
+      }
+    }
+
     const handler = window.PaystackPop.setup({
       key: activePublicKey,
       email: memberData.email,
