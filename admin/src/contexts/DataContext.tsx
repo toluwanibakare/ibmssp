@@ -411,21 +411,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const sendEmail = async (data: any) => {
     try {
-      const { data: result, error } = await supabase.functions.invoke('send-email', {
-        body: {
+      const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'https://ibmssp.onrender.com';
+      const res = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: data.type || 'newsletter',
           to: data.to,
           subject: data.subject,
-          text: appendEmailFooter(data.text),
-          html: appendEmailFooter(data.html),
-          recipientName: data.recipientName || data.to,
-        },
+          headline: data.headline || data.subject,
+          content: data.text || data.html || data.content,
+          htmlBody: data.html,
+          ctaText: data.ctaText,
+          ctaUrl: data.ctaUrl,
+        }),
       });
 
-      if (error) throw new Error(error.message || 'Failed to send email');
-      if (result && result.success === false) throw new Error(result.message || 'Failed to send email');
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed to send email');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to send email';
-
+      console.error('[Admin sendEmail error]:', message);
       throw new Error(message);
     } finally {
       fetchEmails();
