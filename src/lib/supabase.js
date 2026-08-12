@@ -35,7 +35,12 @@ export async function callEdgeFunction(functionName, body) {
   // 1. Send via dedicated cPanel Express Node Email Microservice
   if (functionName === 'send-email') {
     try {
-      const res = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
+      const baseUrl = EMAIL_SERVICE_URL.replace(/\/+$/, '');
+      const targetEndpoint = baseUrl.endsWith('send-email')
+        ? baseUrl
+        : `${baseUrl}/api/send-email`;
+
+      const res = await fetch(targetEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

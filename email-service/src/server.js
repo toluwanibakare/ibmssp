@@ -28,6 +28,16 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key, apikey');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
@@ -35,7 +45,7 @@ const router = express.Router();
 
 // API Key authentication middleware
 function authenticateApiKey(req, res, next) {
-  if (req.path === '/health' || req.path === '/') return next();
+  if (req.method === 'OPTIONS' || req.path === '/health' || req.path === '/') return next();
 
   const apiKey = req.headers['x-api-key'] || req.query.apiKey;
   if (process.env.REQUIRE_API_KEY === 'true' && apiKey !== API_SECRET) {
