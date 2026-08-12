@@ -34,9 +34,30 @@ export default function Account() {
   // Profile editable fields
   const [profileFirstName, setProfileFirstName] = useState('');
   const [profileLastName, setProfileLastName] = useState('');
+  const [profileOtherName, setProfileOtherName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
   const [profileAddress, setProfileAddress] = useState('');
+  const [profileState, setProfileState] = useState('');
+  const [profileCountry, setProfileCountry] = useState('');
   const [profileSaveLoading, setProfileSaveLoading] = useState(false);
+
+  // Category-specific details
+  const [catOrgName, setCatOrgName] = useState('');
+  const [catRcNumber, setCatRcNumber] = useState('');
+  const [catContactPerson, setCatContactPerson] = useState('');
+  const [catCompanyEmail, setCatCompanyEmail] = useState('');
+  const [catCompanyPhone, setCatCompanyPhone] = useState('');
+
+  const [catInstitution, setCatInstitution] = useState('');
+  const [catCourse, setCatCourse] = useState('');
+  const [catLevel, setCatLevel] = useState('');
+  const [catMatricNumber, setCatMatricNumber] = useState('');
+  const [catGraduationYear, setCatGraduationYear] = useState('');
+
+  const [catProfession, setCatProfession] = useState('');
+  const [catSpecialization, setCatSpecialization] = useState('');
+  const [catCurrentCompany, setCatCurrentCompany] = useState('');
+  const [catYearsExp, setCatYearsExp] = useState('');
 
   // Dashboard tab state
   const [activeTab, setActiveTab] = useState('overview');
