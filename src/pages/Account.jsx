@@ -109,7 +109,7 @@ export default function Account() {
         .from('members')
         .select('*')
         .eq('email', userEmail)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         setMemberData(data);

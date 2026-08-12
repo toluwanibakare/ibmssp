@@ -30,10 +30,10 @@ export const supabase = client;
  * or falls back to the Supabase Edge Function.
  */
 export async function callEdgeFunction(functionName, body) {
-  const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL;
+  const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'https://ibmssp.org.ng/email-api';
 
-  // 1. If dedicated Express Node email service is configured, try it first
-  if (EMAIL_SERVICE_URL && functionName === 'send-email') {
+  // 1. Send via dedicated cPanel Express Node Email Microservice
+  if (functionName === 'send-email') {
     try {
       const res = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
         method: 'POST',
@@ -42,8 +42,9 @@ export async function callEdgeFunction(functionName, body) {
       });
       const data = await res.json();
       if (res.ok) return data;
+      console.warn('[Email Microservice Response Error]:', data);
     } catch (err) {
-      console.warn('[Email Microservice Fallback]: Primary email service unreachable, falling back to Supabase Edge Function...', err);
+      console.warn('[Email Microservice Unreachable]: Falling back to Supabase Edge Function...', err);
     }
   }
 
