@@ -3,7 +3,7 @@ import {
   Send, Image as ImageIcon, Paperclip, Bold, Italic, List, 
   ListOrdered, AlignLeft, AlignCenter, AlignRight, Underline,
   Eye, Save, Trash2, X, Plus, FileText, CheckCircle2, Loader2,
-  Users, UserCheck, GraduationCap, School, Building2, Link2, MessageCircle
+  Users, UserCheck, GraduationCap, School, Building2, Link2 as LinkIcon, MessageCircle
 } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -311,7 +311,9 @@ export default function Newsletter() {
                       <Button type="button" variant="ghost" size="icon" onMouseDown={preventBlur} onClick={() => execCommand('justifyCenter')} title="Align Center" className="hover:bg-white"><AlignCenter size={16} /></Button>
                       <Button type="button" variant="ghost" size="icon" onMouseDown={preventBlur} onClick={() => execCommand('justifyRight')} title="Align Right" className="hover:bg-white"><AlignRight size={16} /></Button>
                       <Separator orientation="vertical" className="h-6 mx-2" />
-                      <Button type="button" variant="ghost" size="icon" onMouseDown={preventBlur} onClick={() => imageInputRef.current?.click()} title="Insert Image" className="hover:bg-white"><ImageIcon size={16} /></Button>
+                      <Button type="button" variant="outline" size="sm" onMouseDown={preventBlur} onClick={() => imageInputRef.current?.click()} title="Upload & Insert Image (or drag & drop / paste)" className="bg-white hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 px-3 py-1 text-primary border-primary/30">
+                        <ImageIcon size={14} /> Upload Image
+                      </Button>
                       <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={insertImage} />
                     </div>
                     
