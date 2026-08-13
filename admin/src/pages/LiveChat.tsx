@@ -257,45 +257,55 @@ export default function LiveChat() {
                   onClick={() => setInputVal("Hello! Thank you for reaching out to IBMSSP Customer Support. How may I assist you today?")}
                   className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
                 >
-                  👋 Welcome Greeting
+                  Welcome Greeting
                 </button>
                 <button
                   type="button"
                   onClick={() => setInputVal("For detailed guidance on our membership categories (Student, Graduate, Professional, Corporate), please visit https://ibmssp.org.ng/membership or let me know your current qualifications.")}
                   className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
                 >
-                  🎓 Membership Info
+                  Membership Info
                 </button>
                 <button
                   type="button"
                   onClick={() => setInputVal("You can reach our admin team directly via email at info@ibmssp.org.ng or by phone at +2348023644148.")}
                   className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
                 >
-                  📞 Direct Contact
+                  Direct Contact
                 </button>
                 <button
                   type="button"
                   onClick={() => setInputVal("Thank you for chatting with IBMSSP support today! If you have any further questions in the future, feel free to reach out anytime. Have a great day!")}
                   className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
                 >
-                  ✅ Resolve & Closing
+                  Resolve &amp; Closing
                 </button>
               </div>
 
-              {/* Input Area */}
+              {/* Input Area (Auto-expanding Textarea) */}
               <div className="p-4 border-t border-border bg-card">
-                <form onSubmit={sendMessage} className="flex gap-2">
-                  <input
-                    type="text"
+                <form onSubmit={sendMessage} className="flex items-end gap-2">
+                  <textarea
+                    rows={1}
                     value={inputVal}
-                    onChange={e => setInputVal(e.target.value)}
-                    placeholder="Type your reply or choose a template above..."
-                    className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    onChange={e => {
+                      setInputVal(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${Math.min(e.target.scrollHeight, 140)}px`;
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (inputVal.trim()) sendMessage(e);
+                      }
+                    }}
+                    placeholder="Type your reply (Shift+Enter for new line)..."
+                    className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none min-h-[40px] max-h-[140px]"
                   />
                   <button 
                     type="submit"
                     disabled={!inputVal.trim()}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md disabled:opacity-50 transition-colors"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 p-2.5 rounded-md disabled:opacity-50 transition-colors shrink-0"
                   >
                     <Send size={18} />
                   </button>

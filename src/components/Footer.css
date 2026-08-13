@@ -241,4 +241,12 @@
     gap: 1rem;
     text-align: center;
   }
+  .footer-copyright {
+    padding-bottom: 5.5rem !important;
+  }
+  .copyright-container-wide {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center !important;
+  }
 }

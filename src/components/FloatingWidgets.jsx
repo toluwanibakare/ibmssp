@@ -118,7 +118,7 @@ export default function FloatingWidgets() {
     return data;
   };
 
-  // Initialize chat session
+  // Initialize chat session on mount and poll every 60 seconds
   useEffect(() => {
     async function initChat() {
       let currentSession = localStorage.getItem(SESSION_KEY);
@@ -164,10 +164,44 @@ export default function FloatingWidgets() {
       }
     }
     
-    if (isChatOpen && !chatId) {
-      initChat();
-    }
-  }, [isChatOpen, chatId]);
+    initChat();
+
+    // 1-minute polling backup for new admin messages
+    const pollInterval = setInterval(async () => {
+      let currentSession = localStorage.getItem(SESSION_KEY);
+      if (!currentSession) return;
+
+      const { data: chat } = await supabase
+        .from('live_chats')
+        .select('id, status')
+        .eq('session_id', currentSession)
+        .maybeSingle();
+
+      if (chat) {
+        setChatStatus(chat.status);
+        const { data: latestMsgs } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('chat_id', chat.id)
+          .order('created_at', { ascending: true });
+
+        if (latestMsgs) {
+          setMessages(prev => {
+            if (latestMsgs.length > prev.length) {
+              const newAdminMsgs = latestMsgs.filter(m => m.role === 'admin' && !prev.find(p => p.id === m.id));
+              if (newAdminMsgs.length > 0 && !isChatOpen) {
+                setUnreadCount(u => u + newAdminMsgs.length);
+              }
+              return latestMsgs;
+            }
+            return prev;
+          });
+        }
+      }
+    }, 60000);
+
+    return () => clearInterval(pollInterval);
+  }, []);
 
   // Subscribe to real-time messages (Admin replies) and status updates
   useEffect(() => {
