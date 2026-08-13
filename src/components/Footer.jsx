@@ -143,7 +143,7 @@ export default function Footer() {
       {/* Copyright Bar */}
       <div className="footer-copyright" style={{ padding: '0.8rem 0' }}>
         <div className="copyright-container-wide" style={{ width: '94%', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <p style={{ margin: 0, fontSize: '0.82rem' }}>© 2024 IBMSSP. All Rights Reserved.</p>
+          <p style={{ margin: 0, fontSize: '0.82rem' }}>© {new Date().getFullYear()} IBMSSP. All Rights Reserved.</p>
           <div className="copyright-right-group" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div className="footer-socials" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
               <a href="https://linkedin.com/company/ibmssp/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
