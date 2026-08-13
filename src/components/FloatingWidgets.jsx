@@ -165,12 +165,44 @@ export default function FloatingWidgets() {
     }, 100);
   }, [messages, isTyping]);
 
-  // Focus input when chat opens
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [showDetailsForm, setShowDetailsForm] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Focus input when chat opens & reset unread count
   useEffect(() => {
     if (isChatOpen) {
+      setUnreadCount(0);
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [isChatOpen]);
+
+  // Subscribe to real-time messages (Admin replies) and status updates
+  useEffect(() => {
+    if (!chatId) return;
+
+    const channel = supabase.channel(`chat_${chatId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `chat_id=eq.${chatId}` }, payload => {
+        setMessages(prev => {
+          if (prev.find(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+
+        // Increment unread count if chat window is closed and message is from admin
+        if (!isChatOpen && payload.new.role === 'admin') {
+          setUnreadCount(prev => prev + 1);
+        }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_chats', filter: `id=eq.${chatId}` }, payload => {
+        setChatStatus(payload.new.status);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [chatId, isChatOpen]);
 
   const insertMessage = async (role, content, targetChatId = chatId) => {
     if (!targetChatId) return null;
@@ -186,20 +218,34 @@ export default function FloatingWidgets() {
   };
 
   const requestHumanSupport = async () => {
-    if (!chatId) return;
+    setShowDetailsForm(true);
+  };
+
+  const handleDetailsSubmit = async (e) => {
+    e.preventDefault();
+    if (!userName.trim() || !userEmail.trim() || !chatId) return;
+
     setIsTyping(true);
-    await supabase.from('live_chats').update({ status: 'human_requested' }).eq('id', chatId);
-    
-    // Trigger email notification
+    setShowDetailsForm(false);
+
+    // Save name & email to live_chats
+    await supabase.from('live_chats').update({
+      status: 'human_requested',
+      user_name: userName.trim(),
+      user_email: userEmail.trim(),
+      updated_at: new Date().toISOString()
+    }).eq('id', chatId);
+
+    // Trigger email notification to admin
     await callEdgeFunction('send-email', {
       type: 'announcement',
       to: 'ibmssp.media2@gmail.com',
-      subject: 'Support Request: Live Chat Escalation',
-      headline: 'Support Request: Live Chat Escalation',
-      content: 'A user has requested human support in the live chat. Please log in to the admin dashboard to reply.'
+      subject: `Live Support Request: ${userName.trim()} (${userEmail.trim()})`,
+      headline: 'New Live Chat Support Escalation',
+      content: `A visitor has requested human support in the live chat.\n\nVisitor Name: ${userName.trim()}\nVisitor Email: ${userEmail.trim()}\nSession ID: ${chatId}\n\nPlease log in to the admin dashboard live chat module to reply directly.`
     });
 
-    await insertMessage('bot', 'A human representative has been notified and will be with you shortly. You will see their response here.');
+    await insertMessage('bot', `Thank you ${userName.trim()}. A human representative has been notified of your request (${userEmail.trim()}) and will be with you shortly. Your conversation will update here instantly!`);
     setChatStatus('human_requested');
     setIsTyping(false);
   };
@@ -290,8 +336,29 @@ export default function FloatingWidgets() {
           className={`chat-bubble-launcher ${isChatOpen ? 'active' : ''}`}
           onClick={() => setIsChatOpen(!isChatOpen)}
           aria-label="Open Chat"
+          style={{ position: 'relative' }}
         >
           {isChatOpen ? <X size={22} /> : <MessageSquare size={22} />}
+          {!isChatOpen && unreadCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              backgroundColor: '#ef4444',
+              color: '#ffffff',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              fontSize: '11px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+            }}>
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         <div className={`chat-window ${isChatOpen ? 'chat-window-open' : ''}`}>
@@ -313,6 +380,40 @@ export default function FloatingWidgets() {
               </button>
             </div>
           </div>
+
+          {/* Details Form Modal (When requesting human support) */}
+          {showDetailsForm && (
+            <div style={{ padding: '1.5rem', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+              <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-color)', fontSize: '0.95rem', fontWeight: 700 }}>Request Live Human Support</h5>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b' }}>Please enter your details so our representative can identify and notify you of replies.</p>
+              <form onSubmit={handleDetailsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <input 
+                  type="text" 
+                  placeholder="Full Name" 
+                  value={userName} 
+                  onChange={(e) => setUserName(e.target.value)} 
+                  required 
+                  style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                />
+                <input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  value={userEmail} 
+                  onChange={(e) => setUserEmail(e.target.value)} 
+                  required 
+                  style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                />
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.82rem', fontWeight: 700 }}>
+                    Submit &amp; Connect
+                  </button>
+                  <button type="button" onClick={() => setShowDetailsForm(false)} className="btn btn-secondary" style={{ padding: '0.5rem 0.8rem', fontSize: '0.82rem' }}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Messages */}
           <div className="chat-messages" ref={chatMessagesRef}>

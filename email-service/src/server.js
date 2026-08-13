@@ -269,6 +269,76 @@ router.post('/send-email', universalHandler);
 app.use('/', router);
 app.use('/email-api', router);
 
+// ─── 4. Periodic Check for Unreplied Admin Chat Messages (30 mins) ──────────────
+const checkUnrepliedChats = async () => {
+  try {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://rihltpxgyocqqjbspmrw.supabase.co';
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpaGx0cHhneW9jcXFqYnNwbXJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2Njk4MTMsImV4cCI6MjA2MjI0NTgxM30.6iG5K3y4XgY2XQ4';
+    
+    // Fetch live_chats with status human_requested or human_active where user_email is present and email_notified_at is null
+    const res = await fetch(`${supabaseUrl}/rest/v1/live_chats?status=in.(human_requested,human_active)&user_email=not.is.null&email_notified_at=is.null&select=*`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`
+      }
+    });
+
+    if (!res.ok) return;
+    const chats = await res.json();
+    if (!Array.isArray(chats) || chats.length === 0) return;
+
+    const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+    for (const chat of chats) {
+      // Check last message for this chat
+      const msgRes = await fetch(`${supabaseUrl}/rest/v1/chat_messages?chat_id=eq.${chat.id}&order=created_at.desc&limit=1`, {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`
+        }
+      });
+      if (!msgRes.ok) continue;
+      const msgs = await msgRes.json();
+      if (msgs.length === 0) continue;
+
+      const lastMsg = msgs[0];
+      // If the last message was from admin, admin HAS replied!
+      if (lastMsg.role === 'admin') continue;
+
+      // If the last user message was created more than 30 mins ago
+      if (new Date(lastMsg.created_at) < thirtyMinsAgo) {
+        // Send email to user
+        const template = announcementTemplate({
+          subject: 'Support Request Update – IBMSSP Live Support',
+          headline: `Hello ${chat.user_name || 'Valued Visitor'},`,
+          content: `We received your request for live support on the IBMSSP portal.\n\nOur customer care representative is currently reviewing your inquiry and will respond as soon as possible. If you need urgent assistance, you can also reach out directly to us at info@ibmssp.org.ng or call +2348036706827.\n\nThank you for your patience!`,
+          ctaText: 'Return to Chat',
+          ctaUrl: 'https://ibmssp.org.ng'
+        });
+
+        await sendEmail({ to: chat.user_email, subject: template.subject, html: template.html });
+
+        // Mark as notified
+        await fetch(`${supabaseUrl}/rest/v1/live_chats?id=eq.${chat.id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email_notified_at: new Date().toISOString() })
+        });
+        console.log(`✉️ Dispatched 30-min unreplied chat notification email to ${chat.user_email}`);
+      }
+    }
+  } catch (err) {
+    console.error('Error checking unreplied chats:', err);
+  }
+};
+
+// Run check every 5 minutes
+setInterval(checkUnrepliedChats, 5 * 60 * 1000);
+
 const LISTEN_PORT = process.env.PORT || 5000;
 
 const server = app.listen(LISTEN_PORT, () => {

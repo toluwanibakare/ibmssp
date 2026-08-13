@@ -148,9 +148,19 @@ export default function LiveChat() {
                   className={`p-4 border-b border-border cursor-pointer hover:bg-muted/30 transition-colors ${selectedChat?.id === chat.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <span className="font-mono text-xs truncate max-w-[120px] text-muted-foreground">
-                      Session: {chat.session_id.substring(0,8)}...
-                    </span>
+                    <div className="flex flex-col max-w-[150px]">
+                      <span className="font-semibold text-xs text-foreground truncate">
+                        {chat.user_name || 'Anonymous Visitor'}
+                      </span>
+                      {chat.user_email && (
+                        <span className="text-[11px] text-primary font-medium truncate">
+                          {chat.user_email}
+                        </span>
+                      )}
+                      <span className="font-mono text-[10px] text-muted-foreground truncate">
+                        ID: {chat.session_id.substring(0,8)}
+                      </span>
+                    </div>
                     {chat.status === 'human_requested' && (
                       <span className="bg-destructive/10 text-destructive text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">Needs Help</span>
                     )}
@@ -191,7 +201,13 @@ export default function LiveChat() {
               <div className="p-4 border-b border-border bg-card flex justify-between items-center">
                 <div>
                   <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <span className="font-mono bg-muted px-2 py-1 rounded text-xs">
+                    <span>{selectedChat.user_name || 'Anonymous Visitor'}</span>
+                    {selectedChat.user_email && (
+                      <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded font-normal">
+                        {selectedChat.user_email}
+                      </span>
+                    )}
+                    <span className="font-mono bg-muted px-2 py-0.5 rounded text-xs text-muted-foreground">
                       {selectedChat.session_id.substring(0,8)}
                     </span>
                   </h3>
