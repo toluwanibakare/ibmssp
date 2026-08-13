@@ -472,3 +472,23 @@
     bottom: 20px;
   }
 }
+
+.chat-inline-link {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s;
+}
+
+.chat-inline-link:hover {
+  opacity: 0.8;
+}
+
+.chat-message.assistant .chat-inline-link {
+  color: var(--primary-color);
+}
+
+.chat-message.user .chat-inline-link {
+  color: #ffffff;
+}

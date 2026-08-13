@@ -249,6 +249,39 @@ export default function LiveChat() {
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Quick Reply Templates */}
+              <div className="px-4 pt-3 pb-1 border-t border-border bg-muted/10 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-semibold text-muted-foreground mr-1">Quick Templates:</span>
+                <button
+                  type="button"
+                  onClick={() => setInputVal("Hello! Thank you for reaching out to IBMSSP Customer Support. How may I assist you today?")}
+                  className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
+                >
+                  👋 Welcome Greeting
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputVal("For detailed guidance on our membership categories (Student, Graduate, Professional, Corporate), please visit https://ibmssp.org.ng/membership or let me know your current qualifications.")}
+                  className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
+                >
+                  🎓 Membership Info
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputVal("You can reach our admin team directly via email at info@ibmssp.org.ng or by phone at +2348023644148.")}
+                  className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
+                >
+                  📞 Direct Contact
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputVal("Thank you for chatting with IBMSSP support today! If you have any further questions in the future, feel free to reach out anytime. Have a great day!")}
+                  className="text-xs bg-background hover:bg-primary/10 hover:text-primary border border-border px-2.5 py-1 rounded-full text-muted-foreground transition-colors"
+                >
+                  ✅ Resolve & Closing
+                </button>
+              </div>
+
               {/* Input Area */}
               <div className="p-4 border-t border-border bg-card">
                 <form onSubmit={sendMessage} className="flex gap-2">
@@ -256,7 +289,7 @@ export default function LiveChat() {
                     type="text"
                     value={inputVal}
                     onChange={e => setInputVal(e.target.value)}
-                    placeholder="Type your reply here..."
+                    placeholder="Type your reply or choose a template above..."
                     className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                   <button 

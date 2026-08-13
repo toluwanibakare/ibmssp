@@ -269,14 +269,14 @@ router.post('/send-email', universalHandler);
 app.use('/', router);
 app.use('/email-api', router);
 
-// ─── 4. Periodic Check for Unreplied Admin Chat Messages (30 mins) ──────────────
+// ─── 4. Periodic Check for Live Chat Inactivity & Auto-Closure (30 mins & 60 mins) ───
 const checkUnrepliedChats = async () => {
   try {
     const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://rihltpxgyocqqjbspmrw.supabase.co';
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpaGx0cHhneW9jcXFqYnNwbXJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2Njk4MTMsImV4cCI6MjA2MjI0NTgxM30.6iG5K3y4XgY2XQ4';
     
-    // Fetch live_chats with status human_requested or human_active where user_email is present and email_notified_at is null
-    const res = await fetch(`${supabaseUrl}/rest/v1/live_chats?status=in.(human_requested,human_active)&user_email=not.is.null&email_notified_at=is.null&select=*`, {
+    // Fetch live_chats with status human_requested or human_active
+    const res = await fetch(`${supabaseUrl}/rest/v1/live_chats?status=in.(human_requested,human_active)&select=*`, {
       headers: {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`
@@ -288,6 +288,7 @@ const checkUnrepliedChats = async () => {
     if (!Array.isArray(chats) || chats.length === 0) return;
 
     const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     for (const chat of chats) {
       // Check last message for this chat
@@ -302,12 +303,42 @@ const checkUnrepliedChats = async () => {
       if (msgs.length === 0) continue;
 
       const lastMsg = msgs[0];
-      // If the last message was from admin, admin HAS replied!
-      if (lastMsg.role === 'admin') continue;
+      const lastMsgDate = new Date(lastMsg.created_at);
 
-      // If the last user message was created more than 30 mins ago
-      if (new Date(lastMsg.created_at) < thirtyMinsAgo) {
-        // Send email to user
+      // CASE 1: 1 HOUR INACTIVITY -> Send warning message & close chat session
+      if (lastMsgDate < oneHourAgo) {
+        // Insert auto-close warning message in chat
+        await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
+          method: 'POST',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chat_id: chat.id,
+            role: 'bot',
+            content: 'We haven\'t heard from you in over 1 hour. This support session has now been closed. If you have any further questions, feel free to open a new chat!'
+          })
+        });
+
+        // Close the chat
+        await fetch(`${supabaseUrl}/rest/v1/live_chats?id=eq.${chat.id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'closed', updated_at: new Date().toISOString() })
+        });
+
+        console.log(`🔒 Closed inactive live chat session ${chat.id} after 1 hour`);
+        continue;
+      }
+
+      // CASE 2: 30 MINS UNREPLIED BY ADMIN -> Send courtesy email to user
+      if (chat.user_email && !chat.email_notified_at && lastMsg.role !== 'admin' && lastMsgDate < thirtyMinsAgo) {
         const template = announcementTemplate({
           subject: 'Support Request Update – IBMSSP Live Support',
           headline: `Hello ${chat.user_name || 'Valued Visitor'},`,
@@ -318,7 +349,7 @@ const checkUnrepliedChats = async () => {
 
         await sendEmail({ to: chat.user_email, subject: template.subject, html: template.html });
 
-        // Mark as notified
+        // Mark email notified
         await fetch(`${supabaseUrl}/rest/v1/live_chats?id=eq.${chat.id}`, {
           method: 'PATCH',
           headers: {

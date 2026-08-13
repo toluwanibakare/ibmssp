@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Users, Mail, MessageSquare, ClipboardList, Settings,
   ChevronLeft, ChevronRight, X, Newspaper
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import ibmsspIcon from '@/assets/ibmssp-icon.png';
 
 const navItems = [
@@ -21,7 +22,29 @@ export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean
   const [collapsed, setCollapsed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [pendingChatCount, setPendingChatCount] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchPendingChats = async () => {
+      const { count } = await supabase
+        .from('live_chats')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'human_requested');
+      setPendingChatCount(count || 0);
+    };
+    fetchPendingChats();
+
+    const channel = supabase.channel('sidebar_live_chats')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'live_chats' }, () => {
+        fetchPendingChats();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -72,9 +95,10 @@ export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map(({ to, icon: Icon, label, exact }) => {
           const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
+          const isLiveSupport = to === '/chat';
           return (
             <NavLink key={to} to={to}
-              className={`flex items-center rounded-lg text-sm font-medium transition-all duration-150 ${
+              className={`flex items-center rounded-lg text-sm font-medium transition-all duration-150 relative ${
                 !isExpanded
                   ? 'justify-center w-10 h-10 mx-auto px-0 py-0'
                   : 'gap-3 px-3 py-2.5'
@@ -84,7 +108,14 @@ export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean
               }`}
               title={!isExpanded ? label : undefined}>
               <Icon size={16} className="shrink-0" />
-              {isExpanded && <span className="truncate">{label}</span>}
+              {isExpanded && <span className="truncate flex-1">{label}</span>}
+              {isLiveSupport && pendingChatCount > 0 && (
+                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full animate-pulse ${
+                  isActive ? 'bg-white text-primary' : 'bg-destructive text-destructive-foreground'
+                }`}>
+                  {pendingChatCount}
+                </span>
+              )}
             </NavLink>
           );
         })}

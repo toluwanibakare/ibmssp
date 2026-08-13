@@ -40,14 +40,38 @@ const QUICK_ACTIONS = [
   { label: 'Contact IBMSSP', message: 'How can I contact IBMSSP?' },
 ];
 
-function parseLinks(text) {
+function formatMessageContent(text) {
+  if (!text) return { cleanText: '', links: [] };
+
+  // 1. Extract [PAGE:/path|Label]
   const linkRegex = /\[PAGE:([^\|]+)\|([^\]]+)\]/g;
   const links = [];
   let match;
   while ((match = linkRegex.exec(text)) !== null) {
     links.push({ path: match[1], label: match[2] });
   }
-  const cleanText = text.replace(linkRegex, '').replace(/\s{2,}/g, ' ').trim();
+  let cleanText = text.replace(linkRegex, '').replace(/\s{2,}/g, ' ').trim();
+
+  // 2. Parse Markdown Bold & Italics
+  cleanText = cleanText
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // 3. Convert Email addresses into mailto: links
+  const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  cleanText = cleanText.replace(emailRegex, '<a href="mailto:$1" class="chat-inline-link" target="_blank" rel="noopener noreferrer">$1</a>');
+
+  // 4. Convert Phone numbers (+234... or 080...) into tel: links
+  const phoneRegex = /(\+?234\d{10}|0\d{10})/g;
+  cleanText = cleanText.replace(phoneRegex, '<a href="tel:$1" class="chat-inline-link" target="_blank" rel="noopener noreferrer">$1</a>');
+
+  // 5. Convert standard URLs (https://...) into external links
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  cleanText = cleanText.replace(urlRegex, (url) => {
+    if (url.includes('mailto:') || url.includes('tel:')) return url;
+    return `<a href="${url}" class="chat-inline-link" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+
   return { cleanText, links };
 }
 
@@ -396,7 +420,7 @@ export default function FloatingWidgets() {
           {/* Messages */}
           <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((msg, idx) => {
-              const { cleanText, links } = parseLinks(msg.content || '');
+              const { cleanText, links } = formatMessageContent(msg.content || '');
               
               return (
                 <div key={msg.id || idx} className={`chat-message ${msg.role === 'user' ? 'user' : 'assistant'}`}>
@@ -412,7 +436,7 @@ export default function FloatingWidgets() {
                   )}
                   <div className="message-content-wrap">
                     {msg.role === 'admin' && <div style={{fontSize: '10px', color: 'var(--rust-red)', marginBottom: '2px', fontWeight: 'bold'}}>Customer Care Rep</div>}
-                    <div className="message-bubble">{cleanText}</div>
+                    <div className="message-bubble" dangerouslySetInnerHTML={{ __html: cleanText }} />
                     {links && links.length > 0 && (
                       <div className="message-link-buttons">
                         {links.map((link, li) => (
