@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Heart, Send, User, Calendar, MessageSquare, Phone, Mail } from 'lucide-react';
 import './Insights.css';
