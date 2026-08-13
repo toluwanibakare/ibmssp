@@ -81,6 +81,19 @@ export default function FloatingWidgets() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  const insertMessage = async (role, content, targetChatId = chatId) => {
+    if (!targetChatId) return null;
+    const { data } = await supabase
+      .from('chat_messages')
+      .insert([{ chat_id: targetChatId, role, content }])
+      .select()
+      .single();
+    if (data) {
+       setMessages(prev => [...prev.filter(m => m.id !== 'temp'), data]);
+    }
+    return data;
+  };
+
   // Initialize chat session
   useEffect(() => {
     async function initChat() {
@@ -138,11 +151,15 @@ export default function FloatingWidgets() {
 
     const channel = supabase.channel(`chat_${chatId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `chat_id=eq.${chatId}` }, payload => {
-        // Only append if it's not our own message (which we add optimistically)
         setMessages(prev => {
           if (prev.find(m => m.id === payload.new.id)) return prev;
           return [...prev, payload.new];
         });
+
+        // Increment unread count if chat window is closed and message is from admin
+        if (!isChatOpen && payload.new.role === 'admin') {
+          setUnreadCount(prev => prev + 1);
+        }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_chats', filter: `id=eq.${chatId}` }, payload => {
         setChatStatus(payload.new.status);
@@ -152,7 +169,7 @@ export default function FloatingWidgets() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [chatId]);
+  }, [chatId, isChatOpen]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -177,45 +194,6 @@ export default function FloatingWidgets() {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [isChatOpen]);
-
-  // Subscribe to real-time messages (Admin replies) and status updates
-  useEffect(() => {
-    if (!chatId) return;
-
-    const channel = supabase.channel(`chat_${chatId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `chat_id=eq.${chatId}` }, payload => {
-        setMessages(prev => {
-          if (prev.find(m => m.id === payload.new.id)) return prev;
-          return [...prev, payload.new];
-        });
-
-        // Increment unread count if chat window is closed and message is from admin
-        if (!isChatOpen && payload.new.role === 'admin') {
-          setUnreadCount(prev => prev + 1);
-        }
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_chats', filter: `id=eq.${chatId}` }, payload => {
-        setChatStatus(payload.new.status);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [chatId, isChatOpen]);
-
-  const insertMessage = async (role, content, targetChatId = chatId) => {
-    if (!targetChatId) return null;
-    const { data } = await supabase
-      .from('chat_messages')
-      .insert([{ chat_id: targetChatId, role, content }])
-      .select()
-      .single();
-    if (data) {
-       setMessages(prev => [...prev.filter(m => m.id !== 'temp'), data]);
-    }
-    return data;
-  };
 
   const requestHumanSupport = async () => {
     setShowDetailsForm(true);
