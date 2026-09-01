@@ -31,10 +31,10 @@
 */
 .certificate-name-overlay {
   position: absolute;
-  top: 47%;       /* Adjust to move name up or down */
-  left: 15%;      /* Adjust to move name left or right */
-  width: 70%;     /* Width of the line */
-  height: 12%;    /* Height bounding box for the name */
+  top: 35%;       /* Moved up significantly to sit on the blank line above 'a registered member' */
+  left: 15%;
+  width: 70%;
+  height: 12%;
   
   /* Cursive, black pen ink style */
   font-family: 'Great Vibes', cursive, serif;
@@ -51,18 +51,18 @@
 
 /* 
   ID Overlay:
-  Positioned to sit under the gold seal.
-  Adjust bottom/left/right percentages to align perfectly.
+  Positioned to sit under the middle gold seal.
 */
 .certificate-id-overlay {
   position: absolute;
-  bottom: 8%;     /* Adjust to sit right under the seal */
-  right: 12%;     /* Adjust based on seal's horizontal position */
-  width: 25%;
+  bottom: 12%;     /* Positioned right under the gold seal */
+  left: 50%;       /* Centered horizontally */
+  transform: translateX(-50%);
+  width: 40%;
   text-align: center;
   
   font-family: 'Inter', Arial, sans-serif;
-  font-size: 26px;
+  font-size: 20px; /* Reduced slightly to fit well centrally */
   font-weight: 700;
   color: #1e1f1e;
   z-index: 2;
