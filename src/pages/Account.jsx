@@ -733,7 +733,7 @@ export default function Account() {
             )}
 
             {/* ── Active Success Box (If paid and approved) ── */}
-            {isPaid && !isFlagged && (
+            {isPaid && !isFlagged && !localStorage.getItem('cert_downloaded_' + memberData.email) && (
               <div className="portal-warning-box success-box" style={{ borderColor: 'var(--primary-color)', backgroundColor: 'rgba(48, 88, 88, 0.05)' }}>
                 <div className="warning-box-left" style={{ color: 'var(--primary-color)' }}>
                   <CheckCircle size={28} />
@@ -745,7 +745,13 @@ export default function Account() {
                   </p>
                   <button 
                     className="btn btn-secondary mt-3" 
-                    onClick={downloadCertificate}
+                    onClick={() => {
+                      downloadCertificate();
+                      localStorage.setItem('cert_downloaded_' + memberData.email, 'true');
+                      // Force a re-render by setting dummy state or let React catch it on tab switch
+                      // A cleaner way is wrapping this in a function that triggers state, but this works fine
+                      setActiveTab('resources'); 
+                    }}
                     style={{display: 'inline-flex', alignItems: 'center', gap: '8px'}}
                   >
                     <Download size={16} /> Download Registration Certificate

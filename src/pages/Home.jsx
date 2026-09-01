@@ -98,7 +98,7 @@ export default function Home() {
             <div className="container hero-container">
               <div className="hero-content">
                 <span className="hero-tag animate-in">{slide.tag}</span>
-                <h1 className="hero-title animate-in">{slide.title}</h1>
+                <h1 className={`hero-title animate-in ${index === 2 ? 'hero-title-long' : ''}`}>{slide.title}</h1>
                 <p className="hero-desc animate-in">{slide.desc}</p>
                 <div className="hero-buttons animate-in">
                   <Link to="/about" className="btn btn-primary">Read More</Link>
