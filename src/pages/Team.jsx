@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { ChevronRight, X } from 'lucide-react';
 import './Team.css';
@@ -183,9 +184,10 @@ export default function Team() {
           ))}
         </div>
       </section>
-
-      {/* Profile Lightbox Modal */}
-      {selectedMember && (
+      {/* Profile Lightbox Modal - rendered via portal to document.body so it is not
+          affected by ancestor transforms/animations that would anchor it to the
+          page instead of the current viewport */}
+      {selectedMember && createPortal(
         <div className="profile-modal-overlay" onClick={() => setSelectedMember(null)}>
           <div className="profile-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-btn" onClick={() => setSelectedMember(null)} aria-label="Close modal">
@@ -205,7 +207,8 @@ export default function Team() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

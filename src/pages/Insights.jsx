@@ -272,7 +272,7 @@ export default function Insights() {
 
               <div className="widget-quick-details">
                 <span className="detail-title">Quick Contacts</span>
-                <a href="tel:+23408035706827" className="detail-link"><Phone size={12} /> (+234) 08035706827</a>
+                <a href="tel:+2348036706827" className="detail-link"><Phone size={12} /> (+234) 8036706827</a>
                 <a href="mailto:admin@ibmssp.org" className="detail-link"><Mail size={12} /> admin@ibmssp.org</a>
               </div>
             </div>

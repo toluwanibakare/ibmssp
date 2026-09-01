@@ -67,8 +67,14 @@ export default function Account() {
   const downloadCertificate = async () => {
     if (!certificateRef.current) return;
     try {
-      // Small timeout to ensure font loading if any
-      await new Promise(res => setTimeout(res, 300));
+      // Ensure all fonts are fully loaded before rendering
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      } else {
+        // Fallback timeout
+        await new Promise(res => setTimeout(res, 800));
+      }
+      
       const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true });
       const imgData = canvas.toDataURL('image/png');
       const link = document.createElement('a');

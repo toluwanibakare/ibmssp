@@ -229,9 +229,9 @@ export default function Services() {
               </div>
 
               <div className="widget-contact-info">
-                <a href="tel:+23408035706827" className="contact-link">
+                <a href="tel:+2348036706827" className="contact-link">
                   <Phone size={14} />
-                  <span>(+234) 08035706827</span>
+                  <span>(+234) 8036706827</span>
                 </a>
                 <a href="mailto:admin@ibmssp.org" className="contact-link">
                   <Mail size={14} />

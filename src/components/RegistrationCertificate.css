@@ -1,245 +1,69 @@
 /* We wrap the certificate in an offscreen div so it doesn't clutter the UI but can still be captured by html2canvas */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
 .certificate-wrapper-offscreen {
   position: absolute;
   top: -9999px;
   left: -9999px;
   z-index: -100;
   pointer-events: none;
-  background-color: #fff; /* Ensure it renders with white bg */
 }
 
-.certificate-container {
-  width: 1000px; /* Fixed width for consistent high-res generation */
-  height: 700px; /* Fixed aspect ratio (approx A4 landscape) */
-  background-color: #ffffff;
-  padding: 30px;
-  box-sizing: border-box;
-  font-family: 'Times New Roman', Times, serif; /* Classic certificate font */
+/* Image-based container */
+.certificate-container-img {
   position: relative;
+  display: inline-block; /* wraps tightly around the image */
+  background-color: #fff;
   overflow: hidden;
 }
 
-/* Background watermark effect */
-.certificate-container::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image: radial-gradient(circle at center, rgba(48, 88, 88, 0.03) 0%, rgba(255,255,255,0) 70%);
-  pointer-events: none;
-}
-
-.certificate-border {
-  width: 100%;
-  height: 100%;
-  border: 4px solid var(--primary-color);
-  padding: 10px;
-  box-sizing: border-box;
-  position: relative;
-}
-
-/* Inner decorative border */
-.certificate-border::before {
-  content: '';
-  position: absolute;
-  top: 5px; left: 5px; right: 5px; bottom: 5px;
-  border: 1px solid var(--rust-red);
-}
-
-.certificate-inner {
-  width: 100%;
-  height: 100%;
-  border: 1px solid rgba(48, 88, 88, 0.2);
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  background-image: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(250,251,251,1) 100%);
-}
-
-.certificate-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.certificate-logo {
-  height: 80px;
+.certificate-bg-img {
+  width: 1600px; /* High-res width for rendering */
+  height: auto;
+  display: block;
   object-fit: contain;
-  margin-bottom: 15px;
 }
 
-.certificate-institute-name {
-  text-align: center;
-  font-size: 20px;
-  color: var(--primary-color);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  line-height: 1.3;
-}
-
-.certificate-title-section {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.certificate-title {
-  font-size: 42px;
-  color: var(--primary-color);
-  margin: 0 0 15px 0;
-  font-weight: bold;
-  letter-spacing: 3px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.certificate-subtitle {
-  font-size: 20px;
-  color: #555;
-  font-style: italic;
-  margin: 0;
-}
-
-.certificate-name-section {
-  margin-bottom: 30px;
-  text-align: center;
-  width: 80%;
-  border-bottom: 2px solid var(--rust-red);
-  padding-bottom: 10px;
-}
-
-.certificate-name {
-  font-family: 'Great Vibes', 'Brush Script MT', cursive, serif;
-  font-size: 48px;
-  color: var(--secondary-color);
-  margin: 0;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-.certificate-statement {
-  text-align: center;
-  max-width: 700px;
-  margin-bottom: 40px;
-}
-
-.certificate-statement p {
-  font-size: 18px;
-  color: #333;
-  line-height: 1.6;
-  margin: 10px 0;
-}
-
-.certificate-category {
-  font-size: 24px;
-  color: var(--primary-color);
-  margin: 15px 0;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.certificate-meta {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 40px;
-  margin-bottom: 40px;
-  font-family: 'Inter', sans-serif;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.meta-label {
-  font-size: 12px;
-  color: #777;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-
-.meta-value {
-  font-size: 16px;
-  font-weight: 600;
-  color: #222;
-}
-
-.certificate-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  width: 100%;
-  padding: 0 40px;
-  margin-top: auto;
-}
-
-.certificate-seal {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: var(--rust-red);
+/* 
+  Name Overlay:
+  Positioned to sit precisely on the template's designated name line.
+  Adjust top/left/width/height percentages to align perfectly.
+*/
+.certificate-name-overlay {
+  position: absolute;
+  top: 47%;       /* Adjust to move name up or down */
+  left: 15%;      /* Adjust to move name left or right */
+  width: 70%;     /* Width of the line */
+  height: 12%;    /* Height bounding box for the name */
+  
+  /* Cursive, black pen ink style */
+  font-family: 'Great Vibes', cursive, serif;
+  color: #040404; /* Pure Dark Near Green / Black */
+  
+  /* Slight shadow to give it a "shiny/wet ink" effect */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4), 0px 0px 1px rgba(255,255,255,0.2);
+  
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-.certificate-seal::after {
-  content: '';
-  position: absolute;
-  top: 5px; left: 5px; right: 5px; bottom: 5px;
-  border-radius: 50%;
-  border: 1px dashed rgba(255,255,255,0.7);
-}
-
-.seal-inner {
-  text-align: center;
-  color: white;
   z-index: 2;
 }
 
-.seal-inner span {
-  display: block;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-.seal-inner small {
-  display: block;
-  font-size: 10px;
-  opacity: 0.8;
-  margin-top: 4px;
-}
-
-.certificate-signature {
+/* 
+  ID Overlay:
+  Positioned to sit under the gold seal.
+  Adjust bottom/left/right percentages to align perfectly.
+*/
+.certificate-id-overlay {
+  position: absolute;
+  bottom: 8%;     /* Adjust to sit right under the seal */
+  right: 12%;     /* Adjust based on seal's horizontal position */
+  width: 25%;
   text-align: center;
-  width: 250px;
-}
-
-.signature-line {
-  width: 100%;
-  height: 1px;
-  background-color: #333;
-  margin-bottom: 10px;
-}
-
-.signature-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: #222;
-  margin: 0 0 5px 0;
-  font-family: 'Inter', sans-serif;
-}
-
-.signature-title {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
+  
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e1f1e;
+  z-index: 2;
 }

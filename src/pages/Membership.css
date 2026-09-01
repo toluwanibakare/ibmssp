@@ -109,6 +109,28 @@
   outline: none;
 }
 
+.registration-form .input-with-icon-wrapper input {
+  padding-right: 3rem;
+}
+
+.registration-form .input-with-icon-wrapper .password-toggle-btn {
+  width: auto;
+  border: none;
+  background: none;
+  padding: 4px;
+  margin: 0;
+  color: var(--primary-color);
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
 .registration-form input:focus {
   border-color: var(--primary-color);
 }

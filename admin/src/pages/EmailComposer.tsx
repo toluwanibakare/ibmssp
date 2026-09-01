@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Send, User, Tag, Clock, Link2, MessageCircle } from 'lucide-react';
+import { Send, User, Tag, Clock, Link2, MessageCircle, Link2 as LinkIcon } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { timeAgo } from '@/lib/utils-ui';
 import { useAuth } from '@/contexts/AuthContext';

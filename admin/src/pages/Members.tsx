@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Eye, CheckCircle, ChevronLeft, ChevronRight, Plus, X, RefreshCw, Trash2, Download } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, ChevronLeft, ChevronRight, Plus, X, RefreshCw, Trash2, Download, ChevronDown, FileText, Upload, UserCheck as UserCheckIcon } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CategoryBadge, StatusBadge, formatDate } from '@/lib/utils-ui';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
+import { supabase } from '@/integrations/supabase/client';
 
 const PAGE_SIZE = 15;
 
@@ -17,17 +18,90 @@ export default function Members() {
   const [page, setPage] = useState(1);
   const [approvingId, setApprovingId] = useState<number | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [showAddDirector, setShowAddDirector] = useState(false);
+  const [addDropdownOpen, setAddDropdownOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [memberDocs, setMemberDocs] = useState<Record<number, any[]>>({});
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const uploadFileRef = useRef<HTMLInputElement | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<number | null>(null);
+  const [uploadLabelInput, setUploadLabelInput] = useState('');
+  const [uploadingDoc, setUploadingDoc] = useState(false);
   const isAdmin = user?.role === 'admin';
+
+  const directorInitialForm = {
+    first_name: '',
+    last_name: '',
+    email: '',
+    role: 'CHAIRMAN',
+    bio: '',
+  };
+  const [directorForm, setDirectorForm] = useState(directorInitialForm);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setAddDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const loadMemberDocs = async () => {
+    const { data, error } = await supabase
+      .from('member_documents')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data && data.length > 0) {
+      const map: Record<number, any[]> = {};
+      data.forEach((d: any) => {
+        const id = d.member_id ?? d.memberId ?? null;
+        if (id != null) {
+          if (!map[id]) map[id] = [];
+          map[id].push(d);
+        }
+      });
+      setMemberDocs(map);
+    }
+  };
+
+  useEffect(() => {
+    if (members && members.length > 0) loadMemberDocs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [members]);
+
+  const uploadDocument = async (memberId: number, file: File, label: string) => {
+    const ext = file.name.split('.').pop() || 'bin';
+    const path = `member-docs/${Date.now()}-${memberId}-${label.replace(/\s+/g, '-').toLowerCase()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from('member-documents')
+      .upload(path, file, { upsert: false });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage
+      .from('member-documents')
+      .getPublicUrl(path);
+    const fileUrl = urlData?.publicUrl || null;
+    const { error: insertError } = await supabase.from('member_documents').insert({
+      member_id: memberId,
+      label: label,
+      file_url: fileUrl,
+      file_name: file.name,
+      file_type: file.type || ext,
+    });
+    if (insertError) throw insertError;
+    await loadMemberDocs();
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       await fetchMembers();
+      await loadMemberDocs();
     } finally {
       setRefreshing(false);
     }
@@ -122,12 +196,95 @@ export default function Members() {
     setError('');
     setForm(initialForm);
     setShowAdd(true);
+    setAddDropdownOpen(false);
+  };
+
+  const openAddDirector = () => {
+    setError('');
+    setDirectorForm(directorInitialForm);
+    setShowAddDirector(true);
+    setAddDropdownOpen(false);
+  };
+
+  const requestUpload = (memberId: number) => {
+    setUploadTarget(memberId);
+    setUploadLabelInput('');
+    if (uploadFileRef.current) uploadFileRef.current.value = '';
+  };
+
+  const handleUploadFile = async (file: File) => {
+    if (!uploadTarget) return;
+    setUploadingDoc(true);
+    setError('');
+    try {
+      await uploadDocument(uploadTarget, file, uploadLabelInput.trim() || 'Document');
+      setUploadTarget(null);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to upload document.');
+      window.alert(err?.message || 'Failed to upload document.');
+    } finally {
+      setUploadingDoc(false);
+    }
   };
 
   const closeAdd = () => {
     if (isSaving) return;
     setShowAdd(false);
     setError('');
+  };
+
+  const closeAddDirector = () => {
+    if (isSaving) return;
+    setShowAddDirector(false);
+    setError('');
+  };
+
+  const handleCreateDirector = async () => {
+    if (!directorForm.first_name.trim() || !directorForm.last_name.trim() || !directorForm.email.trim() || !directorForm.role.trim()) {
+      setError('First name, last name, email and role are required.');
+      return;
+    }
+    setIsSaving(true);
+    setError('');
+    try {
+      const { data: member, error } = await supabase
+        .from('members')
+        .insert([{
+          first_name: directorForm.first_name.trim(),
+          last_name: directorForm.last_name.trim(),
+          email: directorForm.email.trim(),
+          phone: '',
+          category: 'director',
+          registration_status: 'approved',
+          payment_status: 'paid',
+          country: 'Nigeria',
+          gender: '',
+        }])
+        .select('*')
+        .single();
+      if (error) throw error;
+
+      await supabase.from('director_details').insert({
+        member_id: member.member_id,
+        role: directorForm.role,
+        bio: directorForm.bio || null,
+      });
+
+      await supabase.from('activity_logs').insert({
+        member_id: member.member_id,
+        action: 'DIRECTOR_ADDED',
+        description: `Director added: ${directorForm.first_name} ${directorForm.last_name} (${directorForm.role})`,
+        performed_by: user?.id || null,
+      });
+
+      setShowAddDirector(false);
+      await fetchMembers();
+      await fetchLogs();
+    } catch (err: any) {
+      setError(err?.message || 'Failed to add director.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const validateForm = () => {
@@ -255,9 +412,11 @@ export default function Members() {
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
-              <thead><tr><th>Registration ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Category</th><th>Reg. Status</th><th>Payment</th><th>Registered</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Registration ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Category</th><th>Reg. Status</th><th>Payment</th><th>Documents</th><th>Registered</th><th>Actions</th></tr></thead>
               <tbody>
-                {paged.map(m => (
+                {paged.map(m => {
+                  const docs = memberDocs[m.member_id] || [];
+                  return (
                   <tr key={m.member_id}>
                     <td className="font-mono text-xs font-medium text-primary">{m.public_id || 'PENDING'}</td>
                     <td className="font-medium">{m.first_name} {m.last_name}</td>
@@ -266,6 +425,19 @@ export default function Members() {
                     <td><CategoryBadge category={m.category} /></td>
                     <td><StatusBadge status={m.registration_status} /></td>
                     <td><span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${m.payment_status === 'paid' ? 'bg-success/10 text-success' : 'bg-yellow-500/10 text-yellow-600'}`}>{m.payment_status}</span></td>
+                    <td>
+                      {docs.length === 0 ? (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          {docs.map((d, di) => (
+                            <a key={di} href={d.file_url} target="_blank" rel="noopener noreferrer" className="p-1 rounded hover:bg-accent transition-colors" title={d.label || d.file_name}>
+                              <FileText size={13} className="text-primary" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </td>
                     <td className="text-xs text-muted-foreground">{formatDate(m.created_at)}</td>
                     <td>
                       <div className="flex items-center gap-1">
@@ -275,6 +447,15 @@ export default function Members() {
                             <CheckCircle size={13} className="text-success" />
                           </button>
                         )}
+                        {memberDocs[m.member_id]?.length === 0 || !memberDocs[m.member_id] ? (
+                          <button
+                            onClick={() => requestUpload(m.member_id)}
+                            className="p-1.5 rounded hover:bg-accent transition-colors"
+                            title="Upload document"
+                          >
+                            <Upload size={13} className="text-muted-foreground" />
+                          </button>
+                        ) : null}
                         {isAdmin && (
                           <button
                             onClick={(e) => requestDelete(m.member_id, `${m.first_name} ${m.last_name}`.trim(), e)}
@@ -287,7 +468,8 @@ export default function Members() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -307,13 +489,40 @@ export default function Members() {
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={openAdd}
-        className="fixed bottom-20 left-4 right-4 sm:bottom-24 sm:left-auto sm:right-4 z-40 inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold shadow-lg hover:bg-primary/90"
-      >
-        <Plus size={16} /> Add Member
-      </button>
+      <div ref={dropdownRef} className="fixed bottom-20 left-4 right-4 sm:bottom-24 sm:left-auto sm:right-4 z-40">
+        <button
+          type="button"
+          onClick={() => setAddDropdownOpen(o => !o)}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold shadow-lg hover:bg-primary/90"
+        >
+          <Plus size={16} /> Add Member <ChevronDown size={14} className={`transition-transform ${addDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {addDropdownOpen && (
+          <div className="absolute bottom-full right-0 left-0 sm:left-auto sm:right-0 sm:w-56 mb-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={openAdd}
+              className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2"
+            >
+              <Plus size={14} className="text-primary" /> Add Member / User
+            </button>
+            <button
+              type="button"
+              onClick={openAddDirector}
+              className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-accent transition-colors flex items-center gap-2 border-t border-border"
+            >
+              <UserCheckIcon size={14} className="text-primary" /> Add Director
+            </button>
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 rounded-lg bg-destructive/90 text-destructive-foreground px-4 py-2 text-xs font-medium shadow-lg">
+          {error}
+        </div>
+      )}
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -519,6 +728,172 @@ export default function Members() {
                   className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 disabled:opacity-60"
                 >
                   {isSaving ? 'Saving...' : 'Save Member'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add Director Modal ── */}
+      {showAddDirector && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={closeAddDirector} />
+          <div className="relative w-[min(92vw,560px)] max-h-[90vh] overflow-y-auto rounded-xl bg-card border border-border shadow-xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <div>
+                <h2 className="text-sm font-semibold">Add Director</h2>
+                <p className="text-xs text-muted-foreground">Add a board member with role, bio and details.</p>
+              </div>
+              <button onClick={closeAddDirector} className="p-1.5 rounded hover:bg-accent">
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-sm">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">Role / Position *</label>
+                <select
+                  value={directorForm.role}
+                  onChange={e => setDirectorForm(f => ({ ...f, role: e.target.value }))}
+                  className="input-field"
+                >
+                  <option value="CHAIRMAN">Chairman</option>
+                  <option value="VICE CHAIRMAN">Vice Chairman</option>
+                  <option value="SECRETARY & PRO">Secretary & PRO</option>
+                  <option value="ASSISTANT SECRETARY">Assistant Secretary</option>
+                  <option value="FINANCIAL SECRETARY">Financial Secretary</option>
+                  <option value="TREASURER">Treasurer</option>
+                  <option value="WELFARE SECRETARY">Welfare Secretary</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium">First Name *</label>
+                  <input
+                    value={directorForm.first_name}
+                    onChange={e => setDirectorForm(f => ({ ...f, first_name: e.target.value }))}
+                    className="input-field"
+                    placeholder="e.g. Olufemi"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium">Last Name *</label>
+                  <input
+                    value={directorForm.last_name}
+                    onChange={e => setDirectorForm(f => ({ ...f, last_name: e.target.value }))}
+                    className="input-field"
+                    placeholder="e.g. Kolawole"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">Email *</label>
+                <input
+                  type="email"
+                  value={directorForm.email}
+                  onChange={e => setDirectorForm(f => ({ ...f, email: e.target.value }))}
+                  className="input-field"
+                  placeholder="director@ibmssp.org.ng"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">Bio / Profile</label>
+                <textarea
+                  rows={4}
+                  value={directorForm.bio}
+                  onChange={e => setDirectorForm(f => ({ ...f, bio: e.target.value }))}
+                  className="input-field resize-none"
+                  placeholder="Short professional bio for the board page..."
+                />
+              </div>
+
+              {error && showAddDirector && (
+                <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeAddDirector}
+                  className="px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium hover:bg-accent/40 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateDirector}
+                  disabled={isSaving}
+                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {isSaving ? 'Saving...' : 'Save Director'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Upload Document Modal ── */}
+      {uploadTarget != null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => !uploadingDoc && setUploadTarget(null)} />
+          <div className="relative w-[min(92vw,480px)] rounded-xl bg-card border border-border shadow-xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <div>
+                <h2 className="text-sm font-semibold">Upload Document</h2>
+                <p className="text-xs text-muted-foreground">Add the member's ISO / verification document.</p>
+              </div>
+              <button onClick={() => !uploadingDoc && setUploadTarget(null)} className="p-1.5 rounded hover:bg-accent">
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-sm">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">Document Label</label>
+                <input
+                  value={uploadLabelInput}
+                  onChange={e => setUploadLabelInput(e.target.value)}
+                  className="input-field"
+                  placeholder="e.g. ISO Certificate, Student ID, CV..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">File</label>
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <Upload size={20} className="text-muted-foreground mb-2" />
+                  <span className="text-xs text-muted-foreground">Click to choose file (PDF, JPG, PNG, DOC)</span>
+                  <input
+                    ref={uploadFileRef}
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                    className="hidden"
+                    disabled={uploadingDoc}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleUploadFile(f);
+                    }}
+                  />
+                </label>
+              </div>
+
+              {error && uploadTarget != null && (
+                <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => !uploadingDoc && setUploadTarget(null)}
+                  disabled={uploadingDoc}
+                  className="px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium hover:bg-accent/40 transition-colors disabled:opacity-60"
+                >
+                  {uploadingDoc ? 'Uploading...' : 'Close'}
                 </button>
               </div>
             </div>

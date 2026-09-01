@@ -404,13 +404,13 @@ export default function Membership() {
                           value={password} 
                           onChange={e => setPassword(e.target.value)} 
                           minLength={8} 
-                          style={{ width: '100%', paddingRight: '2.8rem' }}
                           required 
                         />
                         <button 
                           type="button" 
+                          className="password-toggle-btn"
                           onClick={() => setShowPassword(!showPassword)}
-                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-color)', padding: 0 }}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
