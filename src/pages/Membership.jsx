@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Check, Building2, UserCheck, GraduationCap, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react';
 import { supabase, callEdgeFunction } from '../lib/supabase';
+import { uploadToCloudinary } from '../lib/cloudinary';
 import './Membership.css';
 
 const tiers = {
@@ -105,35 +106,25 @@ export default function Membership() {
 
       if (authError) throw new Error(authError.message);
 
-      // 2. Upload document file to Supabase Storage if provided
+      // 2. Upload document file to Cloudinary if provided
       let fileUrl = null;
       if (fileObj) {
-        const ext = fileObj.name.split('.').pop();
-        const path = `member-docs/${Date.now()}-${email.replace('@','_')}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('member-documents')
-          .upload(path, fileObj, { upsert: false });
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('member-documents')
-            .getPublicUrl(path);
-          fileUrl = urlData?.publicUrl || null;
+        try {
+          const res = await uploadToCloudinary(fileObj, 'membership_documents');
+          fileUrl = res.url;
+        } catch (uErr) {
+          console.error('Failed to upload primary document to Cloudinary:', uErr);
         }
       }
 
       // Upload CAC document if provided (for business members)
       let cacFileUrl = null;
       if (cacFileObj) {
-        const ext = cacFileObj.name.split('.').pop();
-        const path = `member-docs/${Date.now()}-cac-${email.replace('@','_')}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('member-documents')
-          .upload(path, cacFileObj, { upsert: false });
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('member-documents')
-            .getPublicUrl(path);
-          cacFileUrl = urlData?.publicUrl || null;
+        try {
+          const res = await uploadToCloudinary(cacFileObj, 'membership_documents');
+          cacFileUrl = res.url;
+        } catch (uErr) {
+          console.error('Failed to upload CAC document to Cloudinary:', uErr);
         }
       }
 
@@ -159,6 +150,33 @@ export default function Membership() {
 
       if (memberError) throw new Error(memberError.message);
       const memberId = memberData.member_id;
+
+      // Insert into member_documents table for registry document verification
+      if (fileUrl) {
+        let label = 'Document Upload';
+        if (activeType === 'business') label = 'ISO Certificate / Proof';
+        else if (activeType === 'individuals') label = 'ISO-related Document';
+        else if (activeType === 'graduates') label = 'Degree / Professional Certificate';
+        else if (activeType === 'students') label = 'Student ID Verification';
+
+        await supabase.from('member_documents').insert({
+          member_id: memberId,
+          label: label,
+          file_url: fileUrl,
+          file_name: fileObj?.name || 'Document',
+          file_type: fileObj?.type || 'application/pdf',
+        });
+      }
+
+      if (cacFileUrl) {
+        await supabase.from('member_documents').insert({
+          member_id: memberId,
+          label: 'CAC Document',
+          file_url: cacFileUrl,
+          file_name: cacFileObj?.name || 'CAC Document',
+          file_type: cacFileObj?.type || 'application/pdf',
+        });
+      }
 
       // 5. Insert category-specific detail record
       if (activeType === 'business') {

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CategoryBadge, StatusBadge, formatDate } from '@/lib/utils-ui';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 const PAGE_SIZE = 15;
 
@@ -31,6 +32,11 @@ export default function Members() {
   const [uploadTarget, setUploadTarget] = useState<number | null>(null);
   const [uploadLabelInput, setUploadLabelInput] = useState('');
   const [uploadingDoc, setUploadingDoc] = useState(false);
+
+  // New state for file upload in Add Member Modal
+  const [addMemberFile, setAddMemberFile] = useState<File | null>(null);
+  const [addMemberCacFile, setAddMemberCacFile] = useState<File | null>(null);
+  const [addMemberFileLabel, setAddMemberFileLabel] = useState<string>('Upload Certificate / Document');
   const isAdmin = user?.role === 'admin';
 
   const directorInitialForm = {
@@ -77,15 +83,8 @@ export default function Members() {
 
   const uploadDocument = async (memberId: number, file: File, label: string) => {
     const ext = file.name.split('.').pop() || 'bin';
-    const path = `member-docs/${Date.now()}-${memberId}-${label.replace(/\s+/g, '-').toLowerCase()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from('member-documents')
-      .upload(path, file, { upsert: false });
-    if (uploadError) throw uploadError;
-    const { data: urlData } = supabase.storage
-      .from('member-documents')
-      .getPublicUrl(path);
-    const fileUrl = urlData?.publicUrl || null;
+    const cloudinaryRes = await uploadToCloudinary(file, 'member_documents');
+    const fileUrl = cloudinaryRes.url;
     const { error: insertError } = await supabase.from('member_documents').insert({
       member_id: memberId,
       label: label,
@@ -195,6 +194,8 @@ export default function Members() {
   const openAdd = () => {
     setError('');
     setForm(initialForm);
+    setAddMemberFile(null);
+    setAddMemberCacFile(null);
     setShowAdd(true);
     setAddDropdownOpen(false);
   };
@@ -231,6 +232,8 @@ export default function Members() {
     if (isSaving) return;
     setShowAdd(false);
     setError('');
+    setAddMemberFile(null);
+    setAddMemberCacFile(null);
   };
 
   const closeAddDirector = () => {
@@ -315,8 +318,61 @@ export default function Members() {
     setIsSaving(true);
     setError('');
     try {
-      await createMember(form);
+      let fileUrl = null;
+      if (addMemberFile) {
+        const cRes = await uploadToCloudinary(addMemberFile, 'member_documents');
+        fileUrl = cRes.url;
+      }
+
+      let cacFileUrl = null;
+      if (addMemberCacFile) {
+        const cRes = await uploadToCloudinary(addMemberCacFile, 'member_documents');
+        cacFileUrl = cRes.url;
+      }
+
+      const payload = {
+        ...form,
+        ...(form.category === 'student' ? { student_id_card_file: fileUrl } : {}),
+        ...(form.category === 'graduate' ? { certificate_file: fileUrl } : {}),
+        ...(form.category === 'individual' ? { cv_file: fileUrl } : {}),
+        ...(form.category === 'organization' ? { company_certificate_file: fileUrl, cac_document_file: cacFileUrl } : {}),
+      };
+
+      const newMember = await createMember(payload);
+
+      // Save to member_documents table for registry inspection
+      if (newMember && newMember.member_id) {
+        if (fileUrl && addMemberFile) {
+          let label = 'Uploaded Document';
+          if (form.category === 'student') label = 'Student ID Verification';
+          else if (form.category === 'graduate') label = 'Certificate / Degree';
+          else if (form.category === 'individual') label = 'ISO Certificate / Document';
+          else if (form.category === 'organization') label = 'ISO Certificate / Proof';
+
+          await supabase.from('member_documents').insert({
+            member_id: newMember.member_id,
+            label: label,
+            file_url: fileUrl,
+            file_name: addMemberFile.name,
+            file_type: addMemberFile.type || 'application/pdf',
+          });
+        }
+
+        if (cacFileUrl && addMemberCacFile) {
+          await supabase.from('member_documents').insert({
+            member_id: newMember.member_id,
+            label: 'CAC Document',
+            file_url: cacFileUrl,
+            file_name: addMemberCacFile.name,
+            file_type: addMemberCacFile.type || 'application/pdf',
+          });
+        }
+        await loadMemberDocs();
+      }
+
       setShowAdd(false);
+      setAddMemberFile(null);
+      setAddMemberCacFile(null);
     } catch (err: any) {
       setError(err?.message || 'Failed to add member.');
     } finally {
@@ -427,14 +483,35 @@ export default function Members() {
                     <td><span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${m.payment_status === 'paid' ? 'bg-success/10 text-success' : 'bg-yellow-500/10 text-yellow-600'}`}>{m.payment_status}</span></td>
                     <td>
                       {docs.length === 0 ? (
-                        <span className="text-muted-foreground text-xs">—</span>
+                        <button
+                          onClick={() => requestUpload(m.member_id)}
+                          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                          title="Upload verification document"
+                        >
+                          <Upload size={12} /> Add Document
+                        </button>
                       ) : (
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-col gap-1">
                           {docs.map((d, di) => (
-                            <a key={di} href={d.file_url} target="_blank" rel="noopener noreferrer" className="p-1 rounded hover:bg-accent transition-colors" title={d.label || d.file_name}>
-                              <FileText size={13} className="text-primary" />
+                            <a
+                              key={di}
+                              href={d.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-medium transition-colors max-w-[160px] truncate"
+                              title={`View ${d.label || d.file_name}`}
+                            >
+                              <FileText size={12} className="shrink-0" />
+                              <span className="truncate">{d.label || d.file_name}</span>
                             </a>
                           ))}
+                          <button
+                            onClick={() => requestUpload(m.member_id)}
+                            className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors mt-0.5"
+                            title="Add another document"
+                          >
+                            <Plus size={10} /> Add document
+                          </button>
                         </div>
                       )}
                     </td>
@@ -447,15 +524,13 @@ export default function Members() {
                             <CheckCircle size={13} className="text-success" />
                           </button>
                         )}
-                        {memberDocs[m.member_id]?.length === 0 || !memberDocs[m.member_id] ? (
-                          <button
-                            onClick={() => requestUpload(m.member_id)}
-                            className="p-1.5 rounded hover:bg-accent transition-colors"
-                            title="Upload document"
-                          >
-                            <Upload size={13} className="text-muted-foreground" />
-                          </button>
-                        ) : null}
+                        <button
+                          onClick={() => requestUpload(m.member_id)}
+                          className="p-1.5 rounded hover:bg-accent transition-colors"
+                          title="Upload document"
+                        >
+                          <Upload size={13} className="text-muted-foreground" />
+                        </button>
                         {isAdmin && (
                           <button
                             onClick={(e) => requestDelete(m.member_id, `${m.first_name} ${m.last_name}`.trim(), e)}
@@ -706,6 +781,57 @@ export default function Members() {
                   </div>
                 </div>
               )}
+              {/* ── Document Upload for Category ── */}
+              <div className="pt-2 border-t border-border space-y-3">
+                <h3 className="text-xs font-semibold text-primary uppercase tracking-wider">Registration Verification Documents</h3>
+                
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium">
+                    {form.category === 'student' && 'Student ID Verification Card (PDF/Image)'}
+                    {form.category === 'graduate' && 'Degree Certificate / Statement of Result (PDF/Image)'}
+                    {form.category === 'individual' && 'ISO Certificate / Professional Document (PDF/Image)'}
+                    {form.category === 'organization' && 'ISO Certificate / Compliance Proof (PDF/Image)'}
+                  </label>
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors bg-accent/10">
+                    <Upload size={18} className="text-muted-foreground mb-1" />
+                    <span className="text-xs font-medium text-foreground">
+                      {addMemberFile ? addMemberFile.name : 'Choose File to Upload'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG, DOC, DOCX</span>
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) setAddMemberFile(f);
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {form.category === 'organization' && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium">CAC Registration Certificate (PDF/Image)</label>
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors bg-accent/10">
+                      <Upload size={18} className="text-muted-foreground mb-1" />
+                      <span className="text-xs font-medium text-foreground">
+                        {addMemberCacFile ? addMemberCacFile.name : 'Choose CAC Document File'}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG, DOC, DOCX</span>
+                      <input
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) setAddMemberCacFile(f);
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
 
               {error && (
                 <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">

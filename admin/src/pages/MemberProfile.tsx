@@ -33,6 +33,7 @@ export default function MemberProfile() {
   const { user } = useAuth();
 
   const [member, setMember] = useState<any>(null);
+  const [memberDocsList, setMemberDocsList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [approving, setApproving] = useState(false);
   const [flagging, setFlagging] = useState(false);
@@ -52,6 +53,14 @@ export default function MemberProfile() {
         setIsLoading(true);
         const data = await getMemberById(Number(id));
         setMember(data);
+
+        // Fetch documents from member_documents table
+        const { data: docs } = await supabase
+          .from('member_documents')
+          .select('*')
+          .eq('member_id', Number(id))
+          .order('created_at', { ascending: false });
+        if (docs) setMemberDocsList(docs);
       } catch {
         setError('Failed to load member');
       } finally {
@@ -449,19 +458,38 @@ export default function MemberProfile() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* ── SUBMITTED VERIFICATION DOCUMENTS ── */}
-          {documentUrl && (
+          {(memberDocsList.length > 0 || documentUrl) && (
             <div className="bg-card rounded-xl border border-border shadow-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-primary">
                 <Download size={15} /> Submitted Verification Documents
               </h3>
               <p className="text-xs text-muted-foreground mb-4">
-                Click below to download or inspect the files uploaded by this member for accreditation.
+                Click below to inspect or download the certificate(s) and documents uploaded for this registration.
               </p>
-              <div className="flex items-center gap-3">
-                <a href={documentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-3 rounded-lg border border-border bg-background hover:bg-accent text-sm font-semibold transition-colors">
-                  <FileText size={16} className="text-primary" />
-                  <span>Inspect Attachment Document</span>
-                </a>
+              <div className="flex flex-wrap items-center gap-3">
+                {memberDocsList.map((doc, idx) => (
+                  <a
+                    key={idx}
+                    href={doc.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 px-4 py-3 rounded-lg border border-border bg-background hover:bg-accent text-sm font-medium transition-colors"
+                  >
+                    <FileText size={16} className="text-primary shrink-0" />
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold text-xs text-foreground">{doc.label || 'Document'}</span>
+                      <span className="text-[11px] text-muted-foreground">{doc.file_name || 'View File'}</span>
+                    </div>
+                  </a>
+                ))}
+
+                {/* Legacy document link fallback */}
+                {memberDocsList.length === 0 && documentUrl && (
+                  <a href={documentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-3 rounded-lg border border-border bg-background hover:bg-accent text-sm font-semibold transition-colors">
+                    <FileText size={16} className="text-primary" />
+                    <span>Inspect Attachment Document</span>
+                  </a>
+                )}
               </div>
             </div>
           )}
