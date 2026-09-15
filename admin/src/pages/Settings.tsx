@@ -118,12 +118,16 @@ export default function Settings() {
     setCreateUserLoading(true);
     setCreateUserMessage('');
     try {
-      const authData = await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
-      const credsText = `Your IBMSSP admin account has been created.\n\nEmail: ${newUserEmail}\nPassword: ${newUserPassword}\n\nPlease log in and change your password.`;
-      await callEdgeFunction('send-email', { type: 'new_admin_account', to: newUserEmail, name: newUserName, subject: 'Your IBMSSP Admin Account', content: credsText });
-      const adminSubject = 'New Admin User Created';
-      const adminContent = `A new admin user has been created.\n\nName: ${newUserName}\nEmail: ${newUserEmail}\nRole: ${newUserRole}\nAccess: ${selectedPermissions.join(', ')}\n\nYou can manage this user from the Settings page.`;
-      await callEdgeFunction('send-email', { type: 'admin_notification', to: SUPER_ADMIN_EMAIL, name: user?.name || 'Admin', subject: adminSubject, content: adminContent });
+      await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
+      try {
+        const credsText = `Your IBMSSP admin account has been created.\n\nEmail: ${newUserEmail}\nPassword: ${newUserPassword}\n\nPlease log in and change your password.`;
+        await callEdgeFunction('send-email', { type: 'new_admin_account', to: newUserEmail, name: newUserName, subject: 'Your IBMSSP Admin Account', content: credsText });
+        const adminSubject = 'New Admin User Created';
+        const adminContent = `A new admin user has been created.\n\nName: ${newUserName}\nEmail: ${newUserEmail}\nRole: ${newUserRole}\nAccess: ${selectedPermissions.join(', ')}\n\nYou can manage this user from the Settings page.`;
+        await callEdgeFunction('send-email', { type: 'admin_notification', to: SUPER_ADMIN_EMAIL, name: user?.name || 'Admin', subject: adminSubject, content: adminContent });
+      } catch (emailErr: any) {
+        console.warn('Notification email failed (user was still created):', emailErr?.message || emailErr);
+      }
       setCreateUserMessage(`User ${newUserName} created successfully.`);
       setNewUserName(''); setNewUserEmail(''); setNewUserPassword(''); setSelectedPermissions([]); setShowCreateUser(false);
       fetchAdmins();
