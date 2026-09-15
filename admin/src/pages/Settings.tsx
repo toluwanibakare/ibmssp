@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Globe, Key, LogOut, UserPlus, Mail, ShieldCheck } from 'lucide-react';
+import { User, Globe, Key, LogOut, UserPlus, ShieldCheck, Pencil, Trash2, X, Check, RefreshCw } from 'lucide-react';
 import { useAuth, PAGE_PERMISSIONS } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { callEdgeFunction } from '@/lib/supabase';
@@ -32,6 +32,38 @@ export default function Settings() {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [createUserLoading, setCreateUserLoading] = useState(false);
   const [createUserMessage, setCreateUserMessage] = useState('');
+  const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string; role: string; permissions: string[] }>>([]);
+  const [adminsLoading, setAdminsLoading] = useState(true);
+  const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
+  const [editingRole, setEditingRole] = useState<'admin' | 'editor'>('editor');
+  const [editingPermissions, setEditingPermissions] = useState<string[]>([]);
+  const [adminsMessage, setAdminsMessage] = useState('');
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const fetchAdmins = async () => {
+    setAdminsLoading(true);
+    try {
+      const { data: profiles, error: profErr } = await supabase.from('profiles').select('id, name, email');
+      if (profErr) throw profErr;
+      const { data: roles, error: rolesErr } = await supabase.from('user_roles').select('user_id, role, permissions');
+      if (rolesErr) throw rolesErr;
+      const merged = (profiles || []).map(p => {
+        const roleRow = (roles || []).find(r => r.user_id === p.id);
+        return {
+          id: p.id,
+          name: p.name,
+          email: p.email,
+          role: roleRow?.role || 'editor',
+          permissions: roleRow?.permissions || [],
+        };
+      });
+      setAdmins(merged);
+    } catch (err: any) {
+      setAdminsMessage(err.message || 'Failed to load admin users.');
+    } finally {
+      setAdminsLoading(false);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -47,6 +79,7 @@ export default function Settings() {
       if (data && typeof data.setting_value === 'string') setPaystackMode(data.setting_value as 'test' | 'live');
     };
     fetchPaystackMode();
+    fetchAdmins();
   }, []);
 
   const savePaystackMode = async (mode: 'test' | 'live') => {
@@ -82,12 +115,7 @@ export default function Settings() {
     setCreateUserLoading(true);
     setCreateUserMessage('');
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({ email: newUserEmail, password: newUserPassword, options: { data: { full_name: newUserName } } });
-      if (authError) throw authError;
-      const userId = authData.user?.id;
-      if (!userId) throw new Error('No user ID returned.');
-      await supabase.from('profiles').insert({ id: userId, email: newUserEmail, name: newUserName });
-      await supabase.from('user_roles').insert({ user_id: userId, role: newUserRole, permissions: selectedPermissions });
+      const authData = await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
       const credsText = `Your IBMSSP admin account has been created.\n\nEmail: ${newUserEmail}\nPassword: ${newUserPassword}\n\nPlease log in and change your password.`;
       await callEdgeFunction('send-email', { type: 'new_admin_account', to: newUserEmail, name: newUserName, subject: 'Your IBMSSP Admin Account', content: credsText });
       const adminSubject = 'New Admin User Created';
@@ -95,12 +123,62 @@ export default function Settings() {
       await callEdgeFunction('send-email', { type: 'admin_notification', to: SUPER_ADMIN_EMAIL, name: user?.name || 'Admin', subject: adminSubject, content: adminContent });
       setCreateUserMessage(`User ${newUserName} created successfully.`);
       setNewUserName(''); setNewUserEmail(''); setNewUserPassword(''); setSelectedPermissions([]); setShowCreateUser(false);
+      fetchAdmins();
     } catch (err: any) {
       setCreateUserMessage(err.message || 'Failed to create user.');
     } finally {
       setCreateUserLoading(false);
     }
   };
+
+  const startEditAdmin = (a: { id: string; role: string; permissions: string[] }) => {
+    setEditingAdminId(a.id);
+    setEditingRole(a.role === 'admin' ? 'admin' : 'editor');
+    setEditingPermissions(a.permissions || []);
+    setAdminsMessage('');
+  };
+
+  const cancelEditAdmin = () => {
+    setEditingAdminId(null);
+    setEditingPermissions([]);
+    setAdminsMessage('');
+  };
+
+  const toggleEditingPermission = (perm: string) => {
+    setEditingPermissions(prev => prev.includes(perm) ? prev.filter(p => p !== perm) : [...prev, perm]);
+  };
+
+  const saveEditAdmin = async (adminId: string) => {
+    setAdminsMessage('');
+    try {
+      const { error } = await supabase.from('user_roles').update({ role: editingRole, permissions: editingPermissions }).eq('user_id', adminId);
+      if (error) throw error;
+      setAdminsMessage('Admin updated successfully.');
+      setEditingAdminId(null);
+      fetchAdmins();
+      window.setTimeout(() => setAdminsMessage(''), 2500);
+    } catch (err: any) {
+      setAdminsMessage(err.message || 'Failed to update admin.');
+    }
+  };
+
+  const removeAdmin = async (adminId: string, adminName: string) => {
+    if (!window.confirm(`Remove ${adminName} from admin users? This cannot be undone.`)) return;
+    setRemovingId(adminId);
+    setAdminsMessage('');
+    try {
+      await callEdgeFunction('delete-admin-user', { user_id: adminId });
+      setAdminsMessage(`${adminName} removed successfully.`);
+      fetchAdmins();
+      window.setTimeout(() => setAdminsMessage(''), 2500);
+    } catch (err: any) {
+      setAdminsMessage(err.message || 'Failed to remove admin.');
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  const isMessageSuccess = (msg: string) => msg.includes('successfully') || msg.includes('created');
 
   return (
     <div className="space-y-5">
@@ -184,8 +262,77 @@ export default function Settings() {
                   </div>
                 </div>
                 <button type="submit" disabled={createUserLoading} className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60">{createUserLoading ? 'Creating...' : 'Create User'}</button>
-                {createUserMessage && <div className={`text-xs rounded-lg px-3 py-2 ${createUserMessage.includes('successfully') ? 'text-success bg-success/10 border border-success/20' : 'text-destructive bg-destructive/10 border border-destructive/20'}`}>{createUserMessage}</div>}
+                {createUserMessage && <div className={`text-xs rounded-lg px-3 py-2 ${isMessageSuccess(createUserMessage) ? 'text-success bg-success/10 border border-success/20' : 'text-destructive bg-destructive/10 border border-destructive/20'}`}>{createUserMessage}</div>}
               </form>
+            )}
+          </div>
+
+          <div className="bg-card rounded-xl border border-border shadow-card p-5 mt-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2"><ShieldCheck size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Admin Users</h2><span className="text-xs text-muted-foreground">{admins.length}</span></div>
+              <button type="button" onClick={fetchAdmins} className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-accent/40 transition-colors" title="Refresh"><RefreshCw size={13} /></button>
+            </div>
+
+            {adminsMessage && <div className={`text-xs rounded-lg px-3 py-2 mb-3 ${isMessageSuccess(adminsMessage) ? 'text-success bg-success/10 border border-success/20' : 'text-destructive bg-destructive/10 border border-destructive/20'}`}>{adminsMessage}</div>}
+
+            {adminsLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">Loading admin users...</div>
+            ) : admins.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No admin users found.</div>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                {admins.map(a => (
+                  <div key={a.id} className={`rounded-lg border border-border p-3 ${editingAdminId === a.id ? 'bg-accent/20' : 'bg-card'}`}>
+                    {editingAdminId === a.id ? (
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">{a.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <button type="button" onClick={() => saveEditAdmin(a.id)} className="p-1.5 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors" title="Save"><Check size={13} /></button>
+                            <button type="button" onClick={cancelEditAdmin} className="p-1.5 rounded-lg bg-muted/40 text-muted-foreground hover:bg-muted/60 transition-colors" title="Cancel"><X size={13} /></button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium">Role</label>
+                          <select value={editingRole} onChange={e => setEditingRole(e.target.value as 'admin' | 'editor')} className="input-field mt-1"><option value="admin">Admin</option><option value="editor">Editor</option></select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium">Page Access</label>
+                          <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto border border-border rounded-lg p-2 mt-1">
+                            {ALL_PERMISSIONS.map(perm => (
+                              <label key={perm} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted/30 px-1 py-0.5 rounded">
+                                <input type="checkbox" checked={editingPermissions.includes(perm)} onChange={() => toggleEditingPermission(perm)} className="h-3 w-3 rounded" />
+                                <span className="capitalize">{PAGE_PERMISSIONS[perm]}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate flex items-center gap-1.5">{a.name} {a.email === SUPER_ADMIN_EMAIL && <span className="text-[10px] font-semibold uppercase tracking-wide text-primary bg-primary/10 px-1.5 py-0.5 rounded">Super</span>}</p>
+                          <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-primary bg-primary/10 px-1.5 py-0.5 rounded capitalize">{a.role}</span>
+                            {a.permissions.slice(0, 3).map(p => <span key={p} className="text-[10px] bg-muted/40 text-muted-foreground px-1.5 py-0.5 rounded">{PAGE_PERMISSIONS[p] || p}</span>)}
+                            {a.permissions.length > 3 && <span className="text-[10px] bg-muted/40 text-muted-foreground px-1.5 py-0.5 rounded">+{a.permissions.length - 3}</span>}
+                          </div>
+                        </div>
+                        {a.email !== SUPER_ADMIN_EMAIL && (
+                          <div className="flex gap-1 shrink-0">
+                            <button type="button" onClick={() => startEditAdmin(a)} className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-accent/40 transition-colors" title="Edit"><Pencil size={13} /></button>
+                            <button type="button" onClick={() => removeAdmin(a.id, a.name)} disabled={removingId === a.id} className="p-1.5 rounded-lg border border-destructive/20 text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50" title="Remove"><Trash2 size={13} /></button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
