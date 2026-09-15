@@ -169,8 +169,8 @@ export default function Settings() {
 
       try {
         await callEdgeFunction('send-email', { type: 'new_admin_account', to: newUserEmail, name: newUserName, password: newUserPassword, subject: 'Your IBMSSP Admin Account Credentials' });
-        const adminSubject = 'New Admin User Created';
-        const adminContent = `A new admin user account has been registered.\n\nName: ${newUserName}\nEmail: ${newUserEmail}\nRole: ${newUserRole}\nAssigned Module Access: ${selectedPermissions.join(', ')}\n\nYou can manage or revoke access from the Settings page.`;
+        const adminSubject = `Security Alert: New Admin Account (${newUserName})`;
+        const adminContent = `A new administrator account has been created on the IBMSSP Admin Portal.\n\nName: ${newUserName}\nEmail: ${newUserEmail}\nRole: ${newUserRole.toUpperCase()}\nAssigned Module Access: ${selectedPermissions.join(', ')}\n\nIf this was authorized by you, no further action is required.`;
         await callEdgeFunction('send-email', { type: 'admin_notification', to: SUPER_ADMIN_EMAIL, name: user?.name || 'Super Admin', subject: adminSubject, content: adminContent });
       } catch (emailErr: any) {
         console.warn('Notification email failed (user was still created):', emailErr?.message || emailErr);

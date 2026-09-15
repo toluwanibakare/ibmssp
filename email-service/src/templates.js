@@ -183,19 +183,27 @@ export function newAdminAccountTemplate({ name, email, password }) {
 
 export function adminNotificationTemplate({ name, subject, content }) {
   return {
-    subject: subject || 'IBMSSP Admin Notification',
+    subject: subject || 'Security Alert: New Admin Account Created',
     html: emailWrapper(`
-      <div style="background: #39838A; color: #ffffff; padding: 6px 14px; border-radius: 6px; display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;">
-        Admin Security Alert
+      <div style="background: #b91c1c; color: #ffffff; padding: 6px 14px; border-radius: 6px; display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;">
+        Super Admin Security Notice
       </div>
-      <h2 style="color: #305858; margin-top: 4px; font-size: 22px;">${subject}</h2>
+      <h2 style="color: #305858; margin-top: 4px; font-size: 22px;">${subject || 'New Admin Account Created'}</h2>
       <p style="color: #475569; line-height: 1.8; font-size: 15px;">
-        Hello <strong>${name}</strong>,
+        Hello <strong>${name || 'Super Admin'}</strong>,
       </p>
-      <div style="background: #f8fafc; border-left: 4px solid #39838A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px; color: #334155; line-height: 1.7;">
+      <div style="background: #f8fafc; border-left: 4px solid #305858; padding: 18px 22px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px; color: #1e293b; line-height: 1.7;">
         ${content.replace(/\n/g, '<br/>')}
       </div>
-      ${ctaButton('Go to Admin Panel', 'https://ibmssp.org.ng/admin')}
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px 20px; margin: 24px 0;">
+        <p style="margin: 0; color: #991b1b; font-size: 14px; font-weight: 700;">
+          ⚠️ Was this action unauthorized?
+        </p>
+        <p style="margin: 8px 0 0; color: #7f1d1d; font-size: 13px; line-height: 1.6;">
+          If you did not authorize the creation of this new admin account, please log into your Super Admin portal immediately to <strong>delete or revoke the user</strong> and <strong>secure your account credentials</strong>.
+        </p>
+      </div>
+      ${ctaButton('Manage & Delete User in Admin Settings', 'https://ibmssp.org.ng/admin/#/settings')}
     `),
   };
 }
