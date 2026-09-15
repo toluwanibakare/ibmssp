@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import SupabaseHealth from '@/components/SupabaseHealth';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth, PAGE_PERMISSIONS } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Login from "./pages/Login";
@@ -30,6 +30,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PermissionRoute({ permission, children }: { permission: string; children: React.ReactNode }) {
+  const { hasPermission, isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="flex h-screen items-center justify-center text-muted-foreground">Loading…</div>;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!hasPermission(permission)) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -52,15 +60,15 @@ const App = () => (
                 </ProtectedRoute>
               }>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/members" element={<Members />} />
-                <Route path="/members/:id" element={<MemberProfile />} />
-                <Route path="/facilitators" element={<Facilitators />} />
-                <Route path="/email-composer" element={<EmailComposer />} />
-                <Route path="/newsletter" element={<Newsletter />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/chat" element={<LiveChat />} />
-                <Route path="/activity-logs" element={<ActivityLogs />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/members" element={<PermissionRoute permission="members"><Members /></PermissionRoute>} />
+                <Route path="/members/:id" element={<PermissionRoute permission="members"><MemberProfile /></PermissionRoute>} />
+                <Route path="/facilitators" element={<PermissionRoute permission="facilitators"><Facilitators /></PermissionRoute>} />
+                <Route path="/email-composer" element={<PermissionRoute permission="email-composer"><EmailComposer /></PermissionRoute>} />
+                <Route path="/newsletter" element={<PermissionRoute permission="newsletter"><Newsletter /></PermissionRoute>} />
+                <Route path="/messages" element={<PermissionRoute permission="messages"><Messages /></PermissionRoute>} />
+                <Route path="/chat" element={<PermissionRoute permission="chat"><LiveChat /></PermissionRoute>} />
+                <Route path="/activity-logs" element={<PermissionRoute permission="activity-logs"><ActivityLogs /></PermissionRoute>} />
+                <Route path="/settings" element={<PermissionRoute permission="settings"><Settings /></PermissionRoute>} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

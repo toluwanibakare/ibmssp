@@ -2,11 +2,26 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
+export const PAGE_PERMISSIONS: Record<string, string> = {
+  dashboard: 'Dashboard',
+  members: 'Members Registry',
+  facilitators: 'Facilitators',
+  newsletter: 'Newsletter Hub',
+  'email-composer': 'Email Composer',
+  chat: 'Live Support',
+  messages: 'Messages',
+  'activity-logs': 'Activity Logs',
+  settings: 'Settings',
+};
+
+const SUPER_ADMIN_EMAIL = 'admin@ibmssp.org.ng';
+
 interface AuthUser {
   id: string;
   email: string;
   name: string;
   role: string;
+  permissions: string[];
 }
 
 interface AuthContextType {
@@ -15,6 +30,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string, options?: { rememberMe?: boolean }) => Promise<boolean>;
   logout: () => void;
+  hasPermission: (page: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -65,14 +81,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: roles } = await supabase
       .from('user_roles')
-      .select('role')
+      .select('role, permissions')
       .eq('user_id', supaUser.id);
+
+    const role = roles?.[0]?.role || 'admin';
+    const permissions = roles?.[0]?.permissions || (supaUser.email === SUPER_ADMIN_EMAIL ? Object.keys(PAGE_PERMISSIONS) : []);
 
     setUser({
       id: supaUser.id,
       email: profile?.email || supaUser.email || '',
       name: profile?.name || supaUser.email?.split('@')[0] || '',
-      role: roles?.[0]?.role || 'admin',
+      role,
+      permissions,
     });
   };
 
@@ -178,8 +198,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const hasPermission = (page: string) => {
+    if (!user) return false;
+    if (user.email === SUPER_ADMIN_EMAIL) return true;
+    return user.permissions.includes(page);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

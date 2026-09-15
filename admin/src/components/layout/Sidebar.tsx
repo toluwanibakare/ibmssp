@@ -5,18 +5,19 @@ import {
   ChevronLeft, ChevronRight, X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth, PAGE_PERMISSIONS } from '@/contexts/AuthContext';
 import ibmsspIcon from '@/assets/ibmssp-icon.png';
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
-  { to: '/members', icon: Users, label: 'Members Registry' },
-  { to: '/facilitators', icon: UsersRound, label: 'Facilitators' },
-  { to: '/newsletter', icon: Newspaper, label: 'Newsletter Hub' },
-  { to: '/email-composer', icon: Mail, label: 'Email Composer' },
-  { to: '/chat', icon: MessageSquare, label: 'Live Support' },
-  { to: '/messages', icon: MessageSquare, label: 'Messages' },
-  { to: '/activity-logs', icon: ClipboardList, label: 'Activity Logs' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard', permission: 'dashboard', exact: true },
+  { to: '/members', icon: Users, label: 'Members Registry', permission: 'members' },
+  { to: '/facilitators', icon: UsersRound, label: 'Facilitators', permission: 'facilitators' },
+  { to: '/newsletter', icon: Newspaper, label: 'Newsletter Hub', permission: 'newsletter' },
+  { to: '/email-composer', icon: Mail, label: 'Email Composer', permission: 'email-composer' },
+  { to: '/chat', icon: MessageSquare, label: 'Live Support', permission: 'chat' },
+  { to: '/messages', icon: MessageSquare, label: 'Messages', permission: 'messages' },
+  { to: '/activity-logs', icon: ClipboardList, label: 'Activity Logs', permission: 'activity-logs' },
+  { to: '/settings', icon: Settings, label: 'Settings', permission: 'settings' },
 ];
 
 export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMobileClose: () => void }) {
@@ -25,6 +26,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean
   const [isMobile, setIsMobile] = useState(false);
   const [pendingChatCount, setPendingChatCount] = useState(0);
   const location = useLocation();
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     const fetchPendingChats = async () => {
@@ -94,7 +96,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean
       </div>
 
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ to, icon: Icon, label, exact }) => {
+        {navItems.filter(item => hasPermission(item.permission)).map(({ to, icon: Icon, label, exact }) => {
           const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
           const isLiveSupport = to === '/chat';
           return (

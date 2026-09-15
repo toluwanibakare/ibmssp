@@ -23,3 +23,6 @@ CREATE POLICY "Authenticated users can read facilitators" ON public.facilitators
 CREATE POLICY "Admin can insert facilitators" ON public.facilitators FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admin can update facilitators" ON public.facilitators FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admin can delete facilitators" ON public.facilitators FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+
+-- Add permissions column to user_roles for page-level access control
+ALTER TABLE public.user_roles ADD COLUMN IF NOT EXISTS permissions TEXT[] DEFAULT ARRAY[]::TEXT[];
