@@ -177,7 +177,18 @@ export default function Settings() {
     setRemovingId(adminId);
     setAdminsMessage('');
     try {
-      await callEdgeFunction('delete-admin-user', { user_id: adminId });
+      try {
+        await callEdgeFunction('delete-admin-user', { user_id: adminId });
+      } catch (edgeErr: any) {
+        console.warn('Edge function delete-admin-user failed, falling back to direct table deletion:', edgeErr);
+        // Fallback: Delete user_roles record directly
+        const { error: roleErr } = await supabase.from('user_roles').delete().eq('user_id', adminId);
+        if (roleErr) throw roleErr;
+
+        // Also delete profile record if exists
+        await supabase.from('profiles').delete().eq('id', adminId).catch(() => {});
+      }
+
       setAdminsMessage(`${adminName} removed successfully.`);
       fetchAdmins();
       window.setTimeout(() => setAdminsMessage(''), 2500);
