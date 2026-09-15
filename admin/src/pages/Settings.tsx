@@ -103,7 +103,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5">
       <div><h1 className="page-title">Settings</h1><p className="page-subtitle">Manage your IBMSSP admin account</p></div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 space-y-5">
