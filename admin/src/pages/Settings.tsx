@@ -186,7 +186,11 @@ export default function Settings() {
         if (roleErr) throw roleErr;
 
         // Also delete profile record if exists
-        await supabase.from('profiles').delete().eq('id', adminId).catch(() => {});
+        try {
+          await supabase.from('profiles').delete().eq('id', adminId);
+        } catch (pErr) {
+          // Ignore profile delete errors if profile record does not exist
+        }
       }
 
       setAdminsMessage(`${adminName} removed successfully.`);
