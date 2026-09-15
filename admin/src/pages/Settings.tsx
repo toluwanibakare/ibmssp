@@ -105,8 +105,8 @@ export default function Settings() {
   return (
     <div className="space-y-5 max-w-2xl">
       <div><h1 className="page-title">Settings</h1><p className="page-subtitle">Manage your IBMSSP admin account</p></div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="lg:col-span-3 space-y-5">
           <div className="bg-card rounded-xl border border-border shadow-card p-5">
             <div className="flex items-center gap-2 mb-4"><User size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Account Profile</h2></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
