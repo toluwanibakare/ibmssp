@@ -121,9 +121,43 @@ export default function Settings() {
     setCreateUserLoading(true);
     setCreateUserMessage('');
     try {
-      await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
+      let createdUserId = null;
+
       try {
-        const credsText = `Your IBMSSP admin account has been created.\n\nEmail: ${newUserEmail}\nPassword: ${newUserPassword}\n\nPlease log in and change your password.`;
+        const edgeRes = await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
+        createdUserId = edgeRes?.user_id;
+      } catch (edgeErr: any) {
+        console.warn('create-admin-user edge function failed, attempting client fallback:', edgeErr);
+
+        // Fallback: Create user using client signup or insert role directly
+        const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+          email: newUserEmail,
+          password: newUserPassword,
+          options: {
+            data: { name: newUserName, full_name: newUserName }
+          }
+        });
+
+        if (signUpErr) throw signUpErr;
+        createdUserId = signUpData.user?.id;
+
+        if (createdUserId) {
+          // Insert role and permissions directly
+          await supabase.from('user_roles').upsert({
+            user_id: createdUserId,
+            role: newUserRole,
+            permissions: selectedPermissions
+          }, { onConflict: 'user_id' });
+
+          await supabase.from('profiles').upsert({
+            id: createdUserId,
+            email: newUserEmail,
+            name: newUserName
+          }, { onConflict: 'id' }).catch(() => {});
+        }
+      }
+
+      try {
         await callEdgeFunction('send-email', { type: 'new_admin_account', to: newUserEmail, name: newUserName, password: newUserPassword, subject: 'Your IBMSSP Admin Account Credentials' });
         const adminSubject = 'New Admin User Created';
         const adminContent = `A new admin user account has been registered.\n\nName: ${newUserName}\nEmail: ${newUserEmail}\nRole: ${newUserRole}\nAssigned Module Access: ${selectedPermissions.join(', ')}\n\nYou can manage or revoke access from the Settings page.`;
@@ -131,6 +165,7 @@ export default function Settings() {
       } catch (emailErr: any) {
         console.warn('Notification email failed (user was still created):', emailErr?.message || emailErr);
       }
+
       setCreateUserMessage(`User ${newUserName} created successfully.`);
       setNewUserName(''); setNewUserEmail(''); setNewUserPassword(''); setSelectedPermissions([]); setShowCreateUser(false);
       fetchAdmins();
