@@ -9,6 +9,7 @@
     "dev:main": "vite",
     "dev:admin": "cd admin && npm run dev",
     "build": "vite build",
+    "postbuild": "node ./scripts/copy-email-service.cjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
