@@ -489,11 +489,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (user) {
-      fetchMembers();
-      fetchLogs();
-      fetchEmails();
-      fetchTemplates();
-      fetchFacilitators();
+      Promise.all([
+        fetchMembers(),
+        fetchLogs(),
+        fetchEmails(),
+        fetchTemplates(),
+        fetchFacilitators(),
+      ]);
     }
   }, [user, fetchMembers, fetchLogs, fetchEmails, fetchTemplates, fetchFacilitators]);
 

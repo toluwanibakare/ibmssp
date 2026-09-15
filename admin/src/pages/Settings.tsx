@@ -43,10 +43,13 @@ export default function Settings() {
   const fetchAdmins = async () => {
     setAdminsLoading(true);
     try {
-      const { data: profiles, error: profErr } = await supabase.from('profiles').select('id, name, email');
+      const [{ data: profiles, error: profErr }, { data: roles, error: rolesErr }] = await Promise.all([
+        supabase.from('profiles').select('id, name, email'),
+        supabase.from('user_roles').select('user_id, role, permissions'),
+      ]);
       if (profErr) throw profErr;
-      const { data: roles, error: rolesErr } = await supabase.from('user_roles').select('user_id, role, permissions');
       if (rolesErr) throw rolesErr;
+
       const roleMap = new Map((roles || []).map(r => [r.user_id, r]));
       const merged = (profiles || [])
         .filter(p => roleMap.has(p.id) || p.email === SUPER_ADMIN_EMAIL)
