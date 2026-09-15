@@ -312,14 +312,16 @@ export default function FloatingWidgets() {
       return;
     }
 
-    // Build Groq history
+    // Build Groq history with sanitized string content
     const history = messages
-      .filter(m => m.role === 'user' || m.role === 'bot')
+      .filter(m => (m.role === 'user' || m.role === 'bot') && m.content)
       .map(m => ({
         role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.content
-      }));
-    history.push({ role: 'user', content: userText });
+        content: String(m.content).trim()
+      }))
+      .filter(m => m.content.length > 0);
+
+    history.push({ role: 'user', content: String(userText).trim() });
 
     try {
       if (!GROQ_API_KEY) throw new Error('API key not configured');
@@ -328,8 +330,8 @@ export default function FloatingWidgets() {
       const candidateModels = Array.from(new Set([
         ...(preferredModel ? [preferredModel] : []),
         'llama-3.3-70b-versatile',
-        'llama3-70b-8192',
         'llama3-8b-8192',
+        'llama3-70b-8192',
         'mixtral-8x7b-32768',
         'gemma2-9b-it'
       ]));
@@ -361,8 +363,8 @@ export default function FloatingWidgets() {
             break;
           } else {
             const errData = await res.json().catch(() => ({}));
-            console.warn(`Groq model ${modelCandidate} returned status ${res.status}:`, errData);
-            lastErr = new Error(`Groq ${modelCandidate} failed (${res.status})`);
+            console.error(`Groq model ${modelCandidate} returned status ${res.status}:`, JSON.stringify(errData, null, 2));
+            lastErr = new Error(errData?.error?.message || `Groq ${modelCandidate} failed (${res.status})`);
           }
         } catch (fetchErr) {
           console.warn(`Groq request for model ${modelCandidate} failed:`, fetchErr);
