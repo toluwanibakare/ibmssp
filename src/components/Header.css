@@ -214,6 +214,10 @@
 }
 
 @media (max-width: 991px) {
+  .top-bar {
+    display: none !important;
+  }
+  
   .desktop-nav {
     display: none;
   }
@@ -222,22 +226,14 @@
     display: block;
   }
 
-  .top-info-left {
-    display: none;
-  }
-
-  .top-bar-container {
-    justify-content: center;
-  }
-
   .mobile-nav-drawer {
     display: block;
     position: fixed;
-    top: 70px;
+    top: 60px;
     left: -100%;
     width: 80%;
     max-width: 300px;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 60px);
     background-color: white;
     box-shadow: 10px 0 30px rgba(0,0,0,0.1);
     z-index: 999;
