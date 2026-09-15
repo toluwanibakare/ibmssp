@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, UsersRound, Newspaper, Mail, MessageSquare, ClipboardList, Settings,
+  LayoutDashboard, Users, UsersRound, Newspaper, Mail, MessageSquare, Headset, ClipboardList, Settings,
   ChevronLeft, ChevronRight, X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,7 @@ const navItems = [
   { to: '/facilitators', icon: UsersRound, label: 'Facilitators', permission: 'facilitators' },
   { to: '/newsletter', icon: Newspaper, label: 'Newsletter Hub', permission: 'newsletter' },
   { to: '/email-composer', icon: Mail, label: 'Email Composer', permission: 'email-composer' },
-  { to: '/chat', icon: MessageSquare, label: 'Live Support', permission: 'chat' },
+  { to: '/chat', icon: Headset, label: 'Live Support', permission: 'chat' },
   { to: '/messages', icon: MessageSquare, label: 'Messages', permission: 'messages' },
   { to: '/activity-logs', icon: ClipboardList, label: 'Activity Logs', permission: 'activity-logs' },
   { to: '/settings', icon: Settings, label: 'Settings', permission: 'settings' },

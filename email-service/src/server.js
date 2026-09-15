@@ -8,6 +8,8 @@ import {
   paymentConfirmationTemplate,
   newsletterTemplate,
   announcementTemplate,
+  newAdminAccountTemplate,
+  adminNotificationTemplate,
 } from './templates.js';
 
 dotenv.config();
@@ -246,6 +248,10 @@ const universalHandler = async (req, res) => {
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
       await insertOtpToDb(to, generatedOtp, expiresAt);
       template = otpTemplate({ otp: generatedOtp });
+    } else if (type === 'new_admin_account') {
+      template = newAdminAccountTemplate({ name: name || 'Admin User', email: to, password: payload.password || payload.content });
+    } else if (type === 'admin_notification') {
+      template = adminNotificationTemplate({ name: name || 'Admin', subject: subject || 'Admin Notification', content: content || '' });
     } else if (type === 'payment_confirmation') {
       template = paymentConfirmationTemplate({ name: name || 'Member', memberId: memberId || 'N/A', amount: amount || '' });
     } else if (type === 'newsletter') {

@@ -198,15 +198,34 @@
 @media (max-width: 991px) {
   .contact-layout-grid {
     grid-template-columns: 1fr;
-    gap: 3.5rem;
+    gap: 3rem;
+    width: 100%;
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 575px) {
+  .contact-page {
+    width: 100%;
+    overflow-x: hidden;
+  }
   .contact-form-premium-card {
-    padding: 2rem 1.5rem;
+    padding: 1.75rem 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .contact-info-premium-stack {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
   }
   .contact-info-mainheading {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+  .info-card-item {
+    padding: 1rem 1.15rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 }

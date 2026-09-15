@@ -205,6 +205,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 767px) {
+  .container {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
   .grid-2, .grid-3, .grid-4 {
     grid-template-columns: 1fr;
   }

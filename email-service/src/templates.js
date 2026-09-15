@@ -152,3 +152,50 @@ export function announcementTemplate({ subject, headline, content, ctaText, ctaU
     `),
   };
 }
+
+export function newAdminAccountTemplate({ name, email, password }) {
+  const passDisplay = password && !password.includes('Your IBMSSP admin account') ? password : 'Provided by your Super Administrator';
+  return {
+    subject: 'Your IBMSSP Admin Account Credentials',
+    html: emailWrapper(`
+      <h2 style="color: #305858; margin-top: 0; font-size: 22px;">Welcome to IBMSSP Admin Panel!</h2>
+      <p style="color: #475569; line-height: 1.8; font-size: 15px;">
+        Hello <strong>${name}</strong>, an administrator account has been created for you to manage the IBMSSP Registry and system services.
+      </p>
+      <div style="background: #f0fdf4; border-left: 4px solid #305858; padding: 18px 22px; border-radius: 0 8px 8px 0; margin: 24px 0;">
+        <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 700;">
+          Login Credentials:
+        </p>
+        <p style="margin: 10px 0 4px; color: #475569; font-size: 14px;">
+          <strong>Email:</strong> <span style="color: #305858;">${email}</span>
+        </p>
+        <p style="margin: 4px 0 0; color: #475569; font-size: 14px;">
+          <strong>Password:</strong> <span style="font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${passDisplay}</span>
+        </p>
+      </div>
+      <p style="color: #475569; line-height: 1.8; font-size: 14px;">
+        Please click below to log in to your admin portal. We recommend updating your password upon your first login.
+      </p>
+      ${ctaButton('Log In to Admin Portal', 'https://ibmssp.org.ng/admin/login')}
+    `),
+  };
+}
+
+export function adminNotificationTemplate({ name, subject, content }) {
+  return {
+    subject: subject || 'IBMSSP Admin Notification',
+    html: emailWrapper(`
+      <div style="background: #39838A; color: #ffffff; padding: 6px 14px; border-radius: 6px; display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;">
+        Admin Security Alert
+      </div>
+      <h2 style="color: #305858; margin-top: 4px; font-size: 22px;">${subject}</h2>
+      <p style="color: #475569; line-height: 1.8; font-size: 15px;">
+        Hello <strong>${name}</strong>,
+      </p>
+      <div style="background: #f8fafc; border-left: 4px solid #39838A; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px; color: #334155; line-height: 1.7;">
+        ${content.replace(/\n/g, '<br/>')}
+      </div>
+      ${ctaButton('Go to Admin Panel', 'https://ibmssp.org.ng/admin')}
+    `),
+  };
+}

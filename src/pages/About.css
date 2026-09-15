@@ -786,4 +786,38 @@
     height: 320px;
     padding: 2rem;
   }
+  .about-details-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .about-page {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .about-content {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .about-collage-container {
+    width: 100%;
+    max-width: 100%;
+    height: 320px;
+    margin: 1.5rem auto 0 auto;
+  }
+  .collage-card-info {
+    left: 5%;
+    right: 5%;
+    bottom: -15px;
+    padding: 1rem 1.25rem;
+  }
+  .why-display-card {
+    padding: 1.5rem 1.25rem;
+    height: 280px;
+  }
+  .why-tabs-card {
+    padding: 1.5rem 1.25rem;
+  }
 }
