@@ -324,24 +324,54 @@ export default function FloatingWidgets() {
     try {
       if (!GROQ_API_KEY) throw new Error('API key not configured');
 
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...history
-          ],
-          max_tokens: 400,
-          temperature: 0.3,
-        }),
-      });
+      const preferredModel = import.meta.env.VITE_GROQ_MODEL;
+      const candidateModels = Array.from(new Set([
+        ...(preferredModel ? [preferredModel] : []),
+        'llama-3.3-70b-versatile',
+        'llama3-70b-8192',
+        'llama3-8b-8192',
+        'mixtral-8x7b-32768',
+        'gemma2-9b-it'
+      ]));
 
-      if (!response.ok) throw new Error(`API error ${response.status}`);
+      let response = null;
+      let lastErr = null;
+
+      for (const modelCandidate of candidateModels) {
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${GROQ_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: modelCandidate,
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                ...history
+              ],
+              max_tokens: 400,
+              temperature: 0.3,
+            }),
+          });
+
+          if (res.ok) {
+            response = res;
+            break;
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            console.warn(`Groq model ${modelCandidate} returned status ${res.status}:`, errData);
+            lastErr = new Error(`Groq ${modelCandidate} failed (${res.status})`);
+          }
+        } catch (fetchErr) {
+          console.warn(`Groq request for model ${modelCandidate} failed:`, fetchErr);
+          lastErr = fetchErr;
+        }
+      }
+
+      if (!response) throw lastErr || new Error('All Groq candidate models failed');
+
       const data = await response.json();
       const rawText = data.choices?.[0]?.message?.content || '';
       const sanitizedText = rawText.replace(/--/g, '-').replace(/—/g, '-');
@@ -349,6 +379,7 @@ export default function FloatingWidgets() {
       await insertMessage('bot', sanitizedText);
 
     } catch (err) {
+      console.error('Chatbot API error:', err);
       await insertMessage('bot', 'I am having trouble connecting right now. Please try again in a moment or reach out to us directly at info@ibmssp.org.ng.');
     } finally {
       setIsTyping(false);
