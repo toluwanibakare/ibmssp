@@ -308,8 +308,8 @@ export default function Settings() {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-5">
-          <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-4">
+        <div className="lg:col-span-5 space-y-5">
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2"><UserPlus size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Create User</h2></div>
               <button type="button" onClick={() => setShowCreateUser(!showCreateUser)} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">{showCreateUser ? 'Cancel' : 'Add User'}</button>
@@ -337,7 +337,7 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="bg-card rounded-xl border border-border shadow-card p-5 mt-5">
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2"><ShieldCheck size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Admin Users</h2><span className="text-xs text-muted-foreground">{admins.length}</span></div>
               <button type="button" onClick={fetchAdmins} className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-accent/40 transition-colors" title="Refresh"><RefreshCw size={13} /></button>
