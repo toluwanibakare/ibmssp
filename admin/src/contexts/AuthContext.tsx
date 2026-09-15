@@ -85,8 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('user_id', supaUser.id);
 
     const role = roles?.[0]?.role || 'admin';
-    const allPages = Object.keys(PAGE_PERMISSIONS);
-    const permissions = roles?.[0]?.permissions?.length ? roles[0].permissions : allPages;
+    const permissions = Array.isArray(roles?.[0]?.permissions) ? roles[0].permissions : [];
 
     setUser({
       id: supaUser.id,
@@ -201,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hasPermission = (page: string) => {
     if (!user) return false;
-    if (user.email === SUPER_ADMIN_EMAIL || user.role === 'admin') return true;
+    if (user.email === SUPER_ADMIN_EMAIL) return true;
     return user.permissions.includes(page);
   };
 

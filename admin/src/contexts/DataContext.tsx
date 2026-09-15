@@ -193,8 +193,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchTemplates = useCallback(async () => {
-    // email_templates table not yet created - stub for future use
-    setTemplates([]);
+    try {
+      const { data, error } = await supabase
+        .from('email_templates')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setTemplates(data as unknown as EmailTemplate[]);
+      }
+    } catch (error) {
+      console.error('Fetch email templates error:', error);
+    }
   }, []);
 
   const fetchFacilitators = useCallback(async () => {
@@ -466,8 +475,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const createTemplate = async (data: { name: string; subject: string; body: string }) => {
-    // email_templates table not yet created - stub for future use
-    console.warn('email_templates table not available yet');
+    const { error } = await supabase
+      .from('email_templates')
+      .insert({
+        name: data.name,
+        subject: data.subject,
+        body: data.body,
+        created_by: user?.id || null,
+      });
+    if (error) throw error;
+    await fetchTemplates();
   };
 
   useEffect(() => {
