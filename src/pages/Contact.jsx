@@ -130,7 +130,7 @@ export default function Contact() {
                   <h3>General Enquires</h3>
                   <p>
                     +2348036706827, +2348023644148<br />
-                    contact@ibmssp.org.ng, f.kolawole@ibmssp.org.ng
+                    info@ibmssp.org.ng, f.kolawole@ibmssp.org.ng
                   </p>
                 </div>
               </div>

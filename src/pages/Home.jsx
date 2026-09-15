@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Eye, Target, Star, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ArrowRight, Eye, Target, Star, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import './Home.css';
 
 import heroImg1 from '../assets/hero_image1.png';
@@ -295,11 +295,9 @@ export default function Home() {
       <section className="membership-banner-section" style={{ backgroundImage: `linear-gradient(rgba(48, 88, 88, 0.8), rgba(4, 4, 4, 0.85)), url(https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1600&q=80)` }}>
         <div className="banner-overlay">
           <div className="container banner-grid">
-            <div className="banner-left">
-              <button className="video-play-btn">
-                <Play size={24} fill="currentColor" />
-              </button>
-            </div>
+ <div className="banner-left">
+                <img src="/happy_people.jpg" alt="Members" className="banner-left-image" />
+              </div>
             <div className="banner-right">
               <h2>Creating Meaningful Experiences for Members</h2>
               <p>
@@ -430,7 +428,7 @@ export default function Home() {
                   "{testimonials[currentTestimonial].comment}"
                 </p>
                 <div className="testimonial-author">
-                  <div className="author-avatar-placeholder"></div>
+                  <div className="author-avatar-placeholder"><User size={20} color="#ffffff" /></div>
                   <div className="author-info">
                     <h4>{testimonials[currentTestimonial].name}</h4>
                     <span>{testimonials[currentTestimonial].role}</span>

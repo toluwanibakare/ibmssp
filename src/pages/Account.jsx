@@ -651,7 +651,7 @@ export default function Account() {
               </p>
             </div>
           </div>
-          <button className="btn btn-secondary text-white" onClick={handleLogout}>Log Out</button>
+          <button className="btn btn-secondary" style={{ backgroundColor: 'var(--primary-color)', color: '#ffffff', borderColor: 'var(--primary-color)' }} onClick={handleLogout}>Log Out</button>
         </div>
       </section>
 
@@ -991,37 +991,20 @@ export default function Account() {
                 <h3>Exclusive Resources</h3>
               </div>
               <p style={{ fontSize: '0.88rem', color: 'var(--secondary-slate)', marginBottom: '1.5rem' }}>
-                {isPaid ? 'You have unrestricted access to all our standard guides and audit worksheets.' : 'The resources below are locked until your payment is confirmed.'}
+                Most resources are currently being prepared. Only your certification is available now.
               </p>
               
-              {isPaid ? (
-                <ul className="resources-list-active" style={{ listStyle: 'none', padding: 0 }}>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
-                    <FileText size={16} color="var(--primary-color)" />
-                    <a href="https://rihltpxgyocqqjbspmrw.supabase.co/storage/v1/object/public/assets/docs/QMS-Audit-Checklist.pdf" download style={{ color: 'var(--text-color)', fontWeight: 600 }}>ISO 9001:2015 Audit Checklist.pdf</a>
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
-                    <FileText size={16} color="var(--primary-color)" />
-                    <a href="https://rihltpxgyocqqjbspmrw.supabase.co/storage/v1/object/public/assets/docs/SME-Compliance-Guide.pdf" download style={{ color: 'var(--text-color)', fontWeight: 600 }}>SME Compliance Guide.pdf</a>
-                  </li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                    <FileText size={16} color="var(--primary-color)" />
-                    <a href="https://rihltpxgyocqqjbspmrw.supabase.co/storage/v1/object/public/assets/docs/SSP-Codes-of-Ethics.pdf" download style={{ color: 'var(--text-color)', fontWeight: 600 }}>System Standard Codes of Ethics.pdf</a>
-                  </li>
-                </ul>
-              ) : (
-                <ul className="resources-list-locked">
-                  <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
-                    <Clock size={14} /> <span>ISO 9001:2015 Audit Checklist.pdf</span>
-                  </li>
-                  <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
-                    <Clock size={14} /> <span>SME Compliance Guide.pdf</span>
-                  </li>
-                  <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-                    <Clock size={14} /> <span>System Standard Codes of Ethics.pdf</span>
-                  </li>
-                </ul>
-              )}
+              <ul className="resources-list-locked" style={{ listStyle: 'none', padding: 0 }}>
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>ISO 9001:2015 Audit Checklist.pdf — Coming Soon</span>
+                </li>
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>SME Compliance Guide.pdf — Coming Soon</span>
+                </li>
+                <li style={{ opacity: 0.65, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                  <Clock size={14} /> <span>System Standard Codes of Ethics.pdf — Coming Soon</span>
+                </li>
+              </ul>
             </div>
           </div>
         )}
