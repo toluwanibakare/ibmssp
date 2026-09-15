@@ -887,5 +887,8 @@
   .hero-tag {
     margin-bottom: 0.75rem;
   }
+  .slider-arrow {
+    display: none !important;
+  }
 }
 
