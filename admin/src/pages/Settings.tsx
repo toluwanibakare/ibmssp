@@ -127,6 +127,11 @@ export default function Settings() {
         const edgeRes = await callEdgeFunction('create-admin-user', { name: newUserName, email: newUserEmail, password: newUserPassword, role: newUserRole, permissions: selectedPermissions });
         createdUserId = edgeRes?.user_id;
       } catch (edgeErr: any) {
+        const errMsg = edgeErr?.message || String(edgeErr);
+        if (errMsg.includes('already been registered') || errMsg.includes('already exists') || errMsg.includes('User already registered')) {
+          throw new Error(`An account with email "${newUserEmail}" already exists.`);
+        }
+
         console.warn('create-admin-user edge function failed, attempting client fallback:', edgeErr);
 
         // Fallback: Create user using client signup or insert role directly
@@ -138,7 +143,12 @@ export default function Settings() {
           }
         });
 
-        if (signUpErr) throw signUpErr;
+        if (signUpErr) {
+          if (signUpErr.message.includes('already been registered') || signUpErr.message.includes('already exists')) {
+            throw new Error(`An account with email "${newUserEmail}" already exists.`);
+          }
+          throw signUpErr;
+        }
         createdUserId = signUpData.user?.id;
 
         if (createdUserId) {
