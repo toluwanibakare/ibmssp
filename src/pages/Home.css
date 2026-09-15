@@ -879,3 +879,13 @@
   background-color: var(--primary-color);
   color: #ffffff;
 }
+
+@media (max-width: 991px) {
+  .hero-container {
+    padding-top: 5.5rem;
+  }
+  .hero-tag {
+    margin-bottom: 0.75rem;
+  }
+}
+
