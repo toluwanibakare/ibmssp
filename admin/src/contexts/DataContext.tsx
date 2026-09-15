@@ -31,6 +31,19 @@ export interface ActivityLog {
   created_at: string;
 }
 
+export interface Facilitator {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  competence: string;
+  cv_file_url: string | null;
+  cv_file_name: string | null;
+  status: string;
+  created_at: string;
+}
+
 export interface SentEmail {
   id: number;
   recipient_email: string;
@@ -71,6 +84,7 @@ interface DataContextType {
   logs: ActivityLog[];
   emails: SentEmail[];
   templates: EmailTemplate[];
+  facilitators: Facilitator[];
   stats: Stats;
   isLoading: boolean;
   dataError: string;
@@ -78,6 +92,7 @@ interface DataContextType {
   fetchLogs: () => Promise<void>;
   fetchEmails: () => Promise<void>;
   fetchTemplates: () => Promise<void>;
+  fetchFacilitators: () => Promise<void>;
   clearEmailHistory: () => Promise<void>;
   clearActivityLogs: () => Promise<void>;
   deleteMember: (id: number) => Promise<void>;
@@ -102,10 +117,11 @@ function appendEmailFooter(content?: string | null) {
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [members, setMembers] = useState<Member[]>([]);
+   const [members, setMembers] = useState<Member[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [emails, setEmails] = useState<SentEmail[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [facilitators, setFacilitators] = useState<Facilitator[]>([]);
   const [stats, setStats] = useState<Stats>(initialStats);
   const [isLoading, setIsLoading] = useState(false);
   const [dataError, setDataError] = useState('');
@@ -179,6 +195,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const fetchTemplates = useCallback(async () => {
     // email_templates table not yet created - stub for future use
     setTemplates([]);
+  }, []);
+
+  const fetchFacilitators = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.from('facilitators').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setFacilitators((data || []) as unknown as Facilitator[]);
+    } catch (error) {
+      console.error('Fetch facilitators error:', error);
+    }
   }, []);
 
   const clearEmailHistory = async () => {
@@ -450,14 +476,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       fetchLogs();
       fetchEmails();
       fetchTemplates();
+      fetchFacilitators();
     }
-  }, [user, fetchMembers, fetchLogs, fetchEmails, fetchTemplates]);
+  }, [user, fetchMembers, fetchLogs, fetchEmails, fetchTemplates, fetchFacilitators]);
 
   return (
     <DataContext.Provider value={{
-      members, logs, emails, templates, stats, isLoading,
+      members, logs, emails, templates, facilitators, stats, isLoading,
       dataError,
-      fetchMembers, fetchLogs, fetchEmails, fetchTemplates, clearEmailHistory, clearActivityLogs, deleteMember, approveMember, createMember, sendEmail, createTemplate, getMemberById, updateMember,
+      fetchMembers, fetchLogs, fetchEmails, fetchTemplates, fetchFacilitators, clearEmailHistory, clearActivityLogs, deleteMember, approveMember, createMember, sendEmail, createTemplate, getMemberById, updateMember,
     }}>
       {children}
     </DataContext.Provider>

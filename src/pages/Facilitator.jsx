@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, User, Mail, Phone, Briefcase, FileText, CheckCircle } from 'lucide-react';
+import { supabase, callEdgeFunction } from '../lib/supabase';
+import { uploadToCloudinary } from '../lib/cloudinary';
 import './Facilitator.css';
 
 export default function Facilitator() {
@@ -14,10 +16,49 @@ export default function Facilitator() {
   
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError('');
+    setLoading(true);
+    try {
+      let cvFileUrl = null;
+      let cvFileName = null;
+      if (formData.file) {
+        const cloudinaryRes = await uploadToCloudinary(formData.file, 'facilitator_cvs');
+        cvFileUrl = cloudinaryRes.url;
+        cvFileName = formData.file.name;
+      }
+      const { data, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: 'IBMSSP_User@2026!',
+        options: { data: { full_name: formData.name } }
+      });
+      if (authError) throw authError;
+      const memberId = data?.user?.id;
+      await supabase.from('facilitators').insert({
+        first_name: formData.name.split(' ')[0] || '',
+        last_name: formData.name.split(' ').slice(1).join(' ') || '',
+        email: formData.email,
+        phone: formData.phone,
+        competence: formData.competence,
+        cv_file_url: cvFileUrl,
+        cv_file_name: cvFileName,
+        status: 'pending',
+      });
+      await callEdgeFunction('send-email', {
+        type: 'facilitator_application',
+        to: formData.email,
+        name: formData.name,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Failed to submit application.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -142,14 +183,17 @@ export default function Facilitator() {
                     </label>
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary" 
-                    style={{ width: '100%', display: 'block', padding: '0.9rem', fontWeight: 700, letterSpacing: '0.5px' }}
-                    disabled={!termsAccepted}
-                  >
-                    Submit Application
-                  </button>
+                  {error && (
+                      <div className="form-error-banner" style={{ marginBottom: '1rem' }}>{error}</div>
+                    )}
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary" 
+                      style={{ width: '100%', display: 'block', padding: '0.9rem', fontWeight: 700, letterSpacing: '0.5px' }}
+                      disabled={!termsAccepted || loading}
+                    >
+                      {loading ? 'Uploading & Submitting...' : 'Submit Application'}
+                    </button>
                 </form>
               </>
             ) : (

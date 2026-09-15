@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Mail, MessageSquare, ClipboardList, Settings,
-  ChevronLeft, ChevronRight, X, Newspaper
+  LayoutDashboard, Users, UsersRound, Newspaper, Mail, MessageSquare, ClipboardList, Settings,
+  ChevronLeft, ChevronRight, X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import ibmsspIcon from '@/assets/ibmssp-icon.png';
@@ -10,6 +10,7 @@ import ibmsspIcon from '@/assets/ibmssp-icon.png';
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { to: '/members', icon: Users, label: 'Members Registry' },
+  { to: '/facilitators', icon: UsersRound, label: 'Facilitators' },
   { to: '/newsletter', icon: Newspaper, label: 'Newsletter Hub' },
   { to: '/email-composer', icon: Mail, label: 'Email Composer' },
   { to: '/chat', icon: MessageSquare, label: 'Live Support' },

@@ -8,6 +8,7 @@ import {
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,7 +65,7 @@ export default function Newsletter() {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Shared: upload an image File/Blob to storage and insert it into the editor
+  // Shared: upload an image File/Blob to Cloudinary and insert it into the editor
   const uploadAndInsertImage = async (file: File | Blob, fallbackName = 'image.png') => {
     if (!file.type.startsWith('image/')) {
       toast.error('Only image files are supported');
@@ -79,14 +80,8 @@ export default function Newsletter() {
     try {
       const name = (file as File).name || fallbackName;
       const ext = name.includes('.') ? name.split('.').pop() : (file.type.split('/')[1] || 'png');
-      const path = `newsletter/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('assets')
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (uploadError) throw uploadError;
-
-      const { data: pub } = supabase.storage.from('assets').getPublicUrl(path);
-      const imgHtml = `<img src="${pub.publicUrl}" style="max-width: 100%; border-radius: 8px; margin: 10px 0;" />`;
+      const cloudinaryRes = await uploadToCloudinary(file as File, 'newsletter_images');
+      const imgHtml = `<img src="${cloudinaryRes.url}" style="max-width: 100%; border-radius: 8px; margin: 10px 0;" />`;
       editorRef.current?.focus();
       document.execCommand('insertHTML', false, imgHtml);
       if (editorRef.current) setContent(editorRef.current.innerHTML);

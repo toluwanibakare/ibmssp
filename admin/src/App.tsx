@@ -10,6 +10,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members";
+import Facilitators from "./pages/Facilitators";
 import MemberProfile from "./pages/MemberProfile";
 import EmailComposer from "./pages/EmailComposer";
 import Newsletter from "./pages/Newsletter";
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/members" element={<Members />} />
                 <Route path="/members/:id" element={<MemberProfile />} />
+                <Route path="/facilitators" element={<Facilitators />} />
                 <Route path="/email-composer" element={<EmailComposer />} />
                 <Route path="/newsletter" element={<Newsletter />} />
                 <Route path="/messages" element={<Messages />} />
