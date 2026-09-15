@@ -47,16 +47,19 @@ export default function Settings() {
       if (profErr) throw profErr;
       const { data: roles, error: rolesErr } = await supabase.from('user_roles').select('user_id, role, permissions');
       if (rolesErr) throw rolesErr;
-      const merged = (profiles || []).map(p => {
-        const roleRow = (roles || []).find(r => r.user_id === p.id);
-        return {
-          id: p.id,
-          name: p.name,
-          email: p.email,
-          role: roleRow?.role || 'editor',
-          permissions: roleRow?.permissions || [],
-        };
-      });
+      const roleMap = new Map((roles || []).map(r => [r.user_id, r]));
+      const merged = (profiles || [])
+        .filter(p => roleMap.has(p.id) || p.email === SUPER_ADMIN_EMAIL)
+        .map(p => {
+          const roleRow = roleMap.get(p.id);
+          return {
+            id: p.id,
+            name: p.name,
+            email: p.email,
+            role: roleRow?.role || 'admin',
+            permissions: roleRow?.permissions || [],
+          };
+        });
       setAdmins(merged);
     } catch (err: any) {
       setAdminsMessage(err.message || 'Failed to load admin users.');
