@@ -326,14 +326,33 @@ export default function FloatingWidgets() {
     try {
       if (!GROQ_API_KEY) throw new Error('API key not configured');
 
+      // 1. Dynamically fetch active models directly from your Groq account
+      let activeModels = [];
+      try {
+        const modelsRes = await fetch('https://api.groq.com/openai/v1/models', {
+          headers: { 'Authorization': `Bearer ${GROQ_API_KEY}` }
+        });
+        if (modelsRes.ok) {
+          const modelsData = await modelsRes.json();
+          if (Array.isArray(modelsData.data)) {
+            activeModels = modelsData.data
+              .map(m => m.id)
+              .filter(id => id && !id.includes('whisper') && !id.includes('guard') && !id.includes('vision') && !id.includes('embed'));
+            console.log('Available active Groq models:', activeModels);
+          }
+        }
+      } catch (mErr) {
+        console.warn('Failed to fetch active Groq models list:', mErr);
+      }
+
       const preferredModel = import.meta.env.VITE_GROQ_MODEL;
       const candidateModels = Array.from(new Set([
         ...(preferredModel ? [preferredModel] : []),
+        ...activeModels,
+        'openai/gpt-oss-20b',
+        'openai/gpt-oss-120b',
         'llama-3.3-70b-versatile',
-        'llama3-8b-8192',
-        'llama3-70b-8192',
-        'mixtral-8x7b-32768',
-        'gemma2-9b-it'
+        'llama-3.1-8b-instant'
       ]));
 
       let response = null;
@@ -360,6 +379,7 @@ export default function FloatingWidgets() {
 
           if (res.ok) {
             response = res;
+            console.log(`✅ Groq Chat API successfully responded using active model: ${modelCandidate}`);
             break;
           } else {
             const errData = await res.json().catch(() => ({}));
