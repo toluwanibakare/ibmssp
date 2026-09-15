@@ -105,85 +105,89 @@ export default function Settings() {
   return (
     <div className="space-y-5 max-w-2xl">
       <div><h1 className="page-title">Settings</h1><p className="page-subtitle">Manage your IBMSSP admin account</p></div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-card rounded-xl border border-border shadow-card p-5">
-          <div className="flex items-center gap-2 mb-4"><User size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Account Profile</h2></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5"><label className="text-xs font-medium">Full Name</label><input defaultValue={user?.name || ''} className="input-field" readOnly /></div>
-            <div className="space-y-1.5"><label className="text-xs font-medium">Email Address</label><input type="email" defaultValue={user?.email || ''} className="input-field" readOnly /></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-5">
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
+            <div className="flex items-center gap-2 mb-4"><User size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Account Profile</h2></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5"><label className="text-xs font-medium">Full Name</label><input defaultValue={user?.name || ''} className="input-field" readOnly /></div>
+              <div className="space-y-1.5"><label className="text-xs font-medium">Email Address</label><input type="email" defaultValue={user?.email || ''} className="input-field" readOnly /></div>
+            </div>
+            <div className="space-y-1.5 mt-4"><label className="text-xs font-medium">Role</label><input value={user?.role || 'admin'} readOnly className="input-field bg-muted/50 text-muted-foreground cursor-not-allowed capitalize" /></div>
           </div>
-          <div className="space-y-1.5 mt-4"><label className="text-xs font-medium">Role</label><input value={user?.role || 'admin'} readOnly className="input-field bg-muted/50 text-muted-foreground cursor-not-allowed capitalize" /></div>
-        </div>
-        <div className="bg-card rounded-xl border border-border shadow-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2"><UserPlus size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Create User</h2></div>
-            <button type="button" onClick={() => setShowCreateUser(!showCreateUser)} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">{showCreateUser ? 'Cancel' : 'Add User'}</button>
-          </div>
-          {showCreateUser && (
-            <form onSubmit={createUser} className="space-y-4">
-              <div className="space-y-1.5"><label className="text-xs font-medium">Full Name</label><input type="text" value={newUserName} onChange={e => setNewUserName(e.target.value)} className="input-field" placeholder="John Doe" required /></div>
-              <div className="space-y-1.5"><label className="text-xs font-medium">Email</label><input type="email" value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)} className="input-field" placeholder="john@example.com" required /></div>
-              <div className="space-y-1.5"><label className="text-xs font-medium">Password</label><input type="password" value={newUserPassword} onChange={e => setNewUserPassword(e.target.value)} className="input-field" placeholder="Min 8 characters" required /></div>
-              <div className="space-y-1.5"><label className="text-xs font-medium">Role</label><select value={newUserRole} onChange={e => setNewUserRole(e.target.value as 'admin' | 'editor')} className="input-field"><option value="admin">Admin</option><option value="editor">Editor</option></select></div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium">Page Access</label>
-                <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto border border-border rounded-lg p-2">
-                  {ALL_PERMISSIONS.map(perm => (
-                    <label key={perm} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted/30 px-1 py-0.5 rounded">
-                      <input type="checkbox" checked={selectedPermissions.includes(perm)} onChange={() => togglePermission(perm)} className="h-3 w-3 rounded" />
-                      <span className="capitalize">{PAGE_PERMISSIONS[perm]}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <button type="submit" disabled={createUserLoading} className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60">{createUserLoading ? 'Creating...' : 'Create User'}</button>
-              {createUserMessage && <div className={`text-xs rounded-lg px-3 py-2 ${createUserMessage.includes('successfully') ? 'text-success bg-success/10 border border-success/20' : 'text-destructive bg-destructive/10 border border-destructive/20'}`}>{createUserMessage}</div>}
-            </form>
-          )}
-        </div>
-      </div>
-      <div className="bg-card rounded-xl border border-border shadow-card p-5">
-        <div className="flex items-center gap-2 mb-4"><Globe size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">System Information</h2></div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm">
-          {['Application','IBMSSP ADMIN Registry',['Version','1.0.0'],['Environment','Production'],['Domain','admin.ibmssp.org.ng'],['Timezone','Africa/Lagos (WAT)'],['Date Format','DD MMM YYYY']].map(([k, v]) => (
-            <React.Fragment key={k}><span className="text-muted-foreground">{k}</span><span className="font-medium">{v}</span></React.Fragment>
-          ))}
-        </div>
-      </div>
-      <div className="bg-card rounded-xl border border-border shadow-card p-5">
-        <div className="flex items-center gap-2 mb-4"><Key size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Supabase Registration Webhook</h2></div>
-        <div className="space-y-4 text-sm">
-          <div className="space-y-1.5"><label className="text-xs font-medium">Webhook URL</label><input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="input-field font-mono text-xs" placeholder={`${SUPABASE_URL || 'https://your-project.supabase.co'}/functions/v1/register`} /></div>
-          <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-3">
-            <div className="space-y-1.5"><label className="text-xs font-medium">Required Header Name</label><input value={requiredHeaderName} onChange={e => setRequiredHeaderName(e.target.value)} className="input-field font-mono text-xs" placeholder="x-api-key" /></div>
-            <div className="space-y-1.5"><label className="text-xs font-medium">Required Header Value</label><input value={requiredHeaderValue} onChange={e => setRequiredHeaderValue(e.target.value)} className="input-field font-mono text-xs" placeholder="your_registration_api_key" /></div>
-          </div>
-          <div className="space-y-1"><p className="text-xs font-medium">Header Preview:</p><div className="font-mono text-xs bg-muted/40 px-3 py-2 rounded-lg text-muted-foreground break-all">{(requiredHeaderName || 'x-api-key')}: {(requiredHeaderValue || 'your_registration_api_key')}</div></div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button type="button" onClick={saveIntegrationSettings} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">Save Integration Settings</button>
-            <button type="button" onClick={resetIntegrationSettings} className="px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium hover:bg-accent/40 transition-colors">Reset Defaults</button>
-          </div>
-          {saveMessage && <div className="text-xs text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2">{saveMessage}</div>}
-          <p className="text-xs text-muted-foreground">Method: <span className="font-semibold text-foreground">POST</span> &nbsp;|&nbsp; Content-Type: <span className="font-semibold text-foreground">application/json</span></p>
-        </div>
-      </div>
-      <div className="bg-card rounded-xl border border-border shadow-card p-5">
-        <div className="flex items-center gap-2 mb-4"><Key size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Paystack Configuration</h2></div>
-        <div className="space-y-4 text-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div><p className="text-sm font-medium">API Mode</p><p className="text-xs text-muted-foreground mt-1">Switch between Test and Live environments.</p></div>
-            <div className="flex bg-muted/30 p-1 rounded-lg border border-border">
-              <button type="button" onClick={() => savePaystackMode('test')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${paystackMode === 'test' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Test Mode</button>
-              <button type="button" onClick={() => savePaystackMode('live')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${paystackMode === 'live' ? 'bg-success text-success-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Live Mode</button>
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
+            <div className="flex items-center gap-2 mb-4"><Globe size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">System Information</h2></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm">
+              {[['Application','IBMSSP ADMIN Registry'],['Version','1.0.0'],['Environment','Production'],['Domain','admin.ibmssp.org.ng'],['Timezone','Africa/Lagos (WAT)'],['Date Format','DD MMM YYYY']].map(([k, v]) => (
+                <React.Fragment key={k}><span className="text-muted-foreground">{k}</span><span className="font-medium">{v}</span></React.Fragment>
+              ))}
             </div>
           </div>
-          {paystackSaveMessage && <div className="text-xs text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2 mt-2">{paystackSaveMessage}</div>}
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
+            <div className="flex items-center gap-2 mb-4"><Key size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Supabase Registration Webhook</h2></div>
+            <div className="space-y-4 text-sm">
+              <div className="space-y-1.5"><label className="text-xs font-medium">Webhook URL</label><input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="input-field font-mono text-xs" placeholder={`${SUPABASE_URL || 'https://your-project.supabase.co'}/functions/v1/register`} /></div>
+              <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-3">
+                <div className="space-y-1.5"><label className="text-xs font-medium">Required Header Name</label><input value={requiredHeaderName} onChange={e => setRequiredHeaderName(e.target.value)} className="input-field font-mono text-xs" placeholder="x-api-key" /></div>
+                <div className="space-y-1.5"><label className="text-xs font-medium">Required Header Value</label><input value={requiredHeaderValue} onChange={e => setRequiredHeaderValue(e.target.value)} className="input-field font-mono text-xs" placeholder="your_registration_api_key" /></div>
+              </div>
+              <div className="space-y-1"><p className="text-xs font-medium">Header Preview:</p><div className="font-mono text-xs bg-muted/40 px-3 py-2 rounded-lg text-muted-foreground break-all">{(requiredHeaderName || 'x-api-key')}: {(requiredHeaderValue || 'your_registration_api_key')}</div></div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button type="button" onClick={saveIntegrationSettings} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">Save Integration Settings</button>
+                <button type="button" onClick={resetIntegrationSettings} className="px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium hover:bg-accent/40 transition-colors">Reset Defaults</button>
+              </div>
+              {saveMessage && <div className="text-xs text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2">{saveMessage}</div>}
+              <p className="text-xs text-muted-foreground">Method: <span className="font-semibold text-foreground">POST</span> &nbsp;|&nbsp; Content-Type: <span className="font-semibold text-foreground">application/json</span></p>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border shadow-card p-5">
+            <div className="flex items-center gap-2 mb-4"><Key size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Paystack Configuration</h2></div>
+            <div className="space-y-4 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div><p className="text-sm font-medium">API Mode</p><p className="text-xs text-muted-foreground mt-1">Switch between Test and Live environments.</p></div>
+                <div className="flex bg-muted/30 p-1 rounded-lg border border-border">
+                  <button type="button" onClick={() => savePaystackMode('test')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${paystackMode === 'test' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Test Mode</button>
+                  <button type="button" onClick={() => savePaystackMode('live')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${paystackMode === 'live' ? 'bg-success text-success-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Live Mode</button>
+                </div>
+              </div>
+              {paystackSaveMessage && <div className="text-xs text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2 mt-2">{paystackSaveMessage}</div>}
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-destructive/20 shadow-card p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div><h2 className="text-sm font-semibold text-destructive">Sign Out</h2><p className="text-xs text-muted-foreground mt-0.5">Sign out of the IBMSSP admin panel</p></div>
+              <button onClick={logout} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium hover:bg-destructive/10 transition-colors sm:self-auto self-start"><LogOut size={13} /> Sign Out</button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="bg-card rounded-xl border border-destructive/20 shadow-card p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div><h2 className="text-sm font-semibold text-destructive">Sign Out</h2><p className="text-xs text-muted-foreground mt-0.5">Sign out of the IBMSSP admin panel</p></div>
-          <button onClick={logout} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium hover:bg-destructive/10 transition-colors sm:self-auto self-start"><LogOut size={13} /> Sign Out</button>
+        <div>
+          <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2"><UserPlus size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Create User</h2></div>
+              <button type="button" onClick={() => setShowCreateUser(!showCreateUser)} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">{showCreateUser ? 'Cancel' : 'Add User'}</button>
+            </div>
+            {showCreateUser && (
+              <form onSubmit={createUser} className="space-y-4">
+                <div className="space-y-1.5"><label className="text-xs font-medium">Full Name</label><input type="text" value={newUserName} onChange={e => setNewUserName(e.target.value)} className="input-field" placeholder="John Doe" required /></div>
+                <div className="space-y-1.5"><label className="text-xs font-medium">Email</label><input type="email" value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)} className="input-field" placeholder="john@example.com" required /></div>
+                <div className="space-y-1.5"><label className="text-xs font-medium">Password</label><input type="password" value={newUserPassword} onChange={e => setNewUserPassword(e.target.value)} className="input-field" placeholder="Min 8 characters" required /></div>
+                <div className="space-y-1.5"><label className="text-xs font-medium">Role</label><select value={newUserRole} onChange={e => setNewUserRole(e.target.value as 'admin' | 'editor')} className="input-field"><option value="admin">Admin</option><option value="editor">Editor</option></select></div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium">Page Access</label>
+                  <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto border border-border rounded-lg p-2">
+                    {ALL_PERMISSIONS.map(perm => (
+                      <label key={perm} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted/30 px-1 py-0.5 rounded">
+                        <input type="checkbox" checked={selectedPermissions.includes(perm)} onChange={() => togglePermission(perm)} className="h-3 w-3 rounded" />
+                        <span className="capitalize">{PAGE_PERMISSIONS[perm]}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <button type="submit" disabled={createUserLoading} className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60">{createUserLoading ? 'Creating...' : 'Create User'}</button>
+                {createUserMessage && <div className={`text-xs rounded-lg px-3 py-2 ${createUserMessage.includes('successfully') ? 'text-success bg-success/10 border border-success/20' : 'text-destructive bg-destructive/10 border border-destructive/20'}`}>{createUserMessage}</div>}
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>
