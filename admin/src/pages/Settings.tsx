@@ -105,8 +105,8 @@ export default function Settings() {
   return (
     <div className="space-y-5 max-w-2xl">
       <div><h1 className="page-title">Settings</h1><p className="page-subtitle">Manage your IBMSSP admin account</p></div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="lg:col-span-3 space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-7 space-y-5">
           <div className="bg-card rounded-xl border border-border shadow-card p-5">
             <div className="flex items-center gap-2 mb-4"><User size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Account Profile</h2></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -160,7 +160,7 @@ export default function Settings() {
             </div>
           </div>
         </div>
-        <div>
+        <div className="lg:col-span-5">
           <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2"><UserPlus size={15} className="text-muted-foreground" /><h2 className="text-sm font-semibold">Create User</h2></div>
@@ -174,7 +174,7 @@ export default function Settings() {
                 <div className="space-y-1.5"><label className="text-xs font-medium">Role</label><select value={newUserRole} onChange={e => setNewUserRole(e.target.value as 'admin' | 'editor')} className="input-field"><option value="admin">Admin</option><option value="editor">Editor</option></select></div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium">Page Access</label>
-                  <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto border border-border rounded-lg p-2">
+                  <div className="grid grid-cols-2 gap-1 max-h-48 overflow-y-auto border border-border rounded-lg p-2">
                     {ALL_PERMISSIONS.map(perm => (
                       <label key={perm} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-muted/30 px-1 py-0.5 rounded">
                         <input type="checkbox" checked={selectedPermissions.includes(perm)} onChange={() => togglePermission(perm)} className="h-3 w-3 rounded" />
