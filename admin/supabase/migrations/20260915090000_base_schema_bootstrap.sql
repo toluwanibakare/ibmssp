@@ -1,5 +1,5 @@
 -- Bootstrap base schema needed for signup to succeed.
--- Runs safely even if pieces already exist.
+-- Fully idempotent: safe to run multiple times.
 
 -- 1. app_role enum
 DO $$ BEGIN
@@ -17,7 +17,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
--- 3. Profiles table (created on every auth signup)
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role::text = _role
+  )
+$$;
+
+-- 3. Profiles table
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -26,6 +38,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 );
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Admin can read all profiles" ON public.profiles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Admin can insert profiles" ON public.profiles; EXCEPTION WHEN undefined_object THEN null; END $$;
 
 CREATE POLICY "Users can read own profile" ON public.profiles FOR SELECT TO authenticated USING (id = auth.uid());
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE TO authenticated USING (id = auth.uid());
@@ -52,7 +69,7 @@ EXCEPTION
   WHEN insufficient_privilege THEN null;
 END $$;
 
--- 5. User roles table (needed for admin permissions)
+-- 5. User roles table
 CREATE TABLE IF NOT EXISTS public.user_roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -63,20 +80,14 @@ CREATE TABLE IF NOT EXISTS public.user_roles (
 
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
+DO $$ BEGIN DROP POLICY IF EXISTS "Users can read own roles" ON public.user_roles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Admin can read all user_roles" ON public.user_roles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Admin can update user_roles" ON public.user_roles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Users can update own roles" ON public.user_roles; EXCEPTION WHEN undefined_object THEN null; END $$;
+DO $$ BEGIN DROP POLICY IF EXISTS "Admin can insert user_roles" ON public.user_roles; EXCEPTION WHEN undefined_object THEN null; END $$;
+
 CREATE POLICY "Users can read own roles" ON public.user_roles FOR SELECT TO authenticated USING (user_id = auth.uid());
 CREATE POLICY "Admin can read all user_roles" ON public.user_roles FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admin can update user_roles" ON public.user_roles FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Users can update own roles" ON public.user_roles FOR UPDATE TO authenticated USING (auth.uid() = user_id);
 CREATE POLICY "Admin can insert user_roles" ON public.user_roles FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'));
-
--- 6. has_role function (defined after user_roles exists)
-CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role TEXT)
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role::text = _role
-  )
-$$;
