@@ -237,6 +237,34 @@ serve(async (req) => {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
+    } else if (type === 'new_admin_account') {
+      const pass = payload.password || payload.content || '';
+      template = {
+        subject: subject || 'Your IBMSSP Admin Account Credentials',
+        html: emailWrapper(`
+          <h2 style="color: #305858; margin-top: 0;">Welcome to the IBMSSP Admin Portal!</h2>
+          <p style="color: #525656; line-height: 1.8;">Hello <strong>${name || 'Admin User'}</strong>,</p>
+          <p style="color: #525656; line-height: 1.8;">An administrative account has been created for you. Below are your account login credentials:</p>
+          <div style="background: #f0f7f7; border-left: 4px solid #305858; padding: 16px 20px; border-radius: 0 6px 6px 0; margin: 20px 0;">
+            <p style="margin: 0 0 8px 0; color: #1E1F1E; font-size: 14px;"><strong>Email:</strong> ${to}</p>
+            <p style="margin: 0; color: #1E1F1E; font-size: 14px;"><strong>Temporary Password:</strong> ${pass}</p>
+          </div>
+          <p style="color: #525656; line-height: 1.8;">Please log in and update your password immediately for security.</p>
+          ${ctaButton('Access Admin Portal', 'https://ibmssp.org.ng/admin/#/login')}
+        `),
+      };
+
+    } else if (type === 'admin_notification') {
+      template = {
+        subject: subject || 'IBMSSP System Alert',
+        html: emailWrapper(`
+          <h2 style="color: #305858; margin-top: 0;">${subject || 'Admin System Notification'}</h2>
+          <p style="color: #525656; line-height: 1.8;">Hello <strong>${name || 'Admin'}</strong>,</p>
+          <div style="background: #f8f9fa; border: 1px solid #e5e7eb; padding: 16px 20px; border-radius: 6px; margin: 20px 0; white-space: pre-wrap; color: #1E1F1E; font-size: 14px; line-height: 1.6;">${content || ''}</div>
+          ${ctaButton('Open Admin Settings', 'https://ibmssp.org.ng/admin/#/settings')}
+        `),
+      };
+
     } else if (type === 'payment_confirmation') {
       template = paymentConfirmationTemplate(name || 'Member', memberId || 'N/A', amount || '');
 
@@ -253,7 +281,7 @@ serve(async (req) => {
       template = customTemplate(subject, htmlBody);
 
     } else {
-      return new Response(JSON.stringify({ error: `Unknown email type: "${type}". Supported: registration, otp, verify_otp, payment_confirmation, newsletter, announcement, custom` }), {
+      return new Response(JSON.stringify({ error: `Unknown email type: "${type}". Supported: registration, otp, verify_otp, new_admin_account, admin_notification, payment_confirmation, newsletter, announcement, custom` }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
