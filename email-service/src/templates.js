@@ -67,7 +67,7 @@ export function registrationTemplate({ name, memberId }) {
       <ol style="color: #475569; line-height: 2; padding-left: 20px; font-size: 14px;">
         <li>Our Governing Board will review your submitted credentials.</li>
         <li>Upon approval, you will receive instructions to complete your registration fee.</li>
-        <li>After confirmation, you can instantly download your official <strong>Registration Certificate</strong>.</li>
+        <li>After confirmation, you can instantly download your official <strong>Membership Certificate</strong>.</li>
       </ol>
       ${ctaButton('Access Your Member Portal', 'https://ibmssp.org.ng/account')}
     `),
@@ -116,7 +116,7 @@ export function paymentConfirmationTemplate({ name, memberId, amount }) {
       <p style="color: #475569; line-height: 1.8; font-size: 15px;">You now have full access to:</p>
       <ul style="color: #475569; line-height: 2; padding-left: 20px; font-size: 14px;">
         <li>Your Member Portal & Dashboard</li>
-        <li><strong>Download your official Compliance & Registration Certificate</strong></li>
+        <li><strong>Download your official Compliance & Membership Certificate</strong></li>
         <li>All standard guides, ISO audit worksheets, and professional resources</li>
       </ul>
       ${ctaButton('Download Your Certificate', 'https://ibmssp.org.ng/account')}

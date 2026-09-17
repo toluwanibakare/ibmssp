@@ -50,7 +50,7 @@ function registrationTemplate(name: string, memberId: string) {
       <ol style="color: #525656; line-height: 2.2; padding-left: 20px;">
         <li>Our board will review your submitted documents.</li>
         <li>Once approved, you will receive notification to complete your registration payment.</li>
-        <li>After payment, you can log in, download your <strong>Registration Certificate</strong>, and enjoy all member benefits.</li>
+        <li>After payment, you can log in, download your <strong>Membership Certificate</strong>, and enjoy all member benefits.</li>
       </ol>
       ${ctaButton('Log Into Your Account', 'https://ibmssp.org.ng/account')}
       <p style="color: #798382; font-size: 13px;">Questions? Contact us at <a href="mailto:info@ibmssp.org.ng" style="color: #305858;">info@ibmssp.org.ng</a></p>
@@ -89,7 +89,7 @@ function paymentConfirmationTemplate(name: string, memberId: string, amount: str
       <p style="color: #525656; line-height: 1.8;">You can now access the following:</p>
       <ul style="color: #525656; line-height: 2.2; padding-left: 20px;">
         <li>Your personal member dashboard</li>
-        <li><strong>Download your official Registration Certificate</strong></li>
+        <li><strong>Download your official Membership Certificate</strong></li>
         <li>Access all exclusive IBMSSP member resources, guides, and audit worksheets</li>
         <li>Participate in upcoming IBMSSP events and training</li>
       </ul>

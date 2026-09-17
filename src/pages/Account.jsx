@@ -754,7 +754,7 @@ export default function Account() {
                     }}
                     style={{display: 'inline-flex', alignItems: 'center', gap: '8px'}}
                   >
-                    <Download size={16} /> Download Registration Certificate
+                    <Download size={16} /> Download Membership Certificate
                   </button>
                 </div>
               </div>
