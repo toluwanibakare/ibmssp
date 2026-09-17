@@ -3,7 +3,7 @@
 
 const IBMSSP_KNOWLEDGE_BASE = `
 === ABOUT IBMSSP ===
-IBMSSP stands for the Institute of Business Management System Sustainability Standardization and Practitioners.
+IBMSSP stands for the Institute of Business Management Systems Standards Practitioners.
 We are a professional body dedicated to helping organizations adopt and implement international quality management standards (such as ISO 9001), assess operational maturities, and build corporate resilience through systems alignment.
 Our mission is to promote quality management system culture in Nigeria and across Africa by equipping businesses and professionals with the tools, training, and accreditation they need to thrive.
 We connect practitioners, auditors, consultants, businesses, graduates, and students to a growing community of standards excellence.
@@ -141,7 +141,7 @@ The home page shows a rotating carousel of featured testimonials.
 
 === FAQ ===
 Q: What is IBMSSP?
-A: IBMSSP is the Institute of Business Management System Sustainability Standardization and Practitioners — a professional body for quality management system practitioners and organizations in Nigeria.
+A: IBMSSP stands for the Institute of Business Management Systems Standards Practitioners — a professional body for quality management system practitioners and organizations in Nigeria.
 
 Q: What are the membership categories?
 A: Business (for ISO certified/seeking organizations), Individual (for auditors and consultants), Graduate (for degree holders in related fields), and Student (for enrolled learners).

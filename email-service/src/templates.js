@@ -14,7 +14,7 @@ function emailWrapper(content) {
         <div style="background: linear-gradient(135deg, #305858 0%, #1e3a3a 100%); padding: 32px 40px; text-align: center;">
           <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">IBMSSP</h1>
           <p style="color: #a8c5c5; font-size: 11px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">
-            Institute of Business Management Standards & Safety Professionals
+            Institute of Business Management Systems Standards Practitioners
           </p>
         </div>
         <!-- Body Content -->
@@ -53,7 +53,7 @@ export function registrationTemplate({ name, memberId }) {
     html: emailWrapper(`
       <h2 style="color: #305858; margin-top: 0; font-size: 22px;">Welcome, ${name}!</h2>
       <p style="color: #475569; line-height: 1.8; font-size: 15px;">
-        Your membership application to the Institute of Business Management Standards & Safety Professionals has been successfully received.
+        Your membership application to the Institute of Business Management Systems Standards Practitioners has been successfully received.
       </p>
       <div style="background: #f0fdf4; border-left: 4px solid #305858; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 24px 0;">
         <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600;">

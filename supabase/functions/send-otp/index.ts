@@ -82,9 +82,9 @@ serve(async (req) => {
       subject: 'Your IBMSSP Password Reset OTP',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #305858; margin: 0;">IBMSSP</h2>
-            <p style="color: #798382; font-size: 12px; margin: 5px 0;">Institute of Business Management Standards & Safety Professionals</p>
+          <div style="padding: 20px 0; border-bottom: 2px solid #305858;">
+            <h1 style="color: #305858; margin: 0; font-size: 24px;">IBMSSP</h1>
+            <p style="color: #798382; font-size: 12px; margin: 5px 0;">Institute of Business Management Systems Standards Practitioners</p>
           </div>
           <div style="background: #f8f9fa; border-radius: 8px; padding: 30px; text-align: center;">
             <h3 style="color: #1E1F1E; margin-top: 0;">Password Reset OTP</h3>

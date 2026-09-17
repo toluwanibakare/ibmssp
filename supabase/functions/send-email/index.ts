@@ -13,7 +13,7 @@ function emailWrapper(content: string) {
     <div style="font-family: 'Arial', sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
       <div style="background: #305858; padding: 28px 40px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 2px;">IBMSSP</h1>
-        <p style="color: #a8c5c5; font-size: 11px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 1px;">Institute of Business Management Standards & Safety Professionals</p>
+        <p style="color: #a8c5c5; font-size: 11px; margin: 6px 0 0; text-transform: uppercase; letter-spacing: 1px;">Institute of Business Management Systems Standards Practitioners</p>
       </div>
       <div style="padding: 40px;">
         ${content}

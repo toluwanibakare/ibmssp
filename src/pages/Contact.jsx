@@ -188,7 +188,7 @@ export default function Contact() {
             {[
               {
                 question: "What is IBMSSP?",
-                answer: "IBMSSP is the Institute of Business Management System Sustainability Standardization and Practitioners. We are dedicated to helping organizations adopt international quality standards, assess operational maturities, and build corporate resilience through systems alignment."
+                answer: "IBMSSP stands for the Institute of Business Management Systems Standards Practitioners. We are dedicated to helping organizations adopt international quality standards, assess operational maturities, and build corporate resilience through systems alignment."
               },
               {
                 question: "What are the membership categories available?",
